@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Follower graph next questions page</title>
+<meta name="task" content="Add next graph questions page">
+<meta name="date-started" content="2026-07-17">
+<meta name="date-updated" content="2026-07-17">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, algorithms, static-site">
+<meta name="related" content="2026-07-17-follower-algorithms-page.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Follower graph next questions page</h1>
+<p class="meta"><code>no-git</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-17 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ship a focused page that answers four analyses: bridges, surprising follows, communities, and interest travel.</div>
+  <b>Source</b><div><code>artifacts/curius.sqlite</code>: users, follows, links, saved links, highlights.</div>
+  <b>Surface</b><div><code>artifacts/follower_next_questions.html</code>.</div>
+  <b>Schema</b><div>No database changes.</div>
+  <b>Mobile</b><div>Single-column paper layout at <code>390px</code>.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>build_follower_site.py</code></td><td>touch</td><td>Generate the next-questions page.</td></tr>
+  <tr><td><code>artifacts/follower_next_questions.html</code></td><td>generated</td><td>New focused page.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document the new output.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Superseded by <code>D-002</code>. Initial roadmap-only page did not answer the user's questions.</td></tr>
+  <tr><td>D-002</td><td>Compute answers in the page. The user asked for walkthrough results, not another plan.</td></tr>
+  <tr><td>D-003</td><td>Use NetworkX when present for sampled betweenness and Louvain. Stdlib-only community detection would be less useful here.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Re-run or delete <code>artifacts/follower_next_questions.html</code>; SQLite remains read-only.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3 build_follower_site.py</code> writes <code>artifacts/follower_next_questions.html</code>.</li>
+  <li>Page includes computed bridge, link residual, community, and interest-domain answers.</li>
+  <li>Browser smoke verifies no <code>390px</code> horizontal overflow.</li>
+</ul>
+</body>
+</html>

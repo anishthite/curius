@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curius graph metrics</title>
+<style>
+
+  :root {
+    color-scheme: light;
+    --paper: #f7f0e4;
+    --sheet: #fffaf0;
+    --ink: #20170f;
+    --muted: #6f6254;
+    --rule: #d8c8b5;
+    --soft: #eadfce;
+    --red: #b74d2f;
+    --blue: #2f63b7;
+    --green: #247a4b;
+    --violet: #7047a8;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255,255,255,.58), transparent 28rem),
+      linear-gradient(90deg, rgba(88,54,20,.025) 1px, transparent 1px),
+      var(--paper);
+    background-size: auto, 18px 18px, auto;
+    color: var(--ink);
+    font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  a { color: var(--blue); text-decoration-thickness: .08em; text-underline-offset: .16em; }
+  button, input, select { font: inherit; color: inherit; }
+  code, pre { font-family: inherit; }
+  .page { width: min(1180px, 100%); margin: 0 auto; padding: 26px clamp(14px, 3vw, 34px) 42px; }
+  h1, h2, h3 { font-weight: 500; line-height: 1.1; letter-spacing: -.02em; }
+  h1 { font-size: clamp(2rem, 7vw, 4.7rem); margin: 0 0 .35em; }
+  h2 { font-size: clamp(1.45rem, 4vw, 2.4rem); margin: 2rem 0 .55rem; }
+  h3 { font-size: 1.22rem; margin: 1.2rem 0 .35rem; }
+  p { margin: .55rem 0; max-width: 72ch; }
+  .quiet { color: var(--muted); }
+  .nav { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin: 0 0 1.1rem; }
+  .nav a { color: var(--ink); }
+  .sheet {
+    background: rgba(255, 250, 240, .82);
+    border: 1px solid var(--rule);
+    border-radius: 18px;
+    box-shadow: 0 1px 0 rgba(60, 42, 20, .05);
+  }
+  .controls { display: grid; gap: .7rem; }
+  label { display: grid; gap: .25rem; color: var(--muted); }
+  input, select, button {
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: rgba(255, 252, 245, .96);
+    min-height: 44px;
+    padding: .48rem .78rem;
+  }
+  button { cursor: pointer; }
+  button:hover, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid rgba(47, 99, 183, .28); outline-offset: 2px; }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0 1.2rem; font-size: .95rem; }
+  th, td { border-bottom: 1px solid var(--rule); padding: .45rem .35rem; text-align: left; vertical-align: top; }
+  th { font-weight: 500; color: var(--muted); }
+  .math {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: .9rem 0;
+    padding: .7rem .85rem;
+    border-left: 3px solid var(--rule);
+    background: rgba(255, 252, 245, .78);
+    font-size: clamp(1.08rem, 3vw, 1.35rem);
+    white-space: nowrap;
+  }
+  .frac { display: inline-grid; grid-template-rows: auto auto; vertical-align: middle; text-align: center; line-height: 1.05; }
+  .frac > span:first-child { border-bottom: 1px solid currentColor; padding: 0 .14em .05em; }
+  .frac > span:last-child { padding: .06em .14em 0; }
+  .term, .glossary button {
+    border-radius: .25rem;
+    cursor: pointer;
+    padding: 0 .08em;
+  }
+  .term:hover, .term:focus-visible, .glossary button:hover, .glossary button:focus-visible { background: rgba(47, 99, 183, .12); outline: none; }
+  .cite { white-space: nowrap; }
+  .definition-card {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    width: min(620px, calc(100vw - 22px));
+    padding: .85rem 1rem;
+    z-index: 20;
+    display: none;
+  }
+  .definition-card[open] { display: block; }
+  .definition-card button { float: right; min-height: 34px; padding: .2rem .65rem; }
+  @media (max-width: 760px) {
+    body { font-size: 16px; }
+    .page { padding-left: 12px; padding-right: 12px; }
+    table { font-size: .9rem; }
+  }
+
+  .article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 2rem; align-items: start; }
+  .side { position: sticky; top: 14px; display: grid; gap: 1rem; }
+  .model, .glossary, .numbers { padding: 1rem; }
+  .model svg { width: 100%; height: auto; display: block; margin-top: .7rem; }
+  .model-controls { display: grid; gap: .7rem; }
+  .model-controls input { width: 100%; }
+  .metric-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 1rem 0; }
+  .metric { padding: .85rem; border-top: 1px solid var(--rule); background: rgba(255,250,240,.58); }
+  .metric b { display: block; font-size: 1.55rem; font-weight: 500; }
+  .metric span { color: var(--muted); }
+  .glossary ul, .references { list-style: none; padding: 0; margin: .5rem 0 0; }
+  .glossary li, .references li { margin: .45rem 0; }
+  .glossary button { border: 0; background: transparent; min-height: 0; padding: .05rem .12rem; color: var(--blue); }
+  .rank-table td:first-child { width: 2rem; color: var(--muted); }
+  .diagram-note { color: var(--muted); min-height: 3.2em; }
+  .node-label { font-size: 15px; fill: var(--ink); }
+  .edge { stroke: #8d7d68; stroke-width: 1.8; fill: none; }
+  .edge.active { stroke: var(--red); stroke-width: 3; }
+  .toy-node { stroke: #fffaf0; stroke-width: 3; }
+  .toy-node.active { stroke: var(--ink); stroke-width: 3; }
+  [hidden] { display: none !important; }
+  @media (max-width: 900px) {
+    .article { display: flex; flex-direction: column; }
+    .article > main { order: 0; }
+    .side { display: contents; }
+    .model { order: -1; }
+    .numbers, .glossary { order: 1; }
+    .metric-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <nav class="nav"><a href="curius_frontpage.html">Curius front page</a><a href="follower_graph.html">Explore the graph</a><a href="follower_algorithms.html">Go deeper on algorithms</a><a href="follower_next_questions.html">Next questions</a></nav>
+  <h1>How to read this follower graph</h1>
+  <div class="article">
+    <main>
+      <p>Start with one edge: <span class="term" data-term="edge" tabindex="0">u → v</span> means person <span class="term" data-term="u" tabindex="0">u</span> follows person <span class="term" data-term="v" tabindex="0">v</span>. Stack those edges into an adjacency matrix <span class="term" data-term="A" tabindex="0">A</span>, where <span class="term" data-term="Auv" tabindex="0">A<sub>uv</sub></span> is 1 when the edge exists. This is the usual way to measure a directed network <a class="cite" href="https://doi.org/10.1137/S003614450342480" target="_blank" rel="noreferrer" title="Reviews graph measurements such as degree, components, and clustering.">Newman 2003</a>.</p>
+
+      <h2>First count the arrows</h2>
+      <p>Degree is the smallest useful summary. Incoming degree counts followers. Outgoing degree counts people followed.</p>
+      <div class="math"><span class="term" data-term="din" tabindex="0">d<sup>in</sup>(v)</span> = <span class="term" data-term="sum" tabindex="0">∑<sub>u</sub></span> <span class="term" data-term="Auv" tabindex="0">A<sub>uv</sub></span><span aria-hidden="true">,&nbsp;&nbsp;</span><span class="term" data-term="dout" tabindex="0">d<sup>out</sup>(v)</span> = <span class="term" data-term="sum" tabindex="0">∑<sub>w</sub></span> <span class="term" data-term="Avw" tabindex="0">A<sub>vw</sub></span></div>
+      <p>In this scrape, the average person has <b>3.26</b> observed followers and follows <b>3.26</b> people. The graph is sparse: <b>0.051%</b> of all possible directed pairs without self-follows are present.</p>
+      <div class="math"><span class="term" data-term="density" tabindex="0">ρ</span> = <span class="frac"><span><span class="term" data-term="m" tabindex="0">m</span></span><span><span class="term" data-term="n" tabindex="0">n</span>(<span class="term" data-term="n" tabindex="0">n</span> − 1)</span></span></div>
+
+      <div class="metric-list">
+        <div class="metric"><b>6,372</b><span>people in the stored user table</span></div>
+        <div class="metric"><b>20,745</b><span>directed follow edges</span></div>
+        <div class="metric"><b>46.0%</b><span>of directed edges are returned by the opposite edge</span></div>
+        <div class="metric"><b>48.6%</b><span>of people sit in the largest weak component</span></div>
+      </div>
+
+      <h2>Then ask whether arrows come back</h2>
+      <p>Reciprocity checks whether following is mutual. Count an edge <span class="term" data-term="edge" tabindex="0">u → v</span> as reciprocated when <span class="term" data-term="v" tabindex="0">v</span> also follows <span class="term" data-term="u" tabindex="0">u</span>.</p>
+      <div class="math"><span class="term" data-term="reciprocity" tabindex="0">r</span> = <span class="frac"><span>|{(<span class="term" data-term="u" tabindex="0">u</span>,<span class="term" data-term="v" tabindex="0">v</span>) : <span class="term" data-term="Auv" tabindex="0">A<sub>uv</sub></span> = <span class="term" data-term="Avu" tabindex="0">A<sub>vu</sub></span> = 1}|</span><span><span class="term" data-term="m" tabindex="0">m</span></span></span></div>
+      <p>Here, <b>9,546</b> directed edges are reciprocated. That is <b>46.0%</b> of the edge list.</p>
+
+      <h2>Components say whether direction matters</h2>
+      <p>A weak component ignores arrow direction. A strong component keeps direction and requires a directed path both ways. The strong-component computation is a direct graph traversal problem; Tarjan gives a linear-time version <a class="cite" href="https://doi.org/10.1137/0201010" target="_blank" rel="noreferrer" title="Gives a linear-time algorithm for strongly connected components.">Tarjan 1972</a>.</p>
+      <table>
+        <tr><th>component measure</th><th>value in this scrape</th><th>what it says</th></tr>
+        <tr><td>weak components</td><td>3,197</td><td>How many islands remain if follows are treated as undirected ties.</td></tr>
+        <tr><td>largest weak component</td><td>3,099 people</td><td>The main island visible at the center of the graph page.</td></tr>
+        <tr><td>strong components</td><td>4,426</td><td>How many groups have directed paths both ways.</td></tr>
+        <tr><td>largest strong component</td><td>1,806 people</td><td>The largest directed group where a walk can return.</td></tr>
+      </table>
+
+      <h2>Ranking adds one walking reader</h2>
+      <p>PageRank imagines a reader who usually follows an outgoing edge and sometimes jumps anywhere. A person scores high when other high-scoring people follow them. People with no outgoing follows are treated as jumps in the generated numbers. The original paper defines the recursive score for web links <a class="cite" href="http://ilpubs.stanford.edu:8090/422/1/1999-66.pdf" target="_blank" rel="noreferrer" title="Defines PageRank as a recursive score passed through links.">Page, Brin, Motwani, and Winograd 1999</a>.</p>
+      <div class="math"><span class="term" data-term="pr" tabindex="0">p(v)</span> = <span class="frac"><span>1 − <span class="term" data-term="alpha" tabindex="0">α</span></span><span><span class="term" data-term="n" tabindex="0">n</span></span></span> + <span class="term" data-term="alpha" tabindex="0">α</span> <span class="term" data-term="sum" tabindex="0">∑<sub>u→v</sub></span> <span class="frac"><span><span class="term" data-term="pru" tabindex="0">p(u)</span></span><span><span class="term" data-term="dout" tabindex="0">d<sup>out</sup>(u)</span></span></span></div>
+      <table class="rank-table">
+        <tr><th></th><th>highest PageRank</th><th>followers</th><th>following</th><th>PageRank</th></tr>
+        <tr><td>1</td><td><a href="https://curius.app/users/anson-yu" target="_blank" rel="noreferrer">Anson Yu</a><br><span class="quiet">anson-yu</span></td><td>635</td><td>101</td><td>1.833e-02</td></tr>
+        <tr><td>2</td><td><a href="https://curius.app/users/marley-xiong" target="_blank" rel="noreferrer">Marley Xiong</a><br><span class="quiet">marley-xiong</span></td><td>415</td><td>93</td><td>1.568e-02</td></tr>
+        <tr><td>3</td><td><a href="https://curius.app/users/vincent-huang" target="_blank" rel="noreferrer">Vincent Huang</a><br><span class="quiet">vincent-huang</span></td><td>450</td><td>122</td><td>1.374e-02</td></tr>
+        <tr><td>4</td><td><a href="https://curius.app/users/jacky-zhao" target="_blank" rel="noreferrer">Jacky Zhao</a><br><span class="quiet">jacky-zhao</span></td><td>327</td><td>57</td><td>1.183e-02</td></tr>
+        <tr><td>5</td><td><a href="https://curius.app/users/raffi-hotter" target="_blank" rel="noreferrer">Raffi Hotter</a><br><span class="quiet">raffi-hotter</span></td><td>294</td><td>156</td><td>1.169e-02</td></tr>
+        <tr><td>6</td><td><a href="https://curius.app/users/anna-brandenberger" target="_blank" rel="noreferrer">Anna Brandenberger</a><br><span class="quiet">anna-brandenberger</span></td><td>225</td><td>86</td><td>8.798e-03</td></tr>
+        <tr><td>7</td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>243</td><td>49</td><td>7.457e-03</td></tr>
+        <tr><td>8</td><td><a href="https://curius.app/users/amir" target="_blank" rel="noreferrer">Amir</a><br><span class="quiet">amir</span></td><td>269</td><td>63</td><td>7.362e-03</td></tr>
+        <tr><td>9</td><td><a href="https://curius.app/users/claire-wang" target="_blank" rel="noreferrer">Claire Wang</a><br><span class="quiet">claire-wang</span></td><td>284</td><td>229</td><td>7.116e-03</td></tr>
+        <tr><td>10</td><td><a href="https://curius.app/users/liam-hinzman" target="_blank" rel="noreferrer">Liam Hinzman</a><br><span class="quiet">liam-hinzman</span></td><td>158</td><td>62</td><td>7.023e-03</td></tr>
+        <tr><td>11</td><td><a href="https://curius.app/users/noah-t" target="_blank" rel="noreferrer">Noah T</a><br><span class="quiet">noah-t</span></td><td>128</td><td>59</td><td>6.983e-03</td></tr>
+        <tr><td>12</td><td><a href="https://curius.app/users/alicia-guo" target="_blank" rel="noreferrer">Alicia Guo</a><br><span class="quiet">alicia-guo</span></td><td>193</td><td>57</td><td>6.540e-03</td></tr>
+      </table>
+
+      <h2>Local closure asks whether neighbors know each other</h2>
+      <p>Clustering uses the undirected projection of the follower graph: ignore arrow direction, keep each tie once, and ask how many possible neighbor-neighbor ties are present. Watts and Strogatz use clustering with path length to describe small-world structure <a class="cite" href="https://doi.org/10.1038/30918" target="_blank" rel="noreferrer" title="Uses clustering and path length to describe small-world networks.">Watts and Strogatz 1998</a>.</p>
+      <div class="math"><span class="term" data-term="clustering" tabindex="0">C<sub>v</sub></span> = <span class="frac"><span>2<span class="term" data-term="ev" tabindex="0">e<sub>v</sub></span></span><span><span class="term" data-term="kv" tabindex="0">k<sub>v</sub></span>(<span class="term" data-term="kv" tabindex="0">k<sub>v</sub></span> − 1)</span></span></div>
+      <p>The mean local clustering among people with at least two undirected neighbors is <b>0.608</b>. The transitivity ratio across all centered triples is <b>0.124</b>.</p>
+
+      <h2>The dense middle is a core</h2>
+      <p>A k-core peels away people with fewer than k neighbors in the undirected projection, then repeats. The largest k that keeps a person is that person's core number. A linear-time peeling algorithm is described by Batagelj and Zaversnik <a class="cite" href="https://arxiv.org/abs/cs/0310049" target="_blank" rel="noreferrer" title="Describes fast core decomposition by repeatedly removing low-degree nodes.">2003</a>.</p>
+      <table class="rank-table">
+        <tr><th></th><th>highest follower counts</th><th>followers</th><th>following</th><th>core</th></tr>
+        <tr><td>1</td><td><a href="https://curius.app/users/anson-yu" target="_blank" rel="noreferrer">Anson Yu</a><br><span class="quiet">anson-yu</span></td><td>635</td><td>101</td><td>27</td></tr>
+        <tr><td>2</td><td><a href="https://curius.app/users/vincent-huang" target="_blank" rel="noreferrer">Vincent Huang</a><br><span class="quiet">vincent-huang</span></td><td>450</td><td>122</td><td>27</td></tr>
+        <tr><td>3</td><td><a href="https://curius.app/users/marley-xiong" target="_blank" rel="noreferrer">Marley Xiong</a><br><span class="quiet">marley-xiong</span></td><td>415</td><td>93</td><td>27</td></tr>
+        <tr><td>4</td><td><a href="https://curius.app/users/jacky-zhao" target="_blank" rel="noreferrer">Jacky Zhao</a><br><span class="quiet">jacky-zhao</span></td><td>327</td><td>57</td><td>27</td></tr>
+        <tr><td>5</td><td><a href="https://curius.app/users/raffi-hotter" target="_blank" rel="noreferrer">Raffi Hotter</a><br><span class="quiet">raffi-hotter</span></td><td>294</td><td>156</td><td>27</td></tr>
+        <tr><td>6</td><td><a href="https://curius.app/users/claire-wang" target="_blank" rel="noreferrer">Claire Wang</a><br><span class="quiet">claire-wang</span></td><td>284</td><td>229</td><td>27</td></tr>
+        <tr><td>7</td><td><a href="https://curius.app/users/amir" target="_blank" rel="noreferrer">Amir</a><br><span class="quiet">amir</span></td><td>269</td><td>63</td><td>27</td></tr>
+        <tr><td>8</td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>243</td><td>49</td><td>27</td></tr>
+        <tr><td>9</td><td><a href="https://curius.app/users/anna-brandenberger" target="_blank" rel="noreferrer">Anna Brandenberger</a><br><span class="quiet">anna-brandenberger</span></td><td>225</td><td>86</td><td>27</td></tr>
+        <tr><td>10</td><td><a href="https://curius.app/users/alicia-guo" target="_blank" rel="noreferrer">Alicia Guo</a><br><span class="quiet">alicia-guo</span></td><td>193</td><td>57</td><td>27</td></tr>
+        <tr><td>11</td><td><a href="https://curius.app/users/hudzah" target="_blank" rel="noreferrer">HudZah</a><br><span class="quiet">hudzah</span></td><td>167</td><td>53</td><td>27</td></tr>
+        <tr><td>12</td><td><a href="https://curius.app/users/liam-hinzman" target="_blank" rel="noreferrer">Liam Hinzman</a><br><span class="quiet">liam-hinzman</span></td><td>158</td><td>62</td><td>27</td></tr>
+      </table>
+      <p>The maximum core number is <b>27</b>. <b>73</b> people sit in that innermost shell.</p>
+
+      <h2>References</h2>
+      <ol class="references">
+        <li>Newman, M. E. J. “The Structure and Function of Complex Networks.” Reviews degree, components, and clustering.</li>
+        <li>Tarjan, R. E. “Depth-First Search and Linear Graph Algorithms.” Gives strong-component traversal.</li>
+        <li>Page, L., Brin, S., Motwani, R., Winograd, T. “The PageRank Citation Ranking.” Defines recursive link ranking.</li>
+        <li>Watts, D. J., Strogatz, S. H. “Collective dynamics of small-world networks.” Uses clustering with path length.</li>
+        <li>Batagelj, V., Zaversnik, M. “An O(m) Algorithm for Cores Decomposition of Networks.” Gives core peeling.</li>
+      </ol>
+    </main>
+    <aside class="side">
+      <section class="model sheet">
+        <h2>Small model</h2>
+        <p>Use the same definitions on six people. The diagram changes only the marks needed for the selected metric.</p>
+        <div class="model-controls">
+          <label>Show on diagram <select id="toy-mode"><option value="degree">degree</option><option value="reciprocity">reciprocity</option><option value="components">components</option><option value="pagerank">PageRank</option><option value="clustering">clustering</option></select></label>
+          <label id="alpha-control" hidden>PageRank α <input id="alpha" type="range" min="0" max="0.95" step="0.01" value="0.85"></label>
+        </div>
+        <svg id="toy" viewBox="0 0 330 250" role="img" aria-label="Small directed graph model"></svg>
+        <p id="toy-note" class="diagram-note"></p>
+      </section>
+      <section class="numbers sheet">
+        <h2>Actual graph in one breath</h2>
+        <p><b>6,372</b> people, <b>20,745</b> follows, <b>3,197</b> weak components, and a largest weak component containing <b>3,099</b> people.</p>
+      </section>
+      <section class="glossary sheet">
+        <h2>Glossary</h2>
+        <ul id="glossary"></ul>
+      </section>
+    </aside>
+  </div>
+</div>
+<section id="definition-card" class="definition-card sheet" aria-live="polite"><button id="close-def" type="button">Close</button><h3 id="def-title"></h3><p id="def-body"></p></section>
+<script id="metrics-data" type="application/json">{"metrics":{"generatedAt":"2026-07-21T00:24:51+00:00","counts":{"nodes":6372,"edges":20745},"density":0.000511010785985579,"averageIn":3.255649717514124,"averageOut":3.255649717514124,"reciprocalEdges":9546,"reciprocalPairs":4773,"reciprocity":0.4601590744757773,"weakComponents":3197,"weakSizes":[3099,6,6,5,4,4,4,3,3,3,3,3,3,3,2,2,2,2,2,2],"largestWeak":3099,"strongComponents":4426,"strongSizes":[1806,14,6,6,5,5,5,5,4,4,4,4,3,3,3,3,3,3,3,3],"largestStrong":1806,"meanClustering":0.6076219633970855,"transitivity":0.12386527924036625,"clusterPeople":2197,"maxCore":27,"maxCoreCount":73,"pathStats":{"pairs":4800351,"average":3.349417782158013,"diameter":9,"p90":4,"counts":{"1":15878,"2":665817,"3":2234650,"4":1455838,"5":370972,"6":51943,"7":4978,"8":272,"9":3}},"bowTie":{"scc":1806,"in":1006,"out":268,"tendrils":3292},"schoolHomophily":{"knownEdges":20556,"sameSchoolEdges":20556,"sameShare":1.0,"expectedShare":1.0},"topFollowers":[{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"rank":0.0183258015,"authority":0.3387712176,"hub":0.1106518302},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"rank":0.0137365961,"authority":0.2587436323,"hub":0.1207632363},{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27,"rank":0.0156822932,"authority":0.2364184419,"hub":0.0593661006},{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27,"rank":0.0118312213,"authority":0.2045129756,"hub":0.0767901174},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"rank":0.011689076,"authority":0.2015452969,"hub":0.1156320682},{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"rank":0.0071158522,"authority":0.1964502182,"hub":0.1806155389},{"slug":"amir","name":"Amir","followers":269,"following":63,"core":27,"rank":0.0073622059,"authority":0.1719761604,"hub":0.0855033583},{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27,"rank":0.0074572462,"authority":0.1803735377,"hub":0.0649419007},{"slug":"anna-brandenberger","name":"Anna Brandenberger","followers":225,"following":86,"core":27,"rank":0.0087978025,"authority":0.1538373874,"hub":0.1000658578},{"slug":"alicia-guo","name":"Alicia Guo","followers":193,"following":57,"core":27,"rank":0.0065402152,"authority":0.158051784,"hub":0.0842477946},{"slug":"hudzah","name":"HudZah","followers":167,"following":53,"core":27,"rank":0.0034637845,"authority":0.1390235162,"hub":0.0757996458},{"slug":"liam-hinzman","name":"Liam Hinzman","followers":158,"following":62,"core":27,"rank":0.0070233183,"authority":0.1335295211,"hub":0.0593298725}],"topFollowing":[{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27,"rank":0.0021811175,"authority":0.0549524214,"hub":0.1103472368},{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"rank":0.0071158522,"authority":0.1964502182,"hub":0.1806155389},{"slug":"yudhister-joel-kumar","name":"Yudhister Joel Kumar","followers":128,"following":206,"core":27,"rank":0.0029340451,"authority":0.0900238082,"hub":0.1719505085},{"slug":"yueh han-huang","name":"Yueh Han Huang","followers":135,"following":184,"core":27,"rank":0.0045168178,"authority":0.0589599043,"hub":0.107838438},{"slug":"agniv-sarkar","name":"agniv sarkar","followers":124,"following":166,"core":27,"rank":0.0023186624,"authority":0.0839436359,"hub":0.1351070156},{"slug":"sahil-patel","name":"Sahil Patel","followers":17,"following":157,"core":27,"rank":0.0004571868,"authority":0.0121928264,"hub":0.1546546583},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"rank":0.011689076,"authority":0.2015452969,"hub":0.1156320682},{"slug":"aryan-naik","name":"Aryan Naik","followers":88,"following":152,"core":27,"rank":0.0014444949,"authority":0.0568562261,"hub":0.1632552653},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"rank":0.0137365961,"authority":0.2587436323,"hub":0.1207632363},{"slug":"elizabeth-qiu","name":"Elizabeth Qiu","followers":78,"following":105,"core":27,"rank":0.0017558013,"authority":0.074411184,"hub":0.113082113},{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"rank":0.0183258015,"authority":0.3387712176,"hub":0.1106518302},{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27,"rank":0.0156822932,"authority":0.2364184419,"hub":0.0593661006}],"topPageRank":[{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"rank":0.0183258015,"authority":0.3387712176,"hub":0.1106518302},{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27,"rank":0.0156822932,"authority":0.2364184419,"hub":0.0593661006},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"rank":0.0137365961,"authority":0.2587436323,"hub":0.1207632363},{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27,"rank":0.0118312213,"authority":0.2045129756,"hub":0.0767901174},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"rank":0.011689076,"authority":0.2015452969,"hub":0.1156320682},{"slug":"anna-brandenberger","name":"Anna Brandenberger","followers":225,"following":86,"core":27,"rank":0.0087978025,"authority":0.1538373874,"hub":0.1000658578},{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27,"rank":0.0074572462,"authority":0.1803735377,"hub":0.0649419007},{"slug":"amir","name":"Amir","followers":269,"following":63,"core":27,"rank":0.0073622059,"authority":0.1719761604,"hub":0.0855033583},{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"rank":0.0071158522,"authority":0.1964502182,"hub":0.1806155389},{"slug":"liam-hinzman","name":"Liam Hinzman","followers":158,"following":62,"core":27,"rank":0.0070233183,"authority":0.1335295211,"hub":0.0593298725},{"slug":"noah-t","name":"Noah T","followers":128,"following":59,"core":27,"rank":0.0069831774,"authority":0.0811149231,"hub":0.0439395114},{"slug":"alicia-guo","name":"Alicia Guo","followers":193,"following":57,"core":27,"rank":0.0065402152,"authority":0.158051784,"hub":0.0842477946}],"topCore":[{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"rank":0.0183258015,"authority":0.3387712176,"hub":0.1106518302},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"rank":0.0137365961,"authority":0.2587436323,"hub":0.1207632363},{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27,"rank":0.0156822932,"authority":0.2364184419,"hub":0.0593661006},{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27,"rank":0.0118312213,"authority":0.2045129756,"hub":0.0767901174},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"rank":0.011689076,"authority":0.2015452969,"hub":0.1156320682},{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"rank":0.0071158522,"authority":0.1964502182,"hub":0.1806155389},{"slug":"amir","name":"Amir","followers":269,"following":63,"core":27,"rank":0.0073622059,"authority":0.1719761604,"hub":0.0855033583},{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27,"rank":0.0074572462,"authority":0.1803735377,"hub":0.0649419007},{"slug":"anna-brandenberger","name":"Anna Brandenberger","followers":225,"following":86,"core":27,"rank":0.0087978025,"authority":0.1538373874,"hub":0.1000658578},{"slug":"alicia-guo","name":"Alicia Guo","followers":193,"following":57,"core":27,"rank":0.0065402152,"authority":0.158051784,"hub":0.0842477946},{"slug":"hudzah","name":"HudZah","followers":167,"following":53,"core":27,"rank":0.0034637845,"authority":0.1390235162,"hub":0.0757996458},{"slug":"liam-hinzman","name":"Liam Hinzman","followers":158,"following":62,"core":27,"rank":0.0070233183,"authority":0.1335295211,"hub":0.0593298725}],"topAuthorities":[{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"rank":0.0183258015,"authority":0.3387712176,"hub":0.1106518302},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"rank":0.0137365961,"authority":0.2587436323,"hub":0.1207632363},{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27,"rank":0.0156822932,"authority":0.2364184419,"hub":0.0593661006},{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27,"rank":0.0118312213,"authority":0.2045129756,"hub":0.0767901174},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"rank":0.011689076,"authority":0.2015452969,"hub":0.1156320682},{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"rank":0.0071158522,"authority":0.1964502182,"hub":0.1806155389},{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27,"rank":0.0074572462,"authority":0.1803735377,"hub":0.0649419007},{"slug":"amir","name":"Amir","followers":269,"following":63,"core":27,"rank":0.0073622059,"authority":0.1719761604,"hub":0.0855033583},{"slug":"alicia-guo","name":"Alicia Guo","followers":193,"following":57,"core":27,"rank":0.0065402152,"authority":0.158051784,"hub":0.0842477946},{"slug":"anna-brandenberger","name":"Anna Brandenberger","followers":225,"following":86,"core":27,"rank":0.0087978025,"authority":0.1538373874,"hub":0.1000658578},{"slug":"hudzah","name":"HudZah","followers":167,"following":53,"core":27,"rank":0.0034637845,"authority":0.1390235162,"hub":0.0757996458},{"slug":"liam-hinzman","name":"Liam Hinzman","followers":158,"following":62,"core":27,"rank":0.0070233183,"authority":0.1335295211,"hub":0.0593298725}],"topHubs":[{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"rank":0.0071158522,"authority":0.1964502182,"hub":0.1806155389},{"slug":"yudhister-joel-kumar","name":"Yudhister Joel Kumar","followers":128,"following":206,"core":27,"rank":0.0029340451,"authority":0.0900238082,"hub":0.1719505085},{"slug":"aryan-naik","name":"Aryan Naik","followers":88,"following":152,"core":27,"rank":0.0014444949,"authority":0.0568562261,"hub":0.1632552653},{"slug":"sahil-patel","name":"Sahil Patel","followers":17,"following":157,"core":27,"rank":0.0004571868,"authority":0.0121928264,"hub":0.1546546583},{"slug":"agniv-sarkar","name":"agniv sarkar","followers":124,"following":166,"core":27,"rank":0.0023186624,"authority":0.0839436359,"hub":0.1351070156},{"slug":"benedict-neo","name":"Benedict Neo","followers":39,"following":93,"core":27,"rank":0.0008122857,"authority":0.0264118454,"hub":0.1227113524},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"rank":0.0137365961,"authority":0.2587436323,"hub":0.1207632363},{"slug":"aaron-pham","name":"Aaron Pham","followers":38,"following":77,"core":27,"rank":0.0005920609,"authority":0.042597607,"hub":0.1173481068},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"rank":0.011689076,"authority":0.2015452969,"hub":0.1156320682},{"slug":"elizabeth-qiu","name":"Elizabeth Qiu","followers":78,"following":105,"core":27,"rank":0.0017558013,"authority":0.074411184,"hub":0.113082113},{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"rank":0.0183258015,"authority":0.3387712176,"hub":0.1106518302},{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27,"rank":0.0021811175,"authority":0.0549524214,"hub":0.1103472368}],"nextAnalyses":{"bridges":[{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27,"score":0.20457526662369166,"sample":256},{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27,"score":0.10123683278899014,"sample":256},{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27,"score":0.08758059104628596,"sample":256},{"slug":"yueh han-huang","name":"Yueh Han Huang","followers":135,"following":184,"core":27,"score":0.08633197151860611,"sample":256},{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27,"score":0.06309898789469882,"sample":256},{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27,"score":0.0605528261284917,"sample":256},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27,"score":0.05704325610520527,"sample":256},{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27,"score":0.051382880598408134,"sample":256},{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27,"score":0.044878578041083396,"sample":256},{"slug":"anna-brandenberger","name":"Anna Brandenberger","followers":225,"following":86,"core":27,"score":0.04078933181867985,"sample":256}],"missingFollows":[{"source":{"slug":"yudhister-joel-kumar","name":"Yudhister Joel Kumar","followers":128,"following":206,"core":27},"target":{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27},"score":70,"targetFollowers":327},{"source":{"slug":"yudhister-joel-kumar","name":"Yudhister Joel Kumar","followers":128,"following":206,"core":27},"target":{"slug":"lydia-nottingham","name":"Lydia Nottingham","followers":131,"following":79,"core":24},"score":56,"targetFollowers":131},{"source":{"slug":"agniv-sarkar","name":"agniv sarkar","followers":124,"following":166,"core":27},"target":{"slug":"lydia-nottingham","name":"Lydia Nottingham","followers":131,"following":79,"core":24},"score":56,"targetFollowers":131},{"source":{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27},"target":{"slug":"aadil-a.","name":"Aadil A.","followers":132,"following":35,"core":27},"score":49,"targetFollowers":132},{"source":{"slug":"lydia-nottingham","name":"Lydia Nottingham","followers":131,"following":79,"core":24},"target":{"slug":"yudhister-joel-kumar","name":"Yudhister Joel Kumar","followers":128,"following":206,"core":27},"score":44,"targetFollowers":128},{"source":{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27},"target":{"slug":"alicia-guo","name":"Alicia Guo","followers":193,"following":57,"core":27},"score":43,"targetFollowers":193},{"source":{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27},"target":{"slug":"hudzah","name":"HudZah","followers":167,"following":53,"core":27},"score":43,"targetFollowers":167},{"source":{"slug":"kelly-chong","name":"Kelly Chong","followers":91,"following":60,"core":27},"target":{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27},"score":39,"targetFollowers":243},{"source":{"slug":"sahil-patel","name":"Sahil Patel","followers":17,"following":157,"core":27},"target":{"slug":"arielle-lok","name":"Arielle Lok","followers":120,"following":51,"core":27},"score":39,"targetFollowers":120},{"source":{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27},"target":{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27},"score":38,"targetFollowers":635}],"surprisingFollows":[{"source":{"slug":"yeji-ma","name":"Yeji Ma","followers":14,"following":20,"core":12},"target":{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27},"support":0,"salience":18.606499442529778,"sourceFollowing":20,"targetFollowers":450},{"source":{"slug":"eshaan-moorjani","name":"Eshaan Moorjani","followers":30,"following":29,"core":12},"target":{"slug":"noah-t","name":"Noah T","followers":128,"following":59,"core":27},"support":0,"salience":16.529181225084184,"sourceFollowing":29,"targetFollowers":128},{"source":{"slug":"athena-leong","name":"Athena Leong","followers":55,"following":38,"core":27},"target":{"slug":"hardeep-gambhir","name":"Hardeep Gambhir","followers":90,"following":40,"core":27},"support":0,"salience":16.525811879154436,"sourceFollowing":38,"targetFollowers":90},{"source":{"slug":"huong-truong","name":"huong truong","followers":12,"following":14,"core":10},"target":{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27},"support":0,"salience":14.886607517997936,"sourceFollowing":14,"targetFollowers":243},{"source":{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27},"target":{"slug":"michael-dawes","name":"Michael Dawes","followers":22,"following":27,"core":12},"support":0,"salience":14.501575504882398,"sourceFollowing":101,"targetFollowers":22},{"source":{"slug":"matthew-siu","name":"Matthew Siu","followers":52,"following":23,"core":27},"target":{"slug":"aryan-naik","name":"Aryan Naik","followers":88,"following":152,"core":27},"support":0,"salience":14.265128007866325,"sourceFollowing":23,"targetFollowers":88},{"source":{"slug":"noah-t","name":"Noah T","followers":128,"following":59,"core":27},"target":{"slug":"davis-brown","name":"Davis Brown","followers":27,"following":20,"core":19},"support":0,"salience":13.643193416447803,"sourceFollowing":59,"targetFollowers":27},{"source":{"slug":"van-hoang","name":"Van Hoang","followers":12,"following":10,"core":9},"target":{"slug":"amir","name":"Amir","followers":269,"following":63,"core":27},"support":0,"salience":13.424429550612798,"sourceFollowing":10,"targetFollowers":269},{"source":{"slug":"c-li51","name":"C LI","followers":12,"following":17,"core":8},"target":{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27},"support":0,"salience":13.396089773081604,"sourceFollowing":17,"targetFollowers":102},{"source":{"slug":"huong-truong","name":"huong truong","followers":12,"following":14,"core":10},"target":{"slug":"noah-t","name":"Noah T","followers":128,"following":59,"core":27},"support":0,"salience":13.160615958950642,"sourceFollowing":14,"targetFollowers":128}],"communities":[{"index":1,"size":578,"schools":[["McGill University",578]],"domains":[["en.wikipedia.org",4419],["arxiv.org",2961],["lesswrong.com",2887],["youtube.com",2237],["substack.com",760]],"people":[{"slug":"claire-wang","name":"Claire Wang","followers":284,"following":229,"core":27},{"slug":"yudhister-joel-kumar","name":"Yudhister Joel Kumar","followers":128,"following":206,"core":27},{"slug":"kiss","name":"Daniel Kiss","followers":102,"following":243,"core":27},{"slug":"agniv-sarkar","name":"agniv sarkar","followers":124,"following":166,"core":27},{"slug":"lydia-nottingham","name":"Lydia Nottingham","followers":131,"following":79,"core":24}]},{"index":2,"size":566,"schools":[["McGill University",566]],"domains":[["en.wikipedia.org",3117],["youtube.com",2091],["x.com",823],["github.com",635],["arxiv.org",592]],"people":[{"slug":"anson-yu","name":"Anson Yu","followers":635,"following":101,"core":27},{"slug":"jaclyn","name":"Jaclyn","followers":243,"following":49,"core":27},{"slug":"aryan-naik","name":"Aryan Naik","followers":88,"following":152,"core":27},{"slug":"hudzah","name":"HudZah","followers":167,"following":53,"core":27},{"slug":"aadil-a.","name":"Aadil A.","followers":132,"following":35,"core":27}]},{"index":3,"size":433,"schools":[["McGill University",433]],"domains":[["en.wikipedia.org",1350],["arxiv.org",1043],["youtube.com",735],["medium.com",452],["lesswrong.com",380]],"people":[{"slug":"vincent-huang","name":"Vincent Huang","followers":450,"following":122,"core":27},{"slug":"amir","name":"Amir","followers":269,"following":63,"core":27},{"slug":"sahil-patel","name":"Sahil Patel","followers":17,"following":157,"core":27},{"slug":"emma-guo","name":"Emma Guo","followers":103,"following":73,"core":25},{"slug":"varun-shenoy","name":"Varun Shenoy","followers":102,"following":36,"core":25}]},{"index":4,"size":409,"schools":[["McGill University",407]],"domains":[["youtube.com",738],["en.wikipedia.org",734],["arxiv.org",571],["nature.com",393],["medium.com",235]],"people":[{"slug":"marley-xiong","name":"Marley Xiong","followers":415,"following":93,"core":27},{"slug":"raffi-hotter","name":"Raffi Hotter","followers":294,"following":156,"core":27},{"slug":"anna-brandenberger","name":"Anna Brandenberger","followers":225,"following":86,"core":27},{"slug":"liam-hinzman","name":"Liam Hinzman","followers":158,"following":62,"core":27},{"slug":"noah-t","name":"Noah T","followers":128,"following":59,"core":27}]},{"index":5,"size":395,"schools":[["McGill University",395]],"domains":[["youtube.com",633],["medium.com",585],["github.com",340],["en.wikipedia.org",298],["paulgraham.com",226]],"people":[{"slug":"yueh han-huang","name":"Yueh Han Huang","followers":135,"following":184,"core":27},{"slug":"nguyen-tung","name":"Nguyen Tung","followers":108,"following":13,"core":10},{"slug":"svitlana-midianko2","name":"Svitlana Midianko","followers":88,"following":69,"core":26},{"slug":"phuong-do","name":"Phuong Do","followers":82,"following":20,"core":12},{"slug":"vg-studio","name":"VG Studio","followers":8,"following":60,"core":27}]},{"index":6,"size":349,"schools":[["McGill University",349]],"domains":[["en.wikipedia.org",1541],["youtube.com",563],["nytimes.com",430],["github.com",422],["medium.com",414]],"people":[{"slug":"jacky-zhao","name":"Jacky Zhao","followers":327,"following":57,"core":27},{"slug":"alicia-guo","name":"Alicia Guo","followers":193,"following":57,"core":27},{"slug":"katherine-huang","name":"Katherine Huang","followers":137,"following":38,"core":27},{"slug":"wendi-yan","name":"Wendi Yan","followers":123,"following":17,"core":27},{"slug":"linda2","name":"Linda","followers":76,"following":46,"core":27}]},{"index":7,"size":77,"schools":[["McGill University",77]],"domains":[["paulgraham.com",47],["curius.app",41],["blog.samaltman.com",38],["x.com",38],["github.com",33]],"people":[{"slug":"shivam-siddaiya","name":"Shivam Siddaiya","followers":51,"following":41,"core":12},{"slug":"tasha-pais","name":"Tasha Pais","followers":15,"following":21,"core":16},{"slug":"neha-desaraju","name":"Neha Desaraju","followers":7,"following":14,"core":8},{"slug":"vedant-nair","name":"Vedant Nair","followers":13,"following":14,"core":4},{"slug":"mackay-g","name":"Mackay G","followers":5,"following":7,"core":7}]},{"index":8,"size":59,"schools":[["McGill University",59]],"domains":[["arxiv.org",168],["en.wikipedia.org",101],["youtube.com",77],["lesswrong.com",51],["fs.blog",48]],"people":[{"slug":"arden-berg","name":"Arden Berg","followers":37,"following":65,"core":25},{"slug":"laerdon-kim","name":"Laerdon Kim","followers":19,"following":28,"core":15},{"slug":"lundeen-cahilly","name":"Lundeen Cahilly","followers":19,"following":24,"core":13},{"slug":"chris-wong","name":"Chris Wong","followers":12,"following":21,"core":13},{"slug":"kevin-xu","name":"Kevin Xu","followers":14,"following":16,"core":8}]}],"communityCount":22,"modularity":0.46424389827040324,"interest":{"knownEdges":19240,"overlappingEdges":16694,"overlapShare":0.8676715176715176,"sharedDomains":[["en.wikipedia.org",7947],["youtube.com",7942],["lesswrong.com",6354],["medium.com",6338],["paulgraham.com",6095],["arxiv.org",6063],["github.com",5594],["docs.google.com",5494],["nytimes.com",4597],["substack.com",4581],["newyorker.com",3686],["henrikkarlsson.xyz",3481]],"crossSharedDomains":[["youtube.com",3835],["en.wikipedia.org",3625],["medium.com",3285],["paulgraham.com",3044],["github.com",2976],["docs.google.com",2841],["arxiv.org",2781],["lesswrong.com",2768],["nytimes.com",2477],["newyorker.com",2102],["substack.com",2029],["theatlantic.com",1914]],"weightedDomains":[["curius.app",0.09230800333945799],["en.wikipedia.org",0.031108393515930727],["youtube.com",0.022078927620879447],["arxiv.org",0.01945619001779386],["lesswrong.com",0.011323120901033785],["medium.com",0.009659237538850824],["paulgraham.com",0.009076293847822664],["github.com",0.007573190550573364],["substack.com",0.006840582937675065],["nytimes.com",0.006727819267528246],["docs.google.com",0.00641542386197743],["newyorker.com",0.00487996148613274]]}}}}</script>
+<script>
+(() => {
+  "use strict";
+  const data = JSON.parse(document.getElementById("metrics-data").textContent);
+  const definitions = {
+    edge: ["edge u → v", "One stored follow relation. The arrow starts at the follower and points to the person being followed."],
+    u: ["u", "A source person in a directed edge; in this graph, the follower."],
+    v: ["v", "A target person in a directed edge; in this graph, the person being followed."],
+    A: ["A", "The adjacency matrix. A cell records whether one person follows another."],
+    Auv: ["Auv", "Auv is 1 when u follows v, and 0 when that directed edge is absent."],
+    Avu: ["Avu", "Avu is 1 when v follows u. It is the return edge for u → v."],
+    Avw: ["Avw", "Avw is 1 when v follows w. Summing these cells counts outgoing follows."],
+    din: ["d-in(v)", "Incoming degree: how many observed followers v has."],
+    dout: ["d-out(v)", "Outgoing degree: how many people v follows."],
+    sum: ["Σ", "Add the quantity over every person in the indicated set."],
+    density: ["ρ", "Density: the observed edge count divided by every possible directed edge between distinct people, excluding self-follows."],
+    m: ["m", "The number of directed follow edges in the scrape."],
+    n: ["n", "The number of people in the scrape."],
+    reciprocity: ["r", "Reciprocity: the fraction of directed edges whose opposite edge also exists."],
+    pr: ["p(v)", "PageRank share for person v. More share means more walking-reader mass reaches v through incoming follows."],
+    pru: ["p(u)", "PageRank share currently held by a person who follows v."],
+    alpha: ["α", "Damping factor. Larger α makes the walking reader follow graph edges more often and jump less often."],
+    clustering: ["Cv", "Local clustering for v after ignoring arrow direction."],
+    ev: ["ev", "The number of observed ties among v's neighbors."],
+    kv: ["kv", "The number of distinct undirected neighbors of v."]
+  };
+  const card = document.getElementById("definition-card");
+  const defTitle = document.getElementById("def-title");
+  const defBody = document.getElementById("def-body");
+  function showDef(key) {
+    const value = definitions[key];
+    if (!value) return;
+    defTitle.textContent = value[0];
+    defBody.textContent = value[1];
+    card.setAttribute("open", "");
+    document.querySelectorAll("[data-term]").forEach(el => el.toggleAttribute("data-active", el.dataset.term === key));
+  }
+  document.querySelectorAll(".term").forEach(el => {
+    const value = definitions[el.dataset.term];
+    if (!value) return;
+    el.title = value[1];
+    el.addEventListener("click", () => showDef(el.dataset.term));
+    el.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); showDef(el.dataset.term); } });
+  });
+  document.getElementById("close-def").addEventListener("click", () => card.removeAttribute("open"));
+  const glossary = document.getElementById("glossary");
+  Object.entries(definitions).forEach(([key, [title, body]]) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<button type="button" data-key="${key}">${title}</button> ${body}`;
+    li.querySelector("button").addEventListener("click", () => showDef(key));
+    glossary.append(li);
+  });
+
+  const toyNodes = [
+    {id:"Ada", x:70, y:72}, {id:"Grace", x:166, y:48}, {id:"Alan", x:254, y:88},
+    {id:"Katherine", x:96, y:178}, {id:"Mina", x:200, y:178}, {id:"Sofia", x:278, y:178}
+  ];
+  const toyEdges = [["Ada","Grace"],["Ada","Alan"],["Grace","Alan"],["Alan","Ada"],["Katherine","Alan"],["Mina","Katherine"],["Katherine","Mina"],["Sofia","Mina"]];
+  const byToy = new Map(toyNodes.map(n => [n.id, n]));
+  const svg = document.getElementById("toy");
+  const alpha = document.getElementById("alpha");
+  const alphaControl = document.getElementById("alpha-control");
+  const toyMode = document.getElementById("toy-mode");
+  const toyNote = document.getElementById("toy-note");
+  function prScores(a) {
+    const out = new Map(toyNodes.map(n => [n.id, []]));
+    const incoming = new Map(toyNodes.map(n => [n.id, []]));
+    toyEdges.forEach(([u, v]) => { out.get(u).push(v); incoming.get(v).push(u); });
+    let rank = new Map(toyNodes.map(n => [n.id, 1 / toyNodes.length]));
+    for (let i = 0; i < 40; i++) {
+      const dangling = toyNodes.filter(n => !out.get(n.id).length).reduce((s, n) => s + rank.get(n.id), 0);
+      const next = new Map(toyNodes.map(n => [n.id, (1 - a) / toyNodes.length + a * dangling / toyNodes.length]));
+      for (const n of toyNodes) {
+        const outs = out.get(n.id);
+        if (!outs.length) continue;
+        const share = a * rank.get(n.id) / outs.length;
+        outs.forEach(v => next.set(v, next.get(v) + share));
+      }
+      rank = next;
+    }
+    return rank;
+  }
+  function drawToy() {
+    const mode = toyMode.value;
+    alphaControl.hidden = mode !== "pagerank";
+    const scores = prScores(Number(alpha.value));
+    const mutual = new Set(toyEdges.filter(([u, v]) => toyEdges.some(([a, b]) => a === v && b === u)).map(([u, v]) => `${u}>${v}`));
+    svg.innerHTML = `<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d7d68"></path></marker></defs>`;
+    if (mode === "components") {
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      bg.setAttribute("d", "M36 40 C120 5 245 8 300 70 C326 132 260 222 140 226 C50 222 20 120 36 40 Z");
+      bg.setAttribute("fill", "rgba(47,99,183,.08)");
+      bg.setAttribute("stroke", "rgba(47,99,183,.35)");
+      svg.append(bg);
+    }
+    for (const [u, v] of toyEdges) {
+      const a = byToy.get(u), b = byToy.get(v);
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+      const sx = a.x + dx / len * 17, sy = a.y + dy / len * 17;
+      const ex = b.x - dx / len * 19, ey = b.y - dy / len * 19;
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", sx); line.setAttribute("y1", sy); line.setAttribute("x2", ex); line.setAttribute("y2", ey);
+      line.setAttribute("marker-end", "url(#arrow)");
+      line.setAttribute("class", `edge ${mode === "reciprocity" && mutual.has(`${u}>${v}`) ? "active" : ""}`);
+      svg.append(line);
+    }
+    if (mode === "clustering") {
+      const tri = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      tri.setAttribute("d", "M70 72 L166 48 L254 88 Z");
+      tri.setAttribute("fill", "rgba(183,77,47,.12)");
+      tri.setAttribute("stroke", "rgba(183,77,47,.45)");
+      svg.insertBefore(tri, svg.children[1]);
+    }
+    for (const n of toyNodes) {
+      const score = scores.get(n.id);
+      const r = mode === "pagerank" ? 14 + score * 55 : 18;
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", n.x); c.setAttribute("cy", n.y); c.setAttribute("r", r.toFixed(1));
+      c.setAttribute("fill", mode === "pagerank" ? "#b74d2f" : mode === "reciprocity" && ["Katherine","Mina"].includes(n.id) ? "#7047a8" : "#2f63b7");
+      c.setAttribute("class", "toy-node");
+      svg.append(c);
+      const labelOffsets = {Grace: [0, -12], Alan: [8, 5], Katherine: [0, 5], Mina: [0, 5], Sofia: [0, 5], Ada: [0, 5]};
+      const [dx, dy] = labelOffsets[n.id] || [0, 5];
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", n.x + dx); t.setAttribute("y", n.y + (dy < 0 ? -r + dy : r + 15 + dy)); t.setAttribute("text-anchor", "middle"); t.setAttribute("class", "node-label");
+      t.textContent = mode === "pagerank" ? `${n.id} ${(score * 100).toFixed(1)}` : n.id;
+      svg.append(t);
+    }
+    const alphaText = Number(alpha.value).toFixed(2);
+    const top = [...scores.entries()].sort((a, b) => b[1] - a[1])[0];
+    toyNote.textContent = {
+      degree: "Alan has three incoming arrows in the toy graph, so degree alone points to Alan first.",
+      reciprocity: "The Katherine ↔ Mina pair is mutual: each directed edge has a return edge.",
+      components: "Ignoring arrow direction puts all six people in one weak component.",
+      pagerank: `With α = ${alphaText}, ${top[0]} receives the most walking-reader mass in the toy graph.`,
+      clustering: "The shaded triangle shows neighbor closure: Ada, Grace, and Alan are tied around the same small neighborhood."
+    }[mode];
+  }
+  toyMode.addEventListener("change", drawToy);
+  alpha.addEventListener("input", () => { toyMode.value = "pagerank"; drawToy(); });
+  drawToy();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Minimal QA Agent</title>
+<meta name="task" content="Build a minimal agent that answers questions from Curious Index files">
+<meta name="date-started" content="2026-07-15">
+<meta name="date-updated" content="2026-07-15">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="agent,search">
+<meta name="related" content="">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Minimal QA Agent</h1>
+<p class="meta"><code>no-git</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-15 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ship a local CLI that answers from Curious Index text files.</div>
+  <b>Source</b><div><code>index/</code> files with <code>.md</code>, <code>.txt</code>, <code>.rst</code>, or <code>.markdown</code>.</div>
+  <b>Surface</b><div><code>python3 curious_agent.py "question"</code>.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Untouched.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Read supported text files under <code>--index</code>.</li>
+  <li>Split content on blank-line paragraphs.</li>
+  <li>Tokenize with <code>[a-z0-9']+</code>.</li>
+  <li>Rank chunks by <code>|query_terms ∩ chunk_terms| / sqrt(|chunk_terms|)</code>.</li>
+  <li>Print top snippets with source paths, or <code>I don't know from the index.</code>.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>curious_agent.py</code></td><td>new</td><td>Stdlib CLI for local cited QA.</td></tr>
+  <tr><td><code>README.md</code></td><td>new</td><td>Usage and check commands.</td></tr>
+  <tr><td><code>index/.gitkeep</code></td><td>new</td><td>Placeholder for local corpus files.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>new</td><td>Task roll-up.</td></tr>
+  <tr><td><code>implementation-notes/2026-07-15-minimal-qa-agent.html</code></td><td>new</td><td>Decision log.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use Python stdlib only. Empty repo needs no dependency install.</td></tr>
+  <tr><td>D-002</td><td>Return cited snippets instead of generated prose. Answers stay grounded in the index.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>exact lexical ranking</code> over <code>embedding search</code>. No model key or corpus format was specified.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 · Curious Index means local text files. If wrong: replace <code>build_index</code> source adapter.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Delete the added files to revert.</p>
+
+<h2>Followups</h2>
+<ul>
+  <li>L-001 · Add LLM synthesis only when snippet answers are not enough.</li>
+  <li>L-002 · Add embeddings only when exact-word search misses real queries.</li>
+</ul>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 curious_agent.py --self-test</code> passes.</li>
+  <li><code>README.md</code> documents first run.</li>
+  <li>Default empty <code>index/</code> folder exists.</li>
+</ul>
+</body>
+</html>

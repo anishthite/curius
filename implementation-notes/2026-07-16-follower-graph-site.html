@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Follower graph site</title>
+<meta name="task" content="Build static follower graph explorer">
+<meta name="date-started" content="2026-07-16">
+<meta name="date-updated" content="2026-07-16">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, static-site">
+<meta name="related" content="2026-07-15-curius-public-scraper.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Follower graph site</h1>
+<p class="meta">
+  <code>no-git</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-16 · status <b>shipped</b> · blast <span class="blast-low">low</span>
+</p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Generate one static HTML page for exploring the Curius follower graph.</div>
+  <b>Source</b><div><code>artifacts/curius.sqlite</code>: <code>users</code> and <code>follows</code>.</div>
+  <b>Surface</b><div><code>build_follower_site.py</code> writes <code>artifacts/follower_graph.html</code>.</div>
+  <b>Schema</b><div>No database changes.</div>
+  <b>Mobile</b><div>Responsive two-column layout collapses by CSS.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Read all users plus follower/following counts from SQLite.</li>
+  <li>Embed compact <code>{nodes, edges}</code> JSON in the static page.</li>
+  <li>Default to top users; on search/click render the selected user's one-hop neighborhood.</li>
+</ol>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Toolbar</b>: search, minimum followers filter, graph mode, reset.</li>
+  <li><b>Graph</b>: SVG force-ish layout, clickable nodes, arrows for follows.</li>
+  <li><b>Sidebar</b>: selected profile counts plus follower/following lists.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>build_follower_site.py</code></td><td>new</td><td>Generate the static explorer and provide <code>--self-test</code>.</td></tr>
+  <tr><td><code>artifacts/follower_graph.html</code></td><td>new</td><td>Generated standalone graph explorer.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document the generator command and output path.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use a static HTML artifact. A local graph needs no server.</td></tr>
+  <tr><td>D-002</td><td>Use stdlib SQLite plus vanilla SVG. Avoid a dependency for <code>6k</code> nodes and <code>21k</code> edges.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>one-hop rendering</code> over <code>draw everything</code>. The whole graph stays searchable without a slow SVG hairball.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 · Website means local static artifact. If wrong: add a tiny server or hosted build step.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Delete <code>build_follower_site.py</code> and <code>artifacts/follower_graph.html</code>; SQLite data is read-only.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3 build_follower_site.py</code> writes <code>artifacts/follower_graph.html</code>.</li>
+  <li>README shows how to open or serve the page.</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Local crawl data; too big/noisy for git.
+data/*
+!data/.gitkeep
+*.sqlite
+*.sqlite-*
+*.db
+*.log
+*.pid
+
+# Browser smoke artifacts.
+.playwright-cli/
+output/
+
+# Scratch.
+artifacts/

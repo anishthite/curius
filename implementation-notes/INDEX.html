@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Implementation Notes — Index</title>
+<style>
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; position: sticky; top: 0; }
+  tr.superseded td { text-decoration: line-through; color: #888; }
+  .blast-high { color: #b00020; font-weight: 600; } .blast-med { color: #b85c00; } .blast-low { color: #2a7a2a; }
+  .status-in-progress { color: #b85c00; } .status-shipped { color: #2a7a2a; } .status-blocked { color: #b00020; }
+  a { color: #1a5fb4; text-decoration: none; } a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<h1>Implementation Notes — Index</h1>
+<p>One row per task, newest first. Never delete — superseded rows get strikethrough and a <code>[superseded by …]</code> note.</p>
+<table>
+  <thead><tr><th>Date</th><th>Task</th><th>Status</th><th>Blast</th><th>Tags</th><th>Summary</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>2026-07-21</td>
+      <td><a href="2026-07-21-repo-organization.html">Organize Curius repository</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, repository, git, organization</td>
+      <td>Source moves into scraper, analysis, and site buckets while local SQLite data stays ignored.</td>
+    </tr>
+    <tr>
+      <td>2026-07-17</td>
+      <td><a href="2026-07-17-curius-frontpage.html">Build Curius front page</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, links, highlights, static-site</td>
+      <td>HN-like paper page lists popular/new links and popular/new highlights from SQLite aggregates.</td>
+    </tr>
+    <tr>
+      <td>2026-07-17</td>
+      <td><a href="2026-07-17-follower-next-questions-page.html">Build follower graph next questions page</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, graph, algorithms, static-site</td>
+      <td>Focused page frames bridges, surprising follows, communities, and interest travel as next analyses.</td>
+    </tr>
+    <tr>
+      <td>2026-07-17</td>
+      <td><a href="2026-07-17-follower-algorithms-page.html">Build follower graph algorithms page</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, graph, algorithms, static-site</td>
+      <td>Deeper static explainer covers paths, HITS, bow-tie reachability, recommendations, and homophily.</td>
+    </tr>
+    <tr>
+      <td>2026-07-17</td>
+      <td><a href="2026-07-17-follower-graph-explainer.html">Build follower graph explainer pages</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, graph, metrics, static-site</td>
+      <td>Two static pages: full canvas graph explorer plus graph-metrics textbook explainer.</td>
+    </tr>
+    <tr>
+      <td>2026-07-16</td>
+      <td><a href="2026-07-16-follower-graph-site.html">Build follower graph site</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, graph, static-site</td>
+      <td>Static HTML explorer renders one-hop follower neighborhoods from the scraped SQLite graph.</td>
+    </tr>
+    <tr>
+      <td>2026-07-15</td>
+      <td><a href="2026-07-15-curius-public-scraper.html">Build Curius public scraper</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>curius, scraper, sqlite</td>
+      <td>Stdlib scraper stores public users/follows plus selected-user links/highlights with live HTML progress.</td>
+    </tr>
+    <tr>
+      <td>2026-07-15</td>
+      <td><a href="2026-07-15-minimal-qa-agent.html">Build minimal QA agent</a></td>
+      <td class="status-shipped">shipped</td>
+      <td class="blast-low">low</td>
+      <td>agent, search</td>
+      <td>Stdlib CLI answers from local text files with cited lexical matches.</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

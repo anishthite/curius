@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Curius Public Scraper</title>
+<meta name="task" content="Scrape Curius public social graph, saved links, and highlights">
+<meta name="date-started" content="2026-07-15">
+<meta name="date-updated" content="2026-07-15">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,scraper,sqlite,progress">
+<meta name="related" content="">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 900px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 150px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Curius Public Scraper</h1>
+<p class="meta"><code>no-git</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-15 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Store public Curius users, follows, selected-user saved links, and selected-user highlights.</div>
+  <b>Source</b><div><code>https://curius.app/api</code> public endpoints.</div>
+  <b>Surface</b><div><code>python3 curius_scraper.py [--person USER]</code>.</div>
+  <b>Storage</b><div><code>artifacts/curius.sqlite</code>.</div>
+  <b>Progress</b><div><code>artifacts/curius_scrape_progress.html</code> auto-refreshes.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>API contract</h2>
+<pre>GET /users/all                       -> { users }
+GET /users/{userLink}                -> { user: { ..., followingUsers } }
+GET /users/{uid}/searchLinks         -> { links }
+GET /snippets?uid={uid}&amp;page={page}  -> { highlights: [{ ..., link, user }] }</pre>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Fetch <code>/users/all</code>; upsert minimal users.</li>
+  <li>Fetch every <code>/users/{userLink}</code>; replace that user's outgoing <code>follows</code>.</li>
+  <li>For each <code>--person</code>, resolve <code>userLink</code> to <code>uid</code>.</li>
+  <li>Fetch <code>/users/{uid}/searchLinks</code>; replace that user's <code>saved_links</code>.</li>
+  <li>Fetch <code>/snippets?uid={uid}&amp;page=N</code> until empty; replace that user's <code>highlights</code>.</li>
+  <li>Write progress HTML after each profile and highlight page.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>curius_scraper.py</code></td><td>new</td><td>Stdlib scraper with SQLite storage and HTML progress.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Scraper commands and output paths.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Add scraper task row.</td></tr>
+  <tr><td><code>implementation-notes/2026-07-15-curius-public-scraper.html</code></td><td>new</td><td>Decision log.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use SQLite. Local scrape needs resumable relational joins without server setup.</td></tr>
+  <tr><td>D-002</td><td>Use <code>/users/{userLink}</code> for follows. <code>/users/all</code> omits <code>followingUsers</code>.</td></tr>
+  <tr><td>D-003</td><td>Use <code>/snippets?uid=</code> for highlights. It includes the source <code>link</code> object.</td></tr>
+  <tr><td>D-004</td><td>Add <code>--all-people</code> with <code>person_scrapes</code>. The all-user crawl needs resume markers.</td></tr>
+  <tr><td>D-005</td><td>Serialize object-valued <code>position</code>. Some PDF highlights return coordinate dictionaries instead of integers.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>urllib</code> over <code>requests</code>. Avoid a dependency for four JSON endpoints.</td></tr>
+  <tr><td>T-002</td><td>Pruned <code>metadata.full_text</code> over storing full page text. The requested tables need link identity, not crawled article bodies.</td></tr>
+  <tr><td>T-003</td><td>Six retry attempts over four. DNS blips caused nine skipped profiles in the first pass.</td></tr>
+</table>
+
+<h2>Open questions</h2>
+<div class="q">Q-001 [RESOLVED] · Target person. Answer: scrape saved links and highlights for all users.</div>
+
+<h2>Reversibility</h2>
+<p>R-001 · Delete <code>curius_scraper.py</code> and generated <code>artifacts/curius.sqlite</code>/<code>artifacts/curius_scrape_progress.html</code>; no remote writes occur.</p>
+
+<h2>Followups</h2>
+<ul>
+  <li>L-001 · Superseded by <code>D-004</code>.</li>
+  <li>L-002 · Done: re-ran nine failed social-graph profiles; failures were transient DNS resolution errors.</li>
+</ul>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Script self-test passes.</li>
+  <li>Small live crawl writes users/follows to SQLite.</li>
+  <li>Progress HTML exists and reports row counts.</li>
+  <li>README names the exact run commands.</li>
+  <li>Background social graph crawl is started.</li>
+</ul>
+</body>
+</html>

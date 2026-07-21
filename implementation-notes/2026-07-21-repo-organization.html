@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Organize Curius repository</title>
+<meta name="tags" content="curius, repository, git, organization">
+<meta name="related" content="2026-07-15-curius-public-scraper.html,2026-07-17-curius-frontpage.html,2026-07-16-follower-graph-site.html">
+<style>
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; }
+  code { background: #f6f6f6; padding: 0 3px; border-radius: 3px; }
+  .meta { color: #666; }
+  .blast-low { color: #2a7a2a; }
+</style>
+</head>
+<body>
+<h1>Organize Curius repository</h1>
+<p class="meta">main · <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-21 · status: shipped · blast: <span class="blast-low">low</span></p>
+<h2>Summary</h2>
+<table>
+<tr><th>Key</th><th>Value</th></tr>
+<tr><td>Goal</td><td>Initialize git and sort source, analysis outputs, local data, and the HN-style front page.</td></tr>
+<tr><td>Source</td><td>User requested <code>scraper/</code>, one-time analysis, and ongoing Hacker News-style project buckets.</td></tr>
+<tr><td>Surface</td><td><code>README.md</code>, paths, first commit, remote <code>https://github.com/anishthite/curius</code>.</td></tr>
+<tr><td>Data</td><td>Keep <code>data/*.sqlite</code>, logs, pids, and browser output out of git.</td></tr>
+<tr><td>Blast</td><td>Move-only plus default path edits; no scraper schema or ranking behavior changes.</td></tr>
+</table>
+<h2>Files</h2>
+<table>
+<tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+<tr><td><code>scraper/curius_scraper.py</code></td><td>move</td><td>Scraper source with repo-root default data paths.</td></tr>
+<tr><td><code>analysis/build_follower_site.py</code></td><td>move</td><td>Static analysis/site generator with new output defaults.</td></tr>
+<tr><td><code>analysis/curious_agent.py</code></td><td>move</td><td>Small local QA experiment kept with analysis tools.</td></tr>
+<tr><td><code>site/index.html</code></td><td>move</td><td>HN-style front page artifact.</td></tr>
+<tr><td><code>analysis/*.html</code></td><td>move</td><td>One-time graph explainer artifacts.</td></tr>
+<tr><td><code>.gitignore</code></td><td>new</td><td>Ignore local data, logs, pids, screenshots, caches.</td></tr>
+<tr><td><code>README.md</code></td><td>touch</td><td>Document the three buckets and commands.</td></tr>
+</table>
+<h2>Decisions</h2>
+<table>
+<tr><th>ID</th><th>Choice</th><th>Rationale</th></tr>
+<tr><td>D-001</td><td>Use <code>scraper/</code>, <code>analysis/</code>, <code>site/</code>, and ignored <code>data/</code>.</td><td>Matches the requested buckets while keeping the 523MB SQLite file local.</td></tr>
+<tr><td>D-002</td><td>Move the monolithic generator instead of splitting it.</td><td>Shortest safe diff; behavior stays covered by the existing self-test.</td></tr>
+</table>
+<h2>Tradeoffs</h2>
+<table>
+<tr><th>ID</th><th>Picked over Rejected</th><th>Reason</th></tr>
+<tr><td>T-001</td><td>Repo-root defaults over cwd-relative outputs.</td><td>Running scripts from any directory still writes to the intended project folders.</td></tr>
+</table>
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Revert the first commit or move files back to root; ignored local data is untouched by git.</p>
+<h2>Definition of done</h2>
+<ul>
+<li><code>git status</code> shows a new repo on <code>main</code> with no large local DB staged.</li>
+<li><code>python3 scraper/curius_scraper.py --self-test</code> passes.</li>
+<li><code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+<li><code>python3 analysis/curious_agent.py --self-test</code> passes.</li>
+<li>Remote <code>origin</code> points at <code>https://github.com/anishthite/curius.git</code>.</li>
+</ul>
+</body>
+</html>

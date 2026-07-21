@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Follower graph algorithms page</title>
+<meta name="task" content="Add deeper graph algorithms explainer page">
+<meta name="date-started" content="2026-07-17">
+<meta name="date-updated" content="2026-07-17">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, algorithms, static-site">
+<meta name="related" content="2026-07-17-follower-graph-explainer.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Follower graph algorithms page</h1>
+<p class="meta"><code>no-git</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-17 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ship a deeper algorithm explainer page for paths, ranking, communities, recommendations, and homophily.</div>
+  <b>Source</b><div><code>artifacts/curius.sqlite</code>: <code>users</code> and <code>follows</code>.</div>
+  <b>Surface</b><div><code>artifacts/follower_algorithms.html</code>.</div>
+  <b>Schema</b><div>No database changes.</div>
+  <b>Mobile</b><div>Single-column paper layout; controls stay within <code>390px</code>.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Reuse graph load and compute exact weak-component path stats on the largest island.</li>
+  <li>Add HITS hubs/authorities, bow-tie reachability around the largest SCC, school homophily, and browser BFS/recommendations.</li>
+  <li>Render one static page with equations, citations, glossary, and a small interactive graph workbench.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>build_follower_site.py</code></td><td>touch</td><td>Generate <code>follower_algorithms.html</code> and supporting metrics.</td></tr>
+  <tr><td><code>artifacts/follower_algorithms.html</code></td><td>generated</td><td>Deeper algorithm explainer.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document the new output.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Compute exact largest-component path distances. The main island has <code>3,099</code> nodes, so all-source BFS is acceptable.</td></tr>
+  <tr><td>D-002</td><td>Use browser-side BFS for chosen people. It makes path and recommendation algorithms visible without a server.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>HITS + label-free components</code> over <code>Louvain</code>. Avoid adding a community-detection dependency for a static artifact.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Re-run or delete <code>artifacts/follower_algorithms.html</code>; SQLite remains read-only.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3 build_follower_site.py</code> writes <code>artifacts/follower_algorithms.html</code>.</li>
+  <li>Browser smoke verifies no <code>390px</code> horizontal overflow and workbench path/recommendation actions respond.</li>
+</ul>
+</body>
+</html>

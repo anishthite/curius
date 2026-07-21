@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Curius front page</title>
+<meta name="task" content="Add Hacker News style Curius link and highlight front page">
+<meta name="date-started" content="2026-07-17">
+<meta name="date-updated" content="2026-07-17">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, links, highlights, static-site">
+<meta name="related" content="2026-07-15-curius-public-scraper.html,2026-07-17-follower-next-questions-page.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Curius front page</h1>
+<p class="meta"><code>no-git</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-17 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ship one HN-like, paper-textbook front page for popular/new links and popular/new highlights.</div>
+  <b>Source</b><div><code>artifacts/curius.sqlite</code>: <code>links</code>, <code>saved_links</code>, <code>highlights</code>, <code>users</code>.</div>
+  <b>Surface</b><div><code>artifacts/curius_frontpage.html</code>.</div>
+  <b>Schema</b><div>No database changes.</div>
+  <b>Mobile</b><div>Single-column layout at <code>390px</code>; only equations may scroll.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Aggregate link saves and highlight users by <code>link_id</code>.</li>
+  <li>Score links with <code>score = 3·savers + 5·highlighters + highlights</code>.</li>
+  <li>Score repeated highlight text with <code>score = 4·readers + repeats</code>.</li>
+  <li>Keep newest lists by <code>created_at</code>; keep popular lists by score.</li>
+</ol>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Header</b>: short explanation plus buttons for <code>Links</code>/<code>Highlights</code> and <code>popular</code>/<code>newest</code>.</li>
+  <li><b>Feed</b>: numbered HN-like entries with title, domain, score, counts, age, and source user when present.</li>
+  <li><b>Model note</b>: lightweight clickable formula terms explain why popularity differs from chronology.</li>
+  <li><b>Diagram</b>: sparse SVG shows saves and highlights combining into the current ranking.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>build_follower_site.py</code></td><td>touch</td><td>Generate the front page and read link/highlight aggregates.</td></tr>
+  <tr><td><code>artifacts/curius_frontpage.html</code></td><td>generated</td><td>New static front page.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document the new output.</td></tr>
+  <tr><td><code>output/playwright/curius-frontpage-desktop.png</code></td><td>generated</td><td>Desktop smoke screenshot.</td></tr>
+  <tr><td><code>output/playwright/curius-frontpage-mobile.png</code></td><td>generated</td><td>Mobile smoke screenshot.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use a static generated page. The database already contains enough rows and this repo has no app server.</td></tr>
+  <tr><td>D-002</td><td>Show four feeds, not many filters. The user asked for popular/newest across two content types.</td></tr>
+  <tr><td>D-003</td><td>Use lightweight HTML math and SVG. The existing paper pages avoid extra dependencies.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td>Simple counts over time-decayed ranking. The user explicitly asked for most popular and newest.</td></tr>
+  <tr><td>T-002</td><td>Raw source URLs over canonical URL merging. Duplicate URLs are visible data, not a schema problem to fix here.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 · Internal Curius and login pages can appear if users saved/highlighted them. If wrong: add a domain denylist.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Remove <code>DEFAULT_FRONTPAGE_OUT</code>, delete <code>artifacts/curius_frontpage.html</code>, and restore the prior generator call signature.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3 build_follower_site.py</code> writes <code>artifacts/curius_frontpage.html</code>.</li>
+  <li>Generated page contains popular/newest links and popular/newest highlights.</li>
+  <li>Mobile smoke verifies no page-wide horizontal overflow at <code>390px</code>.</li>
+</ul>
+</body>
+</html>

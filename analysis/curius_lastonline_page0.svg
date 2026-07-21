@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+<rect width="100%" height="100%" fill="#fff"/>
+<style>text{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;fill:#172033}.title{font-size:26px;font-weight:700}.subtitle{font-size:14px;fill:#586174}.axis{stroke:#c8d0dc}.grid{stroke:#e8edf3}.tick{font-size:11px;fill:#6b7280}.label{font-size:13px;fill:#586174}</style>
+<text class="title" x="78" y="38">Curius users.lastOnline from /api/links/all?page=0</text>
+<text class="subtitle" x="78" y="62">3,078 distinct users from 30 links, deduped by user id. Peak: 2026-07 with 325 users last online.</text>
+<line class="grid" x1="78" y1="512.0" x2="1164" y2="512.0"/>
+<text class="tick" x="68" y="516.0" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="426.4" x2="1164" y2="426.4"/>
+<text class="tick" x="68" y="430.4" text-anchor="end">65</text>
+<line class="grid" x1="78" y1="340.8" x2="1164" y2="340.8"/>
+<text class="tick" x="68" y="344.8" text-anchor="end">130</text>
+<line class="grid" x1="78" y1="255.2" x2="1164" y2="255.2"/>
+<text class="tick" x="68" y="259.2" text-anchor="end">195</text>
+<line class="grid" x1="78" y1="169.6" x2="1164" y2="169.6"/>
+<text class="tick" x="68" y="173.6" text-anchor="end">260</text>
+<line class="grid" x1="78" y1="84.0" x2="1164" y2="84.0"/>
+<text class="tick" x="68" y="88.0" text-anchor="end">325</text>
+<line class="axis" x1="78" y1="512" x2="1164" y2="512"/>
+<line class="axis" x1="78" y1="84" x2="78" y2="512"/>
+<text class="label" x="20" y="298.0" transform="rotate(-90 20 298.0)" text-anchor="middle">users whose lastOnline falls in month</text>
+<rect x="79.0" y="444.8" width="14.5" height="67.2" fill="#219ebc"><title>2021-02: 51 users</title></rect>
+<rect x="95.5" y="477.8" width="14.5" height="34.2" fill="#219ebc"><title>2021-03: 26 users</title></rect>
+<rect x="111.9" y="494.9" width="14.5" height="17.1" fill="#219ebc"><title>2021-04: 13 users</title></rect>
+<rect x="128.4" y="494.9" width="14.5" height="17.1" fill="#219ebc"><title>2021-05: 13 users</title></rect>
+<rect x="144.8" y="485.7" width="14.5" height="26.3" fill="#219ebc"><title>2021-06: 20 users</title></rect>
+<rect x="161.3" y="501.5" width="14.5" height="10.5" fill="#219ebc"><title>2021-07: 8 users</title></rect>
+<rect x="177.7" y="493.6" width="14.5" height="18.4" fill="#219ebc"><title>2021-08: 14 users</title></rect>
+<rect x="194.2" y="498.8" width="14.5" height="13.2" fill="#219ebc"><title>2021-09: 10 users</title></rect>
+<rect x="210.6" y="494.9" width="14.5" height="17.1" fill="#219ebc"><title>2021-10: 13 users</title></rect>
+<rect x="227.1" y="490.9" width="14.5" height="21.1" fill="#219ebc"><title>2021-11: 16 users</title></rect>
+<rect x="243.5" y="492.2" width="14.5" height="19.8" fill="#219ebc"><title>2021-12: 15 users</title></rect>
+<rect x="260.0" y="493.6" width="14.5" height="18.4" fill="#219ebc"><title>2022-01: 14 users</title></rect>
+<rect x="276.5" y="501.5" width="14.5" height="10.5" fill="#219ebc"><title>2022-02: 8 users</title></rect>
+<rect x="292.9" y="481.7" width="14.5" height="30.3" fill="#219ebc"><title>2022-03: 23 users</title></rect>
+<rect x="309.4" y="484.3" width="14.5" height="27.7" fill="#219ebc"><title>2022-04: 21 users</title></rect>
+<rect x="325.8" y="479.1" width="14.5" height="32.9" fill="#219ebc"><title>2022-05: 25 users</title></rect>
+<rect x="342.3" y="476.4" width="14.5" height="35.6" fill="#219ebc"><title>2022-06: 27 users</title></rect>
+<rect x="358.7" y="467.2" width="14.5" height="44.8" fill="#219ebc"><title>2022-07: 34 users</title></rect>
+<rect x="375.2" y="464.6" width="14.5" height="47.4" fill="#219ebc"><title>2022-08: 36 users</title></rect>
+<rect x="391.6" y="473.8" width="14.5" height="38.2" fill="#219ebc"><title>2022-09: 29 users</title></rect>
+<rect x="408.1" y="475.1" width="14.5" height="36.9" fill="#219ebc"><title>2022-10: 28 users</title></rect>
+<rect x="424.5" y="458.0" width="14.5" height="54.0" fill="#219ebc"><title>2022-11: 41 users</title></rect>
+<rect x="441.0" y="476.4" width="14.5" height="35.6" fill="#219ebc"><title>2022-12: 27 users</title></rect>
+<rect x="457.5" y="438.3" width="14.5" height="73.7" fill="#219ebc"><title>2023-01: 56 users</title></rect>
+<rect x="473.9" y="463.3" width="14.5" height="48.7" fill="#219ebc"><title>2023-02: 37 users</title></rect>
+<rect x="490.4" y="459.3" width="14.5" height="52.7" fill="#219ebc"><title>2023-03: 40 users</title></rect>
+<rect x="506.8" y="463.3" width="14.5" height="48.7" fill="#219ebc"><title>2023-04: 37 users</title></rect>
+<rect x="523.3" y="469.9" width="14.5" height="42.1" fill="#219ebc"><title>2023-05: 32 users</title></rect>
+<rect x="539.7" y="467.2" width="14.5" height="44.8" fill="#219ebc"><title>2023-06: 34 users</title></rect>
+<rect x="556.2" y="484.3" width="14.5" height="27.7" fill="#219ebc"><title>2023-07: 21 users</title></rect>
+<rect x="572.6" y="375.0" width="14.5" height="137.0" fill="#219ebc"><title>2023-08: 104 users</title></rect>
+<rect x="589.1" y="435.6" width="14.5" height="76.4" fill="#219ebc"><title>2023-09: 58 users</title></rect>
+<rect x="605.5" y="436.9" width="14.5" height="75.1" fill="#219ebc"><title>2023-10: 57 users</title></rect>
+<rect x="622.0" y="451.4" width="14.5" height="60.6" fill="#219ebc"><title>2023-11: 46 users</title></rect>
+<rect x="638.5" y="452.7" width="14.5" height="59.3" fill="#219ebc"><title>2023-12: 45 users</title></rect>
+<rect x="654.9" y="442.2" width="14.5" height="69.8" fill="#219ebc"><title>2024-01: 53 users</title></rect>
+<rect x="671.4" y="448.8" width="14.5" height="63.2" fill="#219ebc"><title>2024-02: 48 users</title></rect>
+<rect x="687.8" y="438.3" width="14.5" height="73.7" fill="#219ebc"><title>2024-03: 56 users</title></rect>
+<rect x="704.3" y="415.9" width="14.5" height="96.1" fill="#219ebc"><title>2024-04: 73 users</title></rect>
+<rect x="720.7" y="426.4" width="14.5" height="85.6" fill="#219ebc"><title>2024-05: 65 users</title></rect>
+<rect x="737.2" y="443.5" width="14.5" height="68.5" fill="#219ebc"><title>2024-06: 52 users</title></rect>
+<rect x="753.6" y="443.5" width="14.5" height="68.5" fill="#219ebc"><title>2024-07: 52 users</title></rect>
+<rect x="770.1" y="446.2" width="14.5" height="65.8" fill="#219ebc"><title>2024-08: 50 users</title></rect>
+<rect x="786.5" y="438.3" width="14.5" height="73.7" fill="#219ebc"><title>2024-09: 56 users</title></rect>
+<rect x="803.0" y="423.8" width="14.5" height="88.2" fill="#219ebc"><title>2024-10: 67 users</title></rect>
+<rect x="819.5" y="438.3" width="14.5" height="73.7" fill="#219ebc"><title>2024-11: 56 users</title></rect>
+<rect x="835.9" y="452.7" width="14.5" height="59.3" fill="#219ebc"><title>2024-12: 45 users</title></rect>
+<rect x="852.4" y="443.5" width="14.5" height="68.5" fill="#219ebc"><title>2025-01: 52 users</title></rect>
+<rect x="868.8" y="471.2" width="14.5" height="40.8" fill="#219ebc"><title>2025-02: 31 users</title></rect>
+<rect x="885.3" y="459.3" width="14.5" height="52.7" fill="#219ebc"><title>2025-03: 40 users</title></rect>
+<rect x="901.7" y="456.7" width="14.5" height="55.3" fill="#219ebc"><title>2025-04: 42 users</title></rect>
+<rect x="918.2" y="463.3" width="14.5" height="48.7" fill="#219ebc"><title>2025-05: 37 users</title></rect>
+<rect x="934.6" y="464.6" width="14.5" height="47.4" fill="#219ebc"><title>2025-06: 36 users</title></rect>
+<rect x="951.1" y="462.0" width="14.5" height="50.0" fill="#219ebc"><title>2025-07: 38 users</title></rect>
+<rect x="967.5" y="465.9" width="14.5" height="46.1" fill="#219ebc"><title>2025-08: 35 users</title></rect>
+<rect x="984.0" y="435.6" width="14.5" height="76.4" fill="#219ebc"><title>2025-09: 58 users</title></rect>
+<rect x="1000.5" y="443.5" width="14.5" height="68.5" fill="#219ebc"><title>2025-10: 52 users</title></rect>
+<rect x="1016.9" y="458.0" width="14.5" height="54.0" fill="#219ebc"><title>2025-11: 41 users</title></rect>
+<rect x="1033.4" y="451.4" width="14.5" height="60.6" fill="#219ebc"><title>2025-12: 46 users</title></rect>
+<rect x="1049.8" y="448.8" width="14.5" height="63.2" fill="#219ebc"><title>2026-01: 48 users</title></rect>
+<rect x="1066.3" y="442.2" width="14.5" height="69.8" fill="#219ebc"><title>2026-02: 53 users</title></rect>
+<rect x="1082.7" y="421.1" width="14.5" height="90.9" fill="#219ebc"><title>2026-03: 69 users</title></rect>
+<rect x="1099.2" y="406.6" width="14.5" height="105.4" fill="#219ebc"><title>2026-04: 80 users</title></rect>
+<rect x="1115.6" y="375.0" width="14.5" height="137.0" fill="#219ebc"><title>2026-05: 104 users</title></rect>
+<rect x="1132.1" y="328.9" width="14.5" height="183.1" fill="#219ebc"><title>2026-06: 139 users</title></rect>
+<rect x="1148.5" y="84.0" width="14.5" height="428.0" fill="#d62828"><title>2026-07: 325 users</title></rect>
+<text class="tick" x="85.2" y="534" text-anchor="middle" transform="rotate(45 85.2 534)">2021-02</text>
+<text class="tick" x="184.0" y="534" text-anchor="middle" transform="rotate(45 184.0 534)">2021-08</text>
+<text class="tick" x="282.7" y="534" text-anchor="middle" transform="rotate(45 282.7 534)">2022-02</text>
+<text class="tick" x="381.4" y="534" text-anchor="middle" transform="rotate(45 381.4 534)">2022-08</text>
+<text class="tick" x="480.1" y="534" text-anchor="middle" transform="rotate(45 480.1 534)">2023-02</text>
+<text class="tick" x="578.9" y="534" text-anchor="middle" transform="rotate(45 578.9 534)">2023-08</text>
+<text class="tick" x="677.6" y="534" text-anchor="middle" transform="rotate(45 677.6 534)">2024-02</text>
+<text class="tick" x="776.3" y="534" text-anchor="middle" transform="rotate(45 776.3 534)">2024-08</text>
+<text class="tick" x="875.0" y="534" text-anchor="middle" transform="rotate(45 875.0 534)">2025-02</text>
+<text class="tick" x="973.8" y="534" text-anchor="middle" transform="rotate(45 973.8 534)">2025-08</text>
+<text class="tick" x="1072.5" y="534" text-anchor="middle" transform="rotate(45 1072.5 534)">2026-02</text>
+<text class="tick" x="1154.8" y="534" text-anchor="middle" transform="rotate(45 1154.8 534)">2026-07</text>
+<text class="label" x="920.0" y="96.0" fill="#d62828">Peak 2026-07: 325 users</text>
+<text class="subtitle" x="1164" y="596" text-anchor="end">Interpretation: last seen anywhere on Curius, not necessarily activity on these links.</text>
+</svg>
