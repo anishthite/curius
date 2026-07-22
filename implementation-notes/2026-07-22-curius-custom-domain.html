@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Curius custom domain</title>
+<meta name="task" content="Attach curius.thite.site to the Curius frontpage app">
+<meta name="date-started" content="2026-07-22">
+<meta name="date-updated" content="2026-07-22">
+<meta name="status" content="blocked">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,cloudflare,dns,deploy">
+<meta name="related" content="2026-07-21-github-pages-refresh.html">
+<style>
+body{font:14px/1.45 -apple-system,system-ui,sans-serif;max-width:880px;margin:1.5rem auto;padding:0 1rem;color:#111}h1{font-size:20px;margin:0 0 .25rem}h2{font-size:15px;margin:1.4rem 0 .4rem;border-bottom:1px solid #ddd;padding-bottom:.2rem}table{border-collapse:collapse;width:100%;margin:.4rem 0 .8rem}th,td{border:1px solid #ddd;padding:4px 8px;text-align:left;vertical-align:top}th{background:#f6f6f6;font-weight:600}code{background:#f1f1f1;padding:1px 4px;border-radius:3px;font-size:12.5px}.blast-low{color:#2a7a2a}.meta{color:#555;font-size:12.5px;margin-bottom:.8rem}.kv{display:grid;grid-template-columns:140px 1fr;gap:2px 14px;font-size:13px;margin:.4rem 0 1rem}.kv b{color:#444;font-weight:600}ul{margin:.3rem 0 .8rem 1.2rem;padding:0}.q{border-left:3px solid #b85c00;background:#fff8ee;padding:.4rem .7rem;margin:.4rem 0}.q .id{color:#b85c00;font-weight:700}
+</style>
+</head>
+<body>
+<h1>Add Curius custom domain</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-22 · status <b>blocked</b> · blast <span class="blast-low">low</span></p>
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Serve the frontpage app at <code>https://curius.thite.site</code>.</div>
+  <b>Done</b><div>Pages custom domain exists and generated analysis links point to <code>curius.thite.site</code>.</div>
+  <b>Blocked</b><div>Cloudflare DNS API token has <code>zone:read</code> but not DNS edit.</div>
+  <b>Required DNS</b><div><code>CNAME curius → curius-frontpage.pages.dev</code>, proxied.</div>
+</div>
+<h2>Files</h2>
+<table>
+<tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+<tr><td><code>.github/workflows/update-curius.yml</code></td><td>touch</td><td>Fallback frontpage URL becomes <code>https://curius.thite.site</code>.</td></tr>
+<tr><td><code>README.md</code></td><td>touch</td><td>Document custom frontpage URL default.</td></tr>
+<tr><td><code>apps/analysis/*.html</code></td><td>generated</td><td>Back-link to the frontpage custom domain.</td></tr>
+</table>
+<h2>Decisions</h2>
+<table>
+<tr><th>ID</th><th>Choice · Rationale</th></tr>
+<tr><td>D-001</td><td>Attach <code>curius.thite.site</code> to <code>curius-frontpage</code>. One hostname can point at one Pages project.</td></tr>
+</table>
+<h2>Open questions</h2>
+<div class="q"><span class="id">Q-001</span> · DNS edit. <b>Assumed: user will add the CNAME or grant DNS edit token.</b> Alternatives: dashboard CNAME, API token with DNS edit.</div>
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Remove the Pages custom domain and reset <code>CURIUS_FRONTPAGE_URL</code> to <code>https://curius-frontpage.pages.dev</code>.</p>
+<h2>Definition of done</h2>
+<ul>
+  <li><code>curius.thite.site</code> resolves and returns <code>Curius front page</code>.</li>
+  <li>Analysis app links back to <code>https://curius.thite.site/index.html</code>.</li>
+</ul>
+</body>
+</html>

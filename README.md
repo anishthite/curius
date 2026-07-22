@@ -90,7 +90,7 @@ Optional repo variables:
 | Variable | Default | Use |
 | --- | --- | --- |
 | `CLOUDFLARE_ACCOUNT_ID` | detected locally | Cloudflare account for direct deploy |
-| `CURIUS_FRONTPAGE_URL` | `https://curius-frontpage.pages.dev` | frontpage app URL for cross-links |
+| `CURIUS_FRONTPAGE_URL` | `https://curius.thite.site` | frontpage app URL for cross-links |
 | `CURIUS_ANALYSIS_URL` | `https://curius-analysis.pages.dev` | analysis app URL for cross-links |
 | `CURIUS_REFRESH_LIMIT` | `200` | stale users refreshed per run |
 | `CURIUS_SOCIAL_LIMIT` | unset | cap users/follows crawl when social refresh runs |

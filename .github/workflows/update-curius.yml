@@ -74,7 +74,7 @@ jobs:
           refresh_limit="${INPUT_REFRESH_LIMIT:-${CURIUS_REFRESH_LIMIT:-200}}"
           delay="${CURIUS_REQUEST_DELAY:-0.2}"
           social_refresh="${INPUT_SOCIAL_REFRESH:-false}"
-          frontpage_url="${CURIUS_FRONTPAGE_URL:-https://curius-frontpage.pages.dev}"
+          frontpage_url="${CURIUS_FRONTPAGE_URL:-https://curius.thite.site}"
           analysis_url="${CURIUS_ANALYSIS_URL:-https://curius-analysis.pages.dev}"
 
           needs_social="$(python3 - <<'PY'
