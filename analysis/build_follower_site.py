@@ -8,6 +8,7 @@ import os
 import heapq
 import html
 import json
+import re
 import math
 import sqlite3
 import sys
@@ -1254,7 +1255,7 @@ __PAPER_CSS__
     const h = text("h2", "", `${state.sort === "popular" ? "Popular" : "Newest"} ${state.kind}`);
     const p = text("p", "quiet", state.sort === "popular"
       ? `Sorted by score. ${items.length.toLocaleString()} rows are shown from the generated sample.`
-      : `Sorted by creation time. Score remains visible, but it does not move the row.`);
+      : `Sorted by latest save or highlight time. Score remains visible, but it does not move the row.`);
     feedHead.append(h, p);
   }
   function renderLink(item, body) {
@@ -1333,7 +1334,7 @@ __PAPER_CSS__
     <ol>
       <li><b>Links</b> show saved URLs with title, domain, save counts, highlight counts, and age.</li>
       <li><b>Highlights</b> show repeated quoted text, source link, reader/repeat counts, latest user, and age.</li>
-      <li><b>Popular</b> sorts by score; <b>newest</b> sorts by creation time and leaves score as context.</li>
+      <li><b>Popular</b> sorts by score; <b>newest</b> sorts links by latest save/highlight time and leaves score as context.</li>
     </ol>
 
     <h2>Popularity score</h2>
@@ -1351,7 +1352,7 @@ __PAPER_CSS__
     </div>
 
     <h2>How to read a row</h2>
-    <p>The title line opens the source. The small line says how many distinct readers touched it, how many marks were left, and when the underlying record was created.</p>
+    <p>The title line opens the source. The small line says how many distinct readers touched it, how many marks were left, and when Curius last saw save/highlight activity for it.</p>
 
     <h2>Glossary</h2>
     <ul class="terms">
@@ -1456,16 +1457,27 @@ def load_user_domains(db_path: Path) -> dict[int, Counter[str]]:
 def load_frontpage_links(conn: sqlite3.Connection, limit: int) -> list[dict[str, Any]]:
     base = """
         WITH saves AS (
-            SELECT link_id, count(*) AS saves, count(DISTINCT user_id) AS savers
+            SELECT link_id, count(*) AS saves, count(DISTINCT user_id) AS savers,
+                   max(saved_at) AS latest_saved_at
             FROM saved_links GROUP BY link_id
         ), marks AS (
-            SELECT link_id, count(*) AS highlights, count(DISTINCT user_id) AS highlighters
+            SELECT link_id, count(*) AS highlights, count(DISTINCT user_id) AS highlighters,
+                   max(created_at) AS latest_highlight_at
             FROM highlights
             WHERE length(trim(coalesce(highlight_text, raw_highlight, ''))) > 0
             GROUP BY link_id
         )
         SELECT l.link_id, l.url, coalesce(nullif(trim(l.title), ''), l.url) AS title,
                l.snippet, l.created_at, l.modified_at, l.updated_at,
+               coalesce(
+                   CASE
+                       WHEN s.latest_saved_at IS NULL THEN m.latest_highlight_at
+                       WHEN m.latest_highlight_at IS NULL THEN s.latest_saved_at
+                       WHEN s.latest_saved_at >= m.latest_highlight_at THEN s.latest_saved_at
+                       ELSE m.latest_highlight_at
+                   END,
+                   l.created_at, l.modified_at, l.updated_at
+               ) AS activity_at,
                coalesce(s.saves, 0) AS saves, coalesce(s.savers, 0) AS savers,
                coalesce(m.highlights, 0) AS highlights, coalesce(m.highlighters, 0) AS highlighters,
                coalesce(s.savers, 0) * 3 + coalesce(m.highlighters, 0) * 5 + coalesce(m.highlights, 0) AS score
@@ -1475,9 +1487,9 @@ def load_frontpage_links(conn: sqlite3.Connection, limit: int) -> list[dict[str,
         WHERE l.url IS NOT NULL AND trim(l.url) <> ''
     """
     rows: dict[int, dict[str, Any]] = {}
-    for order in ("score DESC, created_at DESC", "created_at DESC, score DESC"):
+    for order in ("score DESC, activity_at DESC", "activity_at DESC, score DESC"):
         for row in conn.execute(f"{base} ORDER BY {order} LIMIT ?", (limit,)):
-            created = row["created_at"] or row["modified_at"] or row["updated_at"] or ""
+            created = row["activity_at"] or row["created_at"] or row["modified_at"] or row["updated_at"] or ""
             rows.setdefault(row["link_id"], {
                 "id": row["link_id"],
                 "title": compact_text(row["title"], 190),
@@ -2440,7 +2452,7 @@ def self_test() -> None:
                 link_id INTEGER PRIMARY KEY, url TEXT, title TEXT, snippet TEXT,
                 created_at TEXT, modified_at TEXT, updated_at TEXT
             );
-            CREATE TABLE saved_links (user_id INTEGER, link_id INTEGER);
+            CREATE TABLE saved_links (user_id INTEGER, link_id INTEGER, saved_at TEXT);
             CREATE TABLE highlights (
                 highlight_id INTEGER PRIMARY KEY, user_id INTEGER, link_id INTEGER,
                 highlight_text TEXT, raw_highlight TEXT, left_context TEXT, right_context TEXT, created_at TEXT
@@ -2452,7 +2464,7 @@ def self_test() -> None:
             INSERT INTO follows VALUES (2, 1), (3, 1), (1, 2), (4, 3);
             INSERT INTO links VALUES (10, 'https://example.com/engine', 'Notes on engines', 'A compact note.', '2026-07-15T00:00:00Z', NULL, '2026-07-15T00:00:00Z');
             INSERT INTO links VALUES (11, 'https://example.com/math', 'A new math note', 'Fresh note.', '2026-07-16T00:00:00Z', NULL, '2026-07-16T00:00:00Z');
-            INSERT INTO saved_links VALUES (1, 10), (2, 10), (3, 11);
+            INSERT INTO saved_links VALUES (1, 10, '2026-07-15T00:30:00Z'), (2, 10, '2026-07-17T03:00:00Z'), (3, 11, '2026-07-16T00:30:00Z');
             INSERT INTO highlights VALUES (100, 1, 10, 'Readable programs are easier to repair.', NULL, 'A note says', 'when the pager rings.', '2026-07-15T01:00:00Z');
             INSERT INTO highlights VALUES (101, 2, 10, 'Readable programs are easier to repair.', NULL, 'Another note says', 'during review.', '2026-07-16T01:00:00Z');
             INSERT INTO highlights VALUES (102, 3, 11, 'Small checks catch large mistakes.', NULL, '', '', '2026-07-16T02:00:00Z');
@@ -2486,6 +2498,8 @@ def self_test() -> None:
         assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "how-this-works.html" in frontpage_html
         assert "Small ranking model" not in frontpage_html and "S<sub>link</sub>" in how_html and "How this works" in how_html
         assert 'href="https://front.example/index.html"' in graph_html + metrics_html + algorithms_html + next_html
+        payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
+        assert sorted(payload["links"], key=lambda item: item["createdAt"], reverse=True)[0]["id"] == 10
         assert 'href="https://analysis.example/metrics.html"' in frontpage_html + how_html
         assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html + how_html
     print("self-test passed")
