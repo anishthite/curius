@@ -1124,10 +1124,12 @@ FRONTPAGE_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Curius front page</title>
+<title>Curius Front Page</title>
 <style>
 __PAPER_CSS__
   .intro { max-width: 76ch; }
+  .more-banner { display: inline-flex; gap: .42rem; flex-wrap: wrap; align-items: baseline; margin: 0 0 1rem; padding: .34rem .66rem; border: 1px solid var(--rule); border-radius: 999px; background: rgba(255, 250, 240, .78); color: var(--muted); font-size: .92rem; }
+  .more-banner a { color: var(--ink); }
   .front-controls { display: flex; gap: .55rem; flex-wrap: wrap; align-items: center; margin: 1rem 0 1.15rem; }
   .front-controls button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
   .front-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 350px); gap: 1.4rem; align-items: start; }
@@ -1168,10 +1170,10 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="__ANALYSIS_INDEX_URL__">Follower graph</a><a href="__ANALYSIS_METRICS_URL__">Metrics explainer</a><a href="__ANALYSIS_ALGORITHMS_URL__">Algorithms</a><a href="__ANALYSIS_QUESTIONS_URL__">Next questions</a></nav>
-  <h1>Curius front page</h1>
-  <p class="intro">This is a quiet front page for the Curius reading graph. Hacker News keeps each story to a title and a small line of evidence; its public API exposes fields such as title, url, score, and time <a class="cite" href="https://github.com/HackerNews/API" target="_blank" rel="noreferrer" title="Lists Hacker News item fields such as title, url, score, and time.">HN API</a>. This page uses the same compact rhythm, but the evidence comes from local saves and marked passages.</p>
-  <p class="intro quiet">Choose links or highlights, then choose whether the feed should answer “what did many readers touch?” or “what arrived most recently?”</p>
+  <aside class="more-banner" aria-label="More Curius things"><span>See more Curius things</span><a href="__ANALYSIS_INDEX_URL__">follower graph</a><span aria-hidden="true">·</span><a href="__ANALYSIS_METRICS_URL__">metrics</a><span aria-hidden="true">·</span><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><span aria-hidden="true">·</span><a href="__ANALYSIS_QUESTIONS_URL__">questions</a></aside>
+  <h1>Curius Front Page</h1>
+  <p class="intro">Curius Front Page is a public readout of what Curius readers are saving and highlighting. It turns shared bookmarks and marked passages into a compact feed, so you can see which ideas many people returned to and which discoveries just arrived.</p>
+  <p class="intro quiet">Use the toggles to switch between links and highlights, then between popular and newest. The small line under each row shows the evidence behind the ranking.</p>
 
   <section class="front-controls" aria-label="Feed controls">
     <button type="button" data-kind="links" aria-pressed="true">Links</button>
@@ -2499,7 +2501,7 @@ def self_test() -> None:
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
-        assert "frontpage-data" in frontpage_html and "Popular" in frontpage_html and "Small ranking model" in frontpage_html
+        assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "Small ranking model" in frontpage_html
         assert 'href="https://front.example/index.html"' in graph_html + metrics_html + algorithms_html + next_html
         assert 'href="https://analysis.example/metrics.html"' in frontpage_html
         assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html
