@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Static app split</title>
+<meta name="task" content="Split generated Curius pages into frontpage and analysis static apps">
+<meta name="date-started" content="2026-07-21">
+<meta name="date-updated" content="2026-07-21">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,static-site,deploy,apps">
+<meta name="related" content="2026-07-17-curius-frontpage.html,2026-07-16-follower-graph-site.html,2026-07-21-repo-organization.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Split static Curius apps</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-21 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ship two static app roots: <code>apps/frontpage</code> and <code>apps/analysis</code>.</div>
+  <b>Source</b><div><code>analysis/build_follower_site.py</code> reads <code>data/curius.sqlite</code>.</div>
+  <b>Surface</b><div><code>apps/frontpage/index.html</code>, <code>apps/analysis/index.html</code>, <code>apps/analysis/*.html</code>.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Generated pages keep existing responsive CSS.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Default generated outputs move to <code>apps/analysis</code> and <code>apps/frontpage</code>.</td></tr>
+  <tr><td><code>scraper/curius_link_highlight_updater.py</code></td><td>touch</td><td>Updater refreshes <code>apps/frontpage/index.html</code>.</td></tr>
+  <tr><td><code>apps/analysis/</code></td><td>new</td><td>Static graph-analysis app root.</td></tr>
+  <tr><td><code>apps/frontpage/</code></td><td>new</td><td>Static HN-style frontpage app root.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document separate app roots and commands.</td></tr>
+  <tr><td><code>analysis/follower_*.html</code></td><td>delete</td><td>Remove legacy generated analysis pages from the source folder.</td></tr>
+  <tr><td><code>site/index.html</code></td><td>delete</td><td>Remove legacy generated frontpage from the old app folder.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use plain static directories under <code>apps/</code>. Static hosts already accept an output directory.</td></tr>
+  <tr><td>D-002</td><td>Use <code>apps/analysis/index.html</code> for the graph explorer. It is the analysis app landing page.</td></tr>
+  <tr><td>D-003</td><td>Delete legacy generated HTML paths. The repo should advertise one output root per app.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>apps/*</code> over framework scaffolds. No runtime code is needed for static HTML.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Restore old default output paths and remove <code>apps/</code> generated files.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 analysis/build_follower_site.py</code> writes both app roots.</li>
+  <li><code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3 scraper/curius_link_highlight_updater.py --self-test</code> passes.</li>
+  <li>Generated <code>apps/**/*.html</code> relative link check passes.</li>
+  <li>README names the static output directories for deployment.</li>
+</ul>
+</body>
+</html>

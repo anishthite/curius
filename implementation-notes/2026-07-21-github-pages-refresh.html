@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — GitHub refresh workflow</title>
+<meta name="task" content="Automate Curius static app refresh and Cloudflare Pages deploy path">
+<meta name="date-started" content="2026-07-21">
+<meta name="date-updated" content="2026-07-21">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,github-actions,cloudflare,deploy,sqlite">
+<meta name="related" content="2026-07-21-static-app-split.html,2026-07-21-link-highlight-updater.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Automate static app refresh</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-21 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Nightly GitHub Actions refreshes <code>data/curius.sqlite</code> and commits generated <code>apps/**/*.html</code>.</div>
+  <b>Deploy</b><div>Cloudflare Pages direct uploads serve <code>curius-frontpage</code> and <code>curius-analysis</code>.</div>
+  <b>Persistence</b><div>GitHub Actions cache stores ignored SQLite files between runs.</div>
+  <b>Surface</b><div><code>.github/workflows/update-curius.yml</code>, <code>README.md</code>, URL flags on <code>analysis/build_follower_site.py</code>.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Restore <code>data/curius.sqlite*</code> from the latest cache key.</li>
+  <li>Run scraper self-tests and generator self-test.</li>
+  <li>Run the social graph crawl only when the DB is missing/followless or manual <code>social_refresh</code> is true.</li>
+  <li>Refresh stale links/highlights with <code>scraper/curius_link_highlight_updater.py</code>.</li>
+  <li>Build both static apps with deploy URLs, save SQLite cache, and commit generated HTML changes.</li>
+  <li>Deploy both apps directly when <code>CLOUDFLARE_API_TOKEN</code> exists.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>.github/workflows/update-curius.yml</code></td><td>new</td><td>Scheduled/manual refresh workflow with optional direct Cloudflare deploy.</td></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Add <code>--frontpage-url</code> and <code>--analysis-url</code> for separate app cross-links.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document Cloudflare Pages projects and repo variables.</td></tr>
+  <tr><td><code>apps/frontpage/index.html</code></td><td>generated</td><td>Frontpage links point at the analysis app URL.</td></tr>
+  <tr><td><code>apps/analysis/*.html</code></td><td>generated</td><td>Analysis links point at the frontpage app URL.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use Cloudflare Pages Git integration. It avoids deploy tokens and extra CLI dependencies.</td></tr>
+  <tr><td>D-002</td><td>Cache SQLite instead of committing it. The DB stays local/noisy while the generated HTML is reviewable.</td></tr>
+  <tr><td>D-003</td><td>Default deploy URLs to <code>curius-frontpage.pages.dev</code> and <code>curius-analysis.pages.dev</code>. Those match the documented Pages project names.</td></tr>
+  <tr><td>D-004</td><td>Deploy with direct Pages uploads when a token exists. Wrangler-created projects are not automatically Git-connected.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td>GitHub Actions cache over R2. No credentials are required for first deployment.</td></tr>
+  <tr><td>T-002</td><td>Commit generated HTML over building inside Cloudflare. The scraper needs persisted SQLite and long-running Python.</td></tr>
+  <tr><td>T-003</td><td>Direct deploy step over dashboard-only Git integration. The created Pages projects work immediately with a token.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Delete <code>.github/workflows/update-curius.yml</code>, unset Pages Git integration, and rebuild pages locally.</p>
+
+<h2>Followups</h2>
+<ul>
+  <li>L-001 · Move SQLite persistence to R2 if GitHub cache churn becomes noisy.</li>
+  <li>L-002 · Set <code>CLOUDFLARE_API_TOKEN</code> in GitHub secrets for twice-daily direct deploys.</li>
+</ul>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>ruby -e "require 'yaml'; YAML.load_file('.github/workflows/update-curius.yml')"</code> parses the workflow.</li>
+  <li><code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3 scraper/curius_link_highlight_updater.py --self-test</code> passes.</li>
+  <li>Generated HTML has no unresolved URL placeholders.</li>
+  <li>Generated relative links resolve within <code>apps/</code>.</li>
+  <li><code>wrangler pages deploy</code> publishes <code>curius-frontpage</code> and <code>curius-analysis</code>.</li>
+  <li>README names Cloudflare project settings and repo variables.</li>
+</ul>
+</body>
+</html>

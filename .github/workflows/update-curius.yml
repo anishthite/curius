@@ -1,0 +1,141 @@
+name: Update Curius apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      refresh_limit:
+        description: Stale users to refresh this run
+        default: "200"
+        required: false
+      social_refresh:
+        description: Refresh the full users/follows graph before links/highlights
+        type: boolean
+        default: false
+        required: false
+  schedule:
+    - cron: "17 9,21 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: curius-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - uses: actions/setup-node@v4
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+        with:
+          node-version: "22"
+
+      - name: Restore SQLite cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/curius.sqlite
+            data/curius.sqlite-*
+          key: ${{ runner.os }}-curius-sqlite-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-curius-sqlite-
+
+      - name: Check generators
+        run: |
+          python3 scraper/curius_link_highlight_updater.py --self-test
+          python3 analysis/build_follower_site.py --self-test
+
+      - name: Refresh data and build apps
+        shell: bash
+        env:
+          INPUT_REFRESH_LIMIT: ${{ github.event.inputs.refresh_limit }}
+          INPUT_SOCIAL_REFRESH: ${{ github.event.inputs.social_refresh }}
+          CURIUS_REFRESH_LIMIT: ${{ vars.CURIUS_REFRESH_LIMIT }}
+          CURIUS_SOCIAL_LIMIT: ${{ vars.CURIUS_SOCIAL_LIMIT }}
+          CURIUS_REQUEST_DELAY: ${{ vars.CURIUS_REQUEST_DELAY }}
+          CURIUS_FRONTPAGE_URL: ${{ vars.CURIUS_FRONTPAGE_URL }}
+          CURIUS_ANALYSIS_URL: ${{ vars.CURIUS_ANALYSIS_URL }}
+        run: |
+          set -euo pipefail
+
+          refresh_limit="${INPUT_REFRESH_LIMIT:-${CURIUS_REFRESH_LIMIT:-200}}"
+          delay="${CURIUS_REQUEST_DELAY:-0.2}"
+          social_refresh="${INPUT_SOCIAL_REFRESH:-false}"
+          frontpage_url="${CURIUS_FRONTPAGE_URL:-https://curius-frontpage.pages.dev}"
+          analysis_url="${CURIUS_ANALYSIS_URL:-https://curius-analysis.pages.dev}"
+
+          needs_social="$(python3 - <<'PY'
+          import sqlite3
+          from pathlib import Path
+          db = Path("data/curius.sqlite")
+          if not db.exists():
+              print(1)
+              raise SystemExit
+          conn = sqlite3.connect(db)
+          try:
+              users = conn.execute("SELECT count(*) FROM users").fetchone()[0]
+              follows = conn.execute("SELECT count(*) FROM follows").fetchone()[0]
+          except sqlite3.Error:
+              print(1)
+          else:
+              print(0 if users and follows else 1)
+          finally:
+              conn.close()
+          PY
+          )"
+
+          if [[ "$social_refresh" == "true" || "$needs_social" == "1" ]]; then
+            social_args=(--delay "$delay")
+            if [[ -n "${CURIUS_SOCIAL_LIMIT:-}" ]]; then
+              social_args+=(--limit-users "$CURIUS_SOCIAL_LIMIT")
+            fi
+            python3 scraper/curius_scraper.py "${social_args[@]}"
+          fi
+
+          python3 scraper/curius_link_highlight_updater.py --limit-users "$refresh_limit" --delay "$delay"
+          CURIUS_FRONTPAGE_URL="$frontpage_url" CURIUS_ANALYSIS_URL="$analysis_url" python3 analysis/build_follower_site.py
+
+      - name: Save SQLite cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            data/curius.sqlite
+            data/curius.sqlite-*
+          key: ${{ runner.os }}-curius-sqlite-${{ github.run_id }}
+
+      - name: Commit generated apps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/frontpage apps/analysis
+          if git diff --cached --quiet; then
+            echo "No generated app changes."
+            exit 0
+          fi
+          git commit -m "Update Curius static apps"
+          git pull --rebase
+          git push
+
+      - name: Deploy Cloudflare Pages
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
+        run: |
+          npx --yes wrangler@4 pages deploy apps/frontpage --project-name curius-frontpage --branch main --commit-dirty=true
+          npx --yes wrangler@4 pages deploy apps/analysis --project-name curius-analysis --branch main --commit-dirty=true
+
+      - name: Skip Cloudflare direct deploy
+        if: ${{ env.CLOUDFLARE_API_TOKEN == '' }}
+        run: echo "Set the CLOUDFLARE_API_TOKEN secret to deploy directly, or connect the Pages projects to Git."

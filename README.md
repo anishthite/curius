@@ -5,8 +5,9 @@ Small stdlib-first tools around public Curius data.
 ## Layout
 
 - `scraper/` — public Curius crawler; writes local SQLite/progress files to ignored `data/`.
-- `analysis/` — one-time graph/front-page generator plus generated analysis pages.
-- `site/` — ongoing Hacker News-style static front page (`site/index.html`).
+- `analysis/` — generators plus the tiny local QA CLI.
+- `apps/frontpage/` — Hacker News-style static app (`apps/frontpage/index.html`).
+- `apps/analysis/` — follower graph analysis static app (`apps/analysis/index.html`).
 
 ## Scrape
 
@@ -28,15 +29,37 @@ python3 scraper/curius_scraper.py --self-test
 python3 scraper/curius_scraper.py --limit-users 3 --delay 0
 ```
 
+## Link/highlight updater
+
+Refresh stale saved links and highlights, then rebuild `apps/frontpage/index.html`:
+
+```sh
+python3 scraper/curius_link_highlight_updater.py --limit-users 200
+open data/curius_link_highlight_updater.html
+```
+
+Keep it running locally:
+
+```sh
+python3 scraper/curius_link_highlight_updater.py --loop --sleep 600 --limit-users 200
+```
+
+Check it:
+
+```sh
+python3 scraper/curius_link_highlight_updater.py --self-test
+python3 scraper/curius_link_highlight_updater.py --limit-users 1 --delay 0
+```
+
 ## Build pages
 
 ```sh
 python3 analysis/build_follower_site.py
-open site/index.html
-open analysis/follower_graph.html
-open analysis/follower_metrics.html
-open analysis/follower_algorithms.html
-open analysis/follower_next_questions.html
+open apps/frontpage/index.html
+open apps/analysis/index.html
+open apps/analysis/metrics.html
+open apps/analysis/algorithms.html
+open apps/analysis/questions.html
 ```
 
 Check the generator:
@@ -44,6 +67,34 @@ Check the generator:
 ```sh
 python3 analysis/build_follower_site.py --self-test
 ```
+
+## Deploy
+
+Create two Cloudflare Pages projects from this repo:
+
+| Project | Build command | Output directory |
+| --- | --- | --- |
+| `curius-frontpage` | empty | `apps/frontpage` |
+| `curius-analysis` | empty | `apps/analysis` |
+
+`.github/workflows/update-curius.yml` runs twice a day and on demand. It restores the cached SQLite DB, refreshes stale links/highlights, rebuilds both apps, commits changed `apps/**/*.html`, and deploys directly when `CLOUDFLARE_API_TOKEN` is set.
+
+Repo secret for direct deploy:
+
+| Secret | Use |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare token with Pages edit access |
+
+Optional repo variables:
+
+| Variable | Default | Use |
+| --- | --- | --- |
+| `CLOUDFLARE_ACCOUNT_ID` | detected locally | Cloudflare account for direct deploy |
+| `CURIUS_FRONTPAGE_URL` | `https://curius-frontpage.pages.dev` | frontpage app URL for cross-links |
+| `CURIUS_ANALYSIS_URL` | `https://curius-analysis.pages.dev` | analysis app URL for cross-links |
+| `CURIUS_REFRESH_LIMIT` | `200` | stale users refreshed per run |
+| `CURIUS_SOCIAL_LIMIT` | unset | cap users/follows crawl when social refresh runs |
+| `CURIUS_REQUEST_DELAY` | `0.2` | seconds between Curius API requests |
 
 ## Tiny local QA experiment
 

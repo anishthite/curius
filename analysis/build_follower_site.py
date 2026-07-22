@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import heapq
 import html
 import json
@@ -24,11 +25,15 @@ except Exception:  # ponytail: optional; only the deep analysis page needs modul
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = REPO_ROOT / "data/curius.sqlite"
-DEFAULT_GRAPH_OUT = REPO_ROOT / "analysis/follower_graph.html"
-DEFAULT_METRICS_OUT = REPO_ROOT / "analysis/follower_metrics.html"
-DEFAULT_ALGORITHMS_OUT = REPO_ROOT / "analysis/follower_algorithms.html"
-DEFAULT_NEXT_OUT = REPO_ROOT / "analysis/follower_next_questions.html"
-DEFAULT_FRONTPAGE_OUT = REPO_ROOT / "site/index.html"
+DEFAULT_ANALYSIS_APP = REPO_ROOT / "apps/analysis"
+DEFAULT_FRONTPAGE_APP = REPO_ROOT / "apps/frontpage"
+DEFAULT_GRAPH_OUT = DEFAULT_ANALYSIS_APP / "index.html"
+DEFAULT_METRICS_OUT = DEFAULT_ANALYSIS_APP / "metrics.html"
+DEFAULT_ALGORITHMS_OUT = DEFAULT_ANALYSIS_APP / "algorithms.html"
+DEFAULT_NEXT_OUT = DEFAULT_ANALYSIS_APP / "questions.html"
+DEFAULT_FRONTPAGE_OUT = DEFAULT_FRONTPAGE_APP / "index.html"
+DEFAULT_ANALYSIS_URL = "../analysis"
+DEFAULT_FRONTPAGE_URL = "../frontpage"
 GOLDEN_ANGLE = math.pi * (3 - math.sqrt(5))
 
 PAPER_CSS = """
@@ -171,7 +176,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="curius_frontpage.html">Curius front page</a><a href="follower_metrics.html">Read the metrics page</a><a href="follower_algorithms.html">Go deeper on algorithms</a><a href="follower_next_questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="metrics.html">Read the metrics page</a><a href="algorithms.html">Go deeper on algorithms</a><a href="questions.html">Next questions</a></nav>
   <h1>Curius follower graph</h1>
   <p>Each dot is a Curius user. A line points from the person who follows to the person being followed. The map uses every stored follow edge. High-core and high-degree people sit near the center; small or isolated weak components sit around the outside.</p>
   <p class="quiet">Drag to pan. Scroll to zoom. Click a dot, or search by name, handle, or school.</p>
@@ -536,7 +541,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="curius_frontpage.html">Curius front page</a><a href="follower_graph.html">Explore the graph</a><a href="follower_algorithms.html">Go deeper on algorithms</a><a href="follower_next_questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="index.html">Explore the graph</a><a href="algorithms.html">Go deeper on algorithms</a><a href="questions.html">Next questions</a></nav>
   <h1>How to read this follower graph</h1>
   <div class="article">
     <main>
@@ -807,7 +812,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="curius_frontpage.html">Curius front page</a><a href="follower_graph.html">Explore the graph</a><a href="follower_metrics.html">Read the first metrics page</a><a href="follower_next_questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="index.html">Explore the graph</a><a href="metrics.html">Read the first metrics page</a><a href="questions.html">Next questions</a></nav>
   <h1>More graph algorithms for this follower graph</h1>
   <div class="article">
     <main>
@@ -1040,7 +1045,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="curius_frontpage.html">Curius front page</a><a href="follower_graph.html">Explore the graph</a><a href="follower_metrics.html">Read metrics</a><a href="follower_algorithms.html">Read algorithms</a></nav>
+  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="index.html">Explore the graph</a><a href="metrics.html">Read metrics</a><a href="algorithms.html">Read algorithms</a></nav>
   <h1>Four next questions for the follower graph</h1>
   <div class="article">
     <main>
@@ -1163,7 +1168,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="follower_graph.html">Follower graph</a><a href="follower_metrics.html">Metrics explainer</a><a href="follower_algorithms.html">Algorithms</a><a href="follower_next_questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="__ANALYSIS_INDEX_URL__">Follower graph</a><a href="__ANALYSIS_METRICS_URL__">Metrics explainer</a><a href="__ANALYSIS_ALGORITHMS_URL__">Algorithms</a><a href="__ANALYSIS_QUESTIONS_URL__">Next questions</a></nav>
   <h1>Curius front page</h1>
   <p class="intro">This is a quiet front page for the Curius reading graph. Hacker News keeps each story to a title and a small line of evidence; its public API exposes fields such as title, url, score, and time <a class="cite" href="https://github.com/HackerNews/API" target="_blank" rel="noreferrer" title="Lists Hacker News item fields such as title, url, score, and time.">HN API</a>. This page uses the same compact rhythm, but the evidence comes from local saves and marked passages.</p>
   <p class="intro quiet">Choose links or highlights, then choose whether the feed should answer “what did many readers touch?” or “what arrived most recently?”</p>
@@ -2273,13 +2278,32 @@ def json_script(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
 
 
-def render_graph_html(graph: dict[str, Any], db_path: Path) -> str:
+def app_url(base: str, page: str = "index.html") -> str:
+    return f"{base.rstrip('/')}/{page}"
+
+
+def render_graph_html(graph: dict[str, Any], db_path: Path, frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
     payload = graph_payload(graph, db_path)
-    return GRAPH_HTML.replace("__PAPER_CSS__", PAPER_CSS).replace("__GRAPH_JSON__", json_script(payload))
+    return (
+        GRAPH_HTML.replace("__PAPER_CSS__", PAPER_CSS)
+        .replace("__FRONTPAGE_INDEX_URL__", app_url(frontpage_url))
+        .replace("__GRAPH_JSON__", json_script(payload))
+    )
 
 
-def render_frontpage_html(payload: dict[str, Any]) -> str:
-    return FRONTPAGE_HTML.replace("__PAPER_CSS__", PAPER_CSS).replace("__FRONTPAGE_JSON__", json_script(payload))
+def render_frontpage_html(payload: dict[str, Any], analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
+    replacements = {
+        "__PAPER_CSS__": PAPER_CSS,
+        "__ANALYSIS_INDEX_URL__": app_url(analysis_url),
+        "__ANALYSIS_METRICS_URL__": app_url(analysis_url, "metrics.html"),
+        "__ANALYSIS_ALGORITHMS_URL__": app_url(analysis_url, "algorithms.html"),
+        "__ANALYSIS_QUESTIONS_URL__": app_url(analysis_url, "questions.html"),
+        "__FRONTPAGE_JSON__": json_script(payload),
+    }
+    out = FRONTPAGE_HTML
+    for old, new in replacements.items():
+        out = out.replace(old, new)
+    return out
 
 
 def algorithms_payload(graph: dict[str, Any]) -> dict[str, Any]:
@@ -2296,10 +2320,11 @@ def algorithms_payload(graph: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def render_metrics_html(graph: dict[str, Any]) -> str:
+def render_metrics_html(graph: dict[str, Any], frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
     metrics = graph["metrics"]
     replacements = {
         "__PAPER_CSS__": PAPER_CSS,
+        "__FRONTPAGE_INDEX_URL__": app_url(frontpage_url),
         "__METRICS_JSON__": json_script({"metrics": metrics}),
         "__NODES__": fmt_int(metrics["counts"]["nodes"]),
         "__EDGES__": fmt_int(metrics["counts"]["edges"]),
@@ -2326,7 +2351,7 @@ def render_metrics_html(graph: dict[str, Any]) -> str:
     return out
 
 
-def render_next_html(graph: dict[str, Any]) -> str:
+def render_next_html(graph: dict[str, Any], frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
     metrics = graph["metrics"]
     next_data = metrics["nextAnalyses"]
     interest = next_data["interest"]
@@ -2335,6 +2360,7 @@ def render_next_html(graph: dict[str, Any]) -> str:
     top_missing_text = f"{top_missing['source']['name']} → {top_missing['target']['name']}" if top_missing else "No missing follow scored"
     replacements = {
         "__PAPER_CSS__": PAPER_CSS,
+        "__FRONTPAGE_INDEX_URL__": app_url(frontpage_url),
         "__NODES__": fmt_int(metrics["counts"]["nodes"]),
         "__EDGES__": fmt_int(metrics["counts"]["edges"]),
         "__LARGEST_WEAK__": fmt_int(metrics["largestWeak"]),
@@ -2359,13 +2385,14 @@ def render_next_html(graph: dict[str, Any]) -> str:
     return out
 
 
-def render_algorithms_html(graph: dict[str, Any]) -> str:
+def render_algorithms_html(graph: dict[str, Any], frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
     metrics = graph["metrics"]
     path_stats = metrics["pathStats"]
     bow_tie = metrics["bowTie"]
     school = metrics["schoolHomophily"]
     replacements = {
         "__PAPER_CSS__": PAPER_CSS,
+        "__FRONTPAGE_INDEX_URL__": app_url(frontpage_url),
         "__ALGORITHMS_JSON__": json_script(algorithms_payload(graph)),
         "__PATH_AVG__": fmt_float(path_stats["average"], 2),
         "__PATH_P90__": fmt_int(path_stats["p90"]),
@@ -2389,7 +2416,16 @@ def render_algorithms_html(graph: dict[str, Any]) -> str:
     return out
 
 
-def build(db_path: Path, graph_out: Path, metrics_out: Path, algorithms_out: Path, next_out: Path, frontpage_out: Path = DEFAULT_FRONTPAGE_OUT) -> dict[str, Any]:
+def build(
+    db_path: Path,
+    graph_out: Path,
+    metrics_out: Path,
+    algorithms_out: Path,
+    next_out: Path,
+    frontpage_out: Path = DEFAULT_FRONTPAGE_OUT,
+    frontpage_url: str = DEFAULT_FRONTPAGE_URL,
+    analysis_url: str = DEFAULT_ANALYSIS_URL,
+) -> dict[str, Any]:
     if not db_path.exists():
         raise SystemExit(f"Database not found: {db_path}")
     frontpage = load_frontpage(db_path)
@@ -2401,11 +2437,11 @@ def build(db_path: Path, graph_out: Path, metrics_out: Path, algorithms_out: Pat
     algorithms_out.parent.mkdir(parents=True, exist_ok=True)
     next_out.parent.mkdir(parents=True, exist_ok=True)
     frontpage_out.parent.mkdir(parents=True, exist_ok=True)
-    graph_out.write_text(render_graph_html(graph, db_path), encoding="utf-8")
-    metrics_out.write_text(render_metrics_html(graph), encoding="utf-8")
-    algorithms_out.write_text(render_algorithms_html(graph), encoding="utf-8")
-    next_out.write_text(render_next_html(graph), encoding="utf-8")
-    frontpage_out.write_text(render_frontpage_html(frontpage), encoding="utf-8")
+    graph_out.write_text(render_graph_html(graph, db_path, frontpage_url), encoding="utf-8")
+    metrics_out.write_text(render_metrics_html(graph, frontpage_url), encoding="utf-8")
+    algorithms_out.write_text(render_algorithms_html(graph, frontpage_url), encoding="utf-8")
+    next_out.write_text(render_next_html(graph, frontpage_url), encoding="utf-8")
+    frontpage_out.write_text(render_frontpage_html(frontpage, analysis_url), encoding="utf-8")
     return graph
 
 
@@ -2448,7 +2484,10 @@ def self_test() -> None:
         algorithms_out = Path(tmp) / "algorithms.html"
         next_out = Path(tmp) / "next.html"
         frontpage_out = Path(tmp) / "frontpage.html"
-        graph = build(db, graph_out, metrics_out, algorithms_out, next_out, frontpage_out)
+        graph = build(
+            db, graph_out, metrics_out, algorithms_out, next_out, frontpage_out,
+            "https://front.example", "https://analysis.example",
+        )
         graph_html = graph_out.read_text(encoding="utf-8")
         metrics_html = metrics_out.read_text(encoding="utf-8")
         algorithms_html = algorithms_out.read_text(encoding="utf-8")
@@ -2461,6 +2500,8 @@ def self_test() -> None:
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
         assert "frontpage-data" in frontpage_html and "Popular" in frontpage_html and "Small ranking model" in frontpage_html
+        assert 'href="https://front.example/index.html"' in graph_html + metrics_html + algorithms_html + next_html
+        assert 'href="https://analysis.example/metrics.html"' in frontpage_html
         assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html
     print("self-test passed")
 
@@ -2473,12 +2514,17 @@ def main() -> None:
     parser.add_argument("--algorithms-out", type=Path, default=DEFAULT_ALGORITHMS_OUT, help="algorithms HTML output path")
     parser.add_argument("--next-out", type=Path, default=DEFAULT_NEXT_OUT, help="next-questions HTML output path")
     parser.add_argument("--frontpage-out", type=Path, default=DEFAULT_FRONTPAGE_OUT, help="front page HTML output path")
+    parser.add_argument("--frontpage-url", default=os.environ.get("CURIUS_FRONTPAGE_URL", DEFAULT_FRONTPAGE_URL), help="base URL for links from analysis to frontpage")
+    parser.add_argument("--analysis-url", default=os.environ.get("CURIUS_ANALYSIS_URL", DEFAULT_ANALYSIS_URL), help="base URL for links from frontpage to analysis")
     parser.add_argument("--self-test", action="store_true", help="run a tiny generated-db check")
     args = parser.parse_args()
     if args.self_test:
         self_test()
         return
-    graph = build(args.db, args.graph_out, args.metrics_out, args.algorithms_out, args.next_out, args.frontpage_out)
+    graph = build(
+        args.db, args.graph_out, args.metrics_out, args.algorithms_out, args.next_out, args.frontpage_out,
+        args.frontpage_url, args.analysis_url,
+    )
     counts = graph["metrics"]["counts"]
     print(f"Wrote {args.frontpage_out}, {args.graph_out}, {args.metrics_out}, {args.algorithms_out}, and {args.next_out} ({counts['nodes']:,} people, {counts['edges']:,} follows)")
 

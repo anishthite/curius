@@ -54,9 +54,10 @@ def clean_metadata(value: Any) -> str | None:
 
 
 class CuriusScraper:
-    def __init__(self, db_path: Path, progress_path: Path, delay: float, timeout: int) -> None:
+    def __init__(self, db_path: Path, progress_path: Path, delay: float, timeout: int, progress_title: str = "Curius scrape progress") -> None:
         self.db_path = db_path
         self.progress_path = progress_path
+        self.progress_title = progress_title
         self.delay = delay
         self.timeout = timeout
         self.started_at = utc_now()
@@ -77,6 +78,11 @@ class CuriusScraper:
             "highlights": 0,
             "last_url": "",
             "last_error": "",
+            "mode": "",
+            "refresh_hours": "",
+            "frontpage": "",
+            "cycle": "",
+            "next_sleep": "",
             "errors": [],
         }
         self.conn = sqlite3.connect(db_path)
@@ -574,6 +580,11 @@ class CuriusScraper:
             "db": str(self.db_path),
             "last url": self.status.get("last_url"),
             "last error": self.status.get("last_error"),
+            "mode": self.status.get("mode"),
+            "refresh hours": self.status.get("refresh_hours"),
+            "front page": self.status.get("frontpage"),
+            "cycle": self.status.get("cycle"),
+            "next sleep": self.status.get("next_sleep"),
         }
         table_rows = "\n".join(
             f"<tr><th>{html.escape(str(k))}</th><td>{html.escape(str(v or ''))}</td></tr>" for k, v in rows.items()
@@ -582,13 +593,14 @@ class CuriusScraper:
             f"<tr><td>{html.escape(k)}</td><td>{v}</td></tr>" for k, v in counts.items()
         )
         error_items = "\n".join(f"<li>{html.escape(err)}</li>" for err in self.status.get("errors", [])[-10:])
+        title = html.escape(self.progress_title)
         self.progress_path.write_text(
             f"""<!doctype html>
 <html lang=\"en\">
 <head>
 <meta charset=\"utf-8\">
 <meta http-equiv=\"refresh\" content=\"10\">
-<title>Curius scrape progress</title>
+<title>{title}</title>
 <style>
 body {{ font: 14px/1.45 -apple-system, BlinkMacSystemFont, sans-serif; max-width: 1000px; margin: 2rem auto; padding: 0 1rem; color: #111; }}
 h1 {{ font-size: 22px; margin-bottom: .2rem; }}
@@ -601,7 +613,7 @@ code {{ background: #f1f1f1; padding: 1px 4px; border-radius: 3px; }}
 </style>
 </head>
 <body>
-<h1>Curius scrape progress <span class=\"badge\">{html.escape(str(self.status.get('state')))}</span></h1>
+<h1>{title} <span class=\"badge\">{html.escape(str(self.status.get('state')))}</span></h1>
 <p>Auto-refreshes every 10 seconds. Database: <code>{html.escape(str(self.db_path))}</code></p>
 <h2>Run</h2>
 <table>{table_rows}</table>
