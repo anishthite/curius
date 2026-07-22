@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Active link refresh</title>
+<meta name="task" content="Prioritize active Curius users for link refresh">
+<meta name="date-started" content="2026-07-22">
+<meta name="date-updated" content="2026-07-22">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,scraper,links,highlights,updater">
+<meta name="related" content="2026-07-21-link-highlight-updater.html,2026-07-17-curius-frontpage.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .status-shipped { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Active link refresh</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-22 · status <b class="status-shipped">shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ingest global link activity, then refresh active stale users before old inactive rows.</div>
+  <b>Source</b><div><code>/links/activity</code>, then <code>saved_links.saved_at</code> and <code>highlights.created_at</code>.</div>
+  <b>Surface</b><div><code>python3 scraper/curius_link_highlight_updater.py</code>.</div>
+  <b>Storage</b><div>No schema change.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>Fetch public <code>/links/activity</code>.</li>
+  <li>Upsert each returned <code>user</code>, <code>link</code>, and <code>saved_links</code> relation.</li>
+  <li>Keep <code>--refresh-hours</code> as the per-user freshness gate.</li>
+  <li>Pick never-scraped users first.</li>
+  <li>For already-scraped stale users, order by latest known <code>saved_at</code> or highlight <code>created_at</code> descending.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>scraper/curius_link_highlight_updater.py</code></td><td>touch</td><td>Ingest <code>/links/activity</code> before choosing active stale refresh targets.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use <code>/links/activity</code> first. It exposes public global link activity without scanning every user.</td></tr>
+  <tr><td>D-002</td><td>Keep active-user ordering. Per-user refresh still fills highlights and authoritative per-user link state.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td>One public activity fetch over all-user polling. It inserts new links before slow per-user refresh.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Revert the ordering query; database rows remain compatible.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li><code>python3 scraper/curius_link_highlight_updater.py --self-test</code> passes.</li>
+  <li>Temp DB run inserts current <code>/links/activity</code> links.</li>
+  <li>Current DB selection puts active stale users near the front.</li>
+</ul>
+</body>
+</html>
