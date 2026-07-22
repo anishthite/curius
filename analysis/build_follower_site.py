@@ -145,32 +145,37 @@ GRAPH_HTML = """<!doctype html>
 <title>Curius follower graph</title>
 <style>
 __PAPER_CSS__
-  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 350px); gap: 1rem; align-items: start; }
-  .graph-tools { grid-template-columns: minmax(230px, 1fr) minmax(175px, 190px) minmax(190px, 230px) auto; column-gap: 1.45rem; row-gap: .8rem; margin: 1rem 0; }
-  .graph-tools label { min-width: 0; white-space: nowrap; }
-  #fit { width: auto; min-width: 118px; justify-self: end; }
-  .canvas-wrap { position: relative; min-height: 620px; overflow: hidden; touch-action: none; }
-  canvas { display: block; width: 100%; height: min(72vh, 720px); min-height: 520px; border-radius: 18px; cursor: grab; }
+  .page { width: min(1480px, 100%); }
+  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: .85rem; align-items: start; }
+  .graph-tools { grid-template-columns: minmax(180px, 1fr) minmax(120px, 140px) minmax(135px, 155px) auto; column-gap: .55rem; row-gap: .45rem; margin: .65rem 0 .45rem; align-items: end; }
+  .graph-tools label { min-width: 0; white-space: nowrap; font-size: .88rem; gap: .16rem; }
+  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 36px; padding: .28rem .62rem; font-size: .95rem; }
+  #fit { width: auto; min-width: 86px; justify-self: end; }
+  .canvas-wrap { position: relative; min-height: 720px; overflow: hidden; touch-action: none; }
+  canvas { display: block; width: 100%; height: min(82vh, 860px); min-height: 640px; border-radius: 18px; cursor: grab; }
   canvas:active { cursor: grabbing; }
   .canvas-note { position: absolute; left: .8rem; right: .8rem; bottom: .7rem; color: var(--muted); background: rgba(255,250,240,.84); border: 1px solid var(--rule); border-radius: 14px; padding: .45rem .65rem; font-size: .92rem; }
-  .reader { padding: .2rem 0 .2rem 1rem; border-left: 1px solid var(--rule); position: sticky; top: 12px; }
+  .reader { padding: .2rem 0 .2rem .85rem; border-left: 1px solid var(--rule); position: sticky; top: 12px; }
   .reader h2 { margin-top: 0; }
-  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; margin: .85rem 0; }
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; margin: .75rem 0; }
   .count { border-top: 1px solid var(--rule); padding-top: .35rem; }
   .count b { display: block; font-size: 1.45rem; font-weight: 500; line-height: 1.1; }
   .count span { color: var(--muted); font-size: .9rem; }
-  .people { display: grid; gap: .45rem; max-height: 260px; overflow: auto; padding-right: .15rem; }
-  .person { width: 100%; border-radius: 14px; text-align: left; line-height: 1.25; }
-  .person small { display: block; color: var(--muted); margin-top: .12rem; }
-  .matches { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--rule); }
-  .matches .people { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); max-height: none; }
+  .people { display: grid; gap: .35rem; max-height: 260px; overflow: auto; padding-right: .15rem; }
+  .person { width: 100%; border-radius: 12px; text-align: left; line-height: 1.2; min-height: 0; padding: .38rem .58rem; }
+  .person small { display: block; color: var(--muted); margin-top: .08rem; }
+  .matches { margin: .15rem 0 .75rem; padding: .45rem 0 .55rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .matches h2 { font-size: 1.08rem; margin: 0 0 .35rem; }
+  .matches .people { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); max-height: 122px; overflow: auto; }
+  .profile-links { display: flex; flex-wrap: wrap; gap: .4rem .7rem; margin: .45rem 0; }
+  .profile-links a { white-space: nowrap; }
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
     .graph-layout, .graph-tools { grid-template-columns: 1fr; }
     .reader { position: static; }
-    .canvas-wrap { min-height: 480px; }
-    canvas { height: 64vh; min-height: 430px; }
+    .canvas-wrap { min-height: 540px; }
+    canvas { height: 70vh; min-height: 500px; }
   }
 </style>
 </head>
@@ -178,13 +183,16 @@ __PAPER_CSS__
 <div class="page">
   <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="metrics.html">Read the metrics page</a><a href="algorithms.html">Go deeper on algorithms</a><a href="questions.html">Next questions</a></nav>
   <h1>Curius follower graph</h1>
-  <p>Each dot is a Curius user. A line points from the person who follows to the person being followed. The map uses every stored follow edge. High-core and high-degree people sit near the center; small or isolated weak components sit around the outside.</p>
-  <p class="quiet">Drag to pan. Scroll to zoom. Click a dot, or search by name, handle, or school.</p>
+  <p class="quiet">Drag, scroll, click, or search.</p>
   <section class="controls graph-tools">
-    <label>Find a person <input id="q" type="search" autocomplete="off" placeholder="name, handle, school"></label>
-    <label>Minimum followers <input id="min-followers" type="number" min="0" step="1" value="0"></label>
-    <label>Show <select id="mode"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select></label>
-    <button id="fit" type="button">Fit graph</button>
+    <label>Search <input id="q" type="search" autocomplete="off" placeholder="name or handle"></label>
+    <label>Min followers <input id="min-followers" type="number" min="0" step="1" value="0"></label>
+    <label>View <select id="mode"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select></label>
+    <button id="fit" type="button">Fit</button>
+  </section>
+  <section class="matches">
+    <h2>Search results</h2>
+    <div id="matches" class="people"></div>
   </section>
   <section class="graph-layout">
     <figure class="canvas-wrap sheet">
@@ -192,10 +200,6 @@ __PAPER_CSS__
       <figcaption id="status" class="canvas-note"></figcaption>
     </figure>
     <aside id="reader" class="reader"></aside>
-  </section>
-  <section class="matches">
-    <h2>Search results</h2>
-    <div id="matches" class="people"></div>
   </section>
 </div>
 <script id="graph-data" type="application/json">__GRAPH_JSON__</script>
@@ -230,7 +234,7 @@ __PAPER_CSS__
   function label(n) { return n.name && n.name !== n.slug ? `${n.name} · ${n.slug}` : n.slug; }
   function profileUrl(n) { return `https://curius.app/users/${encodeURIComponent(n.slug)}`; }
   function degree(n) { return n.in + n.out; }
-  function matchesText(n, term) { return `${n.name} ${n.slug} ${n.school || ""}`.toLowerCase().includes(term); }
+  function matchesText(n, term) { return `${n.name} ${n.slug}`.toLowerCase().includes(term); }
   function sortedPeople(ids) { return ids.map(id => byId.get(id)).filter(Boolean).sort((a, b) => degree(b) - degree(a) || a.slug.localeCompare(b.slug)); }
   function resize() {
     const rect = canvas.getBoundingClientRect();
@@ -407,6 +411,37 @@ __PAPER_CSS__
     span.textContent = String(value);
     return span.innerHTML;
   }
+  function safeExternalUrl(value) {
+    const text = String(value || "").trim();
+    if (!text) return "";
+    const url = /^https?:\/\//i.test(text) ? text : `https://${text}`;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : "";
+    } catch {
+      return "";
+    }
+  }
+  function twitterUrl(value) {
+    const text = String(value || "").trim();
+    if (!text) return "";
+    if (/^https?:\/\//i.test(text)) return safeExternalUrl(text);
+    const handle = text.replace(/^@/, "").replace(/^(twitter|x)\.com\//i, "").split(/[/?#]/)[0];
+    return handle ? `https://twitter.com/${encodeURIComponent(handle)}` : "";
+  }
+  function githubUrl(value) {
+    const text = String(value || "").trim();
+    if (!text) return "";
+    if (/^https?:\/\//i.test(text)) return safeExternalUrl(text);
+    const handle = text.replace(/^@/, "").replace(/^github\.com\//i, "").split(/[/?#]/)[0];
+    return handle ? `https://github.com/${encodeURIComponent(handle)}` : "";
+  }
+  function appendProfileLink(row, label, href) {
+    if (!href) return;
+    const a = document.createElement("a");
+    a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label;
+    row.append(a);
+  }
   function renderReader() {
     const n = selected && byId.get(selected);
     if (!n) { reader.textContent = "Select a dot to read it."; return; }
@@ -415,14 +450,16 @@ __PAPER_CSS__
     const mutual = followers.filter(p => edgeSet.has(`${n.id}>${p.id}`));
     reader.innerHTML = "";
     const title = document.createElement("h2"); title.textContent = n.name || n.slug;
-    const link = document.createElement("p"); link.innerHTML = `<a href="${profileUrl(n)}" target="_blank" rel="noreferrer">${escapeHtml(n.slug)}</a>`;
+    const links = document.createElement("p"); links.className = "profile-links";
+    appendProfileLink(links, "Curius", profileUrl(n));
+    appendProfileLink(links, "Twitter", twitterUrl(n.twitter));
+    appendProfileLink(links, "GitHub", githubUrl(n.github));
+    appendProfileLink(links, "Website", safeExternalUrl(n.website));
     const counts = document.createElement("div"); counts.className = "counts";
     counts.innerHTML = `<div class="count"><b>${n.in.toLocaleString()}</b><span>followers</span></div><div class="count"><b>${n.out.toLocaleString()}</b><span>following</span></div><div class="count"><b>${n.core}</b><span>core</span></div>`;
-    const note = document.createElement("p"); note.className = "quiet";
-    note.textContent = [n.school, n.twitter && `twitter: ${n.twitter}`, n.github && `github: ${n.github}`, n.website].filter(Boolean).join(" · ") || "No profile metadata in the scrape.";
     const rank = document.createElement("p");
     rank.textContent = `PageRank share ${(n.rank * 100).toFixed(2)}%. ${mutual.length.toLocaleString()} of these relationships are mutual in the stored graph.`;
-    reader.append(title, link, counts, note, rank, peopleSection("Followers", followers), peopleSection("Following", following));
+    reader.append(title, links, counts, rank, peopleSection("Followers", followers), peopleSection("Following", following));
   }
   function peopleSection(title, people) {
     const section = document.createElement("section");
@@ -2186,7 +2223,15 @@ def graph_payload(graph: dict[str, Any], db_path: Path) -> dict[str, Any]:
         "generatedAt": graph["metrics"]["generatedAt"],
         "source": str(db_path),
         "counts": graph["metrics"]["counts"],
-        "nodes": graph["nodes"],
+        "nodes": [
+            {
+                "id": node["id"], "slug": node["slug"], "name": node["name"],
+                "github": node["github"], "twitter": node["twitter"], "website": node["website"],
+                "in": node["in"], "out": node["out"], "core": node["core"], "rank": node["rank"],
+                "x": node["x"], "y": node["y"],
+            }
+            for node in graph["nodes"]
+        ],
         "edges": graph["edges"],
     }
 
@@ -2467,7 +2512,7 @@ def self_test() -> None:
                 highlight_id INTEGER PRIMARY KEY, user_id INTEGER, link_id INTEGER,
                 highlight_text TEXT, raw_highlight TEXT, left_context TEXT, right_context TEXT, created_at TEXT
             );
-            INSERT INTO users VALUES (1, 'ada', 'Ada', 'Lovelace', 'Analytical Engine', '', '', '', 2);
+            INSERT INTO users VALUES (1, 'ada', 'Ada', 'Lovelace', 'Analytical Engine', 'ada-lovelace', '@ada', 'ada.example', 2);
             INSERT INTO users VALUES (2, 'grace', 'Grace', 'Hopper', 'Navy', '', '', '', 1);
             INSERT INTO users VALUES (3, 'alan', 'Alan', 'Turing', '', '', '', '', 0);
             INSERT INTO users VALUES (4, 'katherine', 'Katherine', 'Johnson', '', '', '', '', 0);
@@ -2498,6 +2543,8 @@ def self_test() -> None:
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "canvas" in graph_html and "Palatino" in graph_html
+        assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
+        assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
