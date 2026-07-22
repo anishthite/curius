@@ -102,10 +102,17 @@ def stale_people(scraper: CuriusScraper, refresh_hours: float, limit: int | None
 
 def rebuild_frontpage(db_path: Path, site_out: Path) -> None:
     sys.path.insert(0, str(REPO_ROOT / "analysis"))
-    from build_follower_site import load_frontpage, render_frontpage_html  # noqa: PLC0415
+    from build_follower_site import (  # noqa: PLC0415
+        DEFAULT_ANALYSIS_URL,
+        load_frontpage,
+        render_frontpage_html,
+        render_how_this_works_html,
+    )
 
+    analysis_url = os.environ.get("CURIUS_ANALYSIS_URL") or DEFAULT_ANALYSIS_URL
     site_out.parent.mkdir(parents=True, exist_ok=True)
-    site_out.write_text(render_frontpage_html(load_frontpage(db_path)), encoding="utf-8")
+    site_out.write_text(render_frontpage_html(load_frontpage(db_path), analysis_url), encoding="utf-8")
+    site_out.with_name("how-this-works.html").write_text(render_how_this_works_html(analysis_url), encoding="utf-8")
 
 
 def ingest_link_activity(scraper: CuriusScraper, activity: list[dict[str, Any]]) -> tuple[int, int]:
@@ -294,6 +301,7 @@ def self_test() -> None:
         scraper.close()
         rebuild_frontpage(db, site)
         assert "frontpage-data" in site.read_text(encoding="utf-8")
+        assert "S<sub>link</sub>" in site.with_name("how-this-works.html").read_text(encoding="utf-8")
         with FileLock(Path(tmp) / "test.lock"):
             assert (Path(tmp) / "test.lock").exists()
     print("self-test ok")

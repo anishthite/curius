@@ -6,7 +6,7 @@ Small stdlib-first tools around public Curius data.
 
 - `scraper/` — public Curius crawler; writes local SQLite/progress files to ignored `data/`.
 - `analysis/` — generators plus the tiny local QA CLI.
-- `apps/frontpage/` — Hacker News-style static app (`apps/frontpage/index.html`).
+- `apps/frontpage/` — Hacker News-style static app (`apps/frontpage/index.html`) plus `how-this-works.html`.
 - `apps/analysis/` — follower graph analysis static app (`apps/analysis/index.html`).
 
 ## Scrape
@@ -31,7 +31,7 @@ python3 scraper/curius_scraper.py --limit-users 3 --delay 0
 
 ## Link/highlight updater
 
-Refresh stale saved links and highlights, then rebuild `apps/frontpage/index.html`:
+Refresh stale saved links and highlights, then rebuild the frontpage HTML files:
 
 ```sh
 python3 scraper/curius_link_highlight_updater.py --limit-users 200
@@ -56,6 +56,7 @@ python3 scraper/curius_link_highlight_updater.py --limit-users 1 --delay 0
 ```sh
 python3 analysis/build_follower_site.py
 open apps/frontpage/index.html
+open apps/frontpage/how-this-works.html
 open apps/analysis/index.html
 open apps/analysis/metrics.html
 open apps/analysis/algorithms.html

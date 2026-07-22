@@ -32,6 +32,7 @@ DEFAULT_METRICS_OUT = DEFAULT_ANALYSIS_APP / "metrics.html"
 DEFAULT_ALGORITHMS_OUT = DEFAULT_ANALYSIS_APP / "algorithms.html"
 DEFAULT_NEXT_OUT = DEFAULT_ANALYSIS_APP / "questions.html"
 DEFAULT_FRONTPAGE_OUT = DEFAULT_FRONTPAGE_APP / "index.html"
+DEFAULT_HOW_OUT = DEFAULT_FRONTPAGE_APP / "how-this-works.html"
 DEFAULT_ANALYSIS_URL = "../analysis"
 DEFAULT_FRONTPAGE_URL = "../frontpage"
 GOLDEN_ANGLE = math.pi * (3 - math.sqrt(5))
@@ -1169,7 +1170,6 @@ __PAPER_CSS__
   .more-banner a { color: var(--ink); }
   .front-controls { display: flex; gap: .55rem; flex-wrap: wrap; align-items: center; margin: 1rem 0 1.15rem; }
   .front-controls button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
-  .front-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 350px); gap: 1.4rem; align-items: start; }
   .feed-head { border-bottom: 1px solid var(--rule); padding-bottom: .6rem; margin-bottom: .45rem; }
   .feed-head h2 { margin: 0 0 .25rem; }
   .hn-list { list-style: none; padding: 0; margin: 0; counter-reset: feed; }
@@ -1182,35 +1182,19 @@ __PAPER_CSS__
   .subtext { margin-top: .16rem; }
   .snippet { color: var(--muted); margin: .38rem 0 0; font-size: .96rem; overflow-wrap: anywhere; }
   blockquote.quote { margin: .05rem 0 .34rem; padding: 0 0 0 .7rem; border-left: 3px solid var(--rule); font-size: 1.04rem; overflow-wrap: anywhere; }
-  .side { position: sticky; top: 14px; display: grid; gap: 1rem; }
-  .model, .glossary, .note { padding: 1rem; }
-  .model p, .note p { max-width: none; }
-  .model-controls { display: grid; gap: .7rem; margin-top: .75rem; }
-  .model-controls input { width: 100%; }
-  .model svg { width: 100%; height: auto; display: block; margin: .8rem 0 .4rem; }
-  .diagram-label { fill: var(--ink); font-size: 14px; }
-  .diagram-small { fill: var(--muted); font-size: 12px; }
-  .glossary ul, .references { list-style: none; padding: 0; margin: .5rem 0 0; }
-  .glossary li, .references li { margin: .45rem 0; }
-  .glossary button { border: 0; background: transparent; min-height: 0; padding: .05rem .12rem; color: var(--blue); }
   .empty { color: var(--muted); padding: 1rem 0; }
   [hidden] { display: none !important; }
   @media (max-width: 860px) {
-    .front-layout { display: flex; flex-direction: column; }
-    .side { display: contents; }
-    .model { order: -1; width: 100%; }
-    .note, .glossary { width: 100%; }
-    main { width: 100%; }
     .hn-item { grid-template-columns: 1.85rem minmax(0, 1fr); gap: .45rem; }
   }
 </style>
 </head>
 <body>
 <div class="page">
-  <aside class="more-banner" aria-label="More Curius things"><span>See more Curius things</span><a href="__ANALYSIS_INDEX_URL__">follower graph</a><span aria-hidden="true">·</span><a href="__ANALYSIS_METRICS_URL__">metrics</a><span aria-hidden="true">·</span><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><span aria-hidden="true">·</span><a href="__ANALYSIS_QUESTIONS_URL__">questions</a></aside>
+  <aside class="more-banner" aria-label="More Curius things"><span>See more Curius things</span><a href="how-this-works.html">how this works</a><span aria-hidden="true">·</span><a href="__ANALYSIS_INDEX_URL__">follower graph</a><span aria-hidden="true">·</span><a href="__ANALYSIS_METRICS_URL__">metrics</a><span aria-hidden="true">·</span><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><span aria-hidden="true">·</span><a href="__ANALYSIS_QUESTIONS_URL__">questions</a></aside>
   <h1>Curius Front Page</h1>
   <p class="intro">Curius Front Page is a public readout of what Curius readers are saving and highlighting. It turns shared bookmarks and marked passages into a compact feed, so you can see which ideas many people returned to and which discoveries just arrived.</p>
-  <p class="intro quiet">Use the toggles to switch between links and highlights, then between popular and newest. The small line under each row shows the evidence behind the ranking.</p>
+  <p class="intro quiet">Use the toggles to switch between links and highlights, then between popular and newest. For scoring details, read <a href="how-this-works.html">how this works</a>.</p>
 
   <section class="front-controls" aria-label="Feed controls">
     <button type="button" data-kind="links" aria-pressed="true">Links</button>
@@ -1220,42 +1204,11 @@ __PAPER_CSS__
     <button type="button" data-sort="newest" aria-pressed="false">newest</button>
   </section>
 
-  <div class="front-layout">
-    <main>
-      <section id="feed-head" class="feed-head" aria-live="polite"></section>
-      <ol id="feed" class="hn-list"></ol>
-    </main>
-    <aside class="side">
-      <section class="model sheet">
-        <h2>Small ranking model</h2>
-        <p>Popularity is not a mood. It is a count with weights. Move the weights and the list changes when the evidence changes.</p>
-        <div id="formula-link" class="math"><span class="term" data-term="slink" tabindex="0">S<sub>link</sub></span> = <span class="term" data-term="ws" tabindex="0">w<sub>s</sub></span><span class="term" data-term="us" tabindex="0">u<sub>save</sub></span> + <span class="term" data-term="wm" tabindex="0">w<sub>m</sub></span><span class="term" data-term="um" tabindex="0">u<sub>mark</sub></span> + <span class="term" data-term="h" tabindex="0">h</span></div>
-        <div id="formula-highlight" class="math" hidden><span class="term" data-term="squote" tabindex="0">S<sub>quote</sub></span> = <span class="term" data-term="wr" tabindex="0">w<sub>r</sub></span><span class="term" data-term="ur" tabindex="0">u<sub>reader</sub></span> + <span class="term" data-term="wt" tabindex="0">w<sub>t</sub></span><span class="term" data-term="r" tabindex="0">r</span></div>
-        <div class="model-controls">
-          <label><span id="weight-a-label">save reader weight</span><input id="weight-a" type="range" min="0" max="10" step="1" value="3"></label>
-          <label><span id="weight-b-label">highlight reader weight</span><input id="weight-b" type="range" min="0" max="10" step="1" value="5"></label>
-        </div>
-        <svg id="rank-diagram" viewBox="0 0 330 230" role="img" aria-label="Live ranking diagram"></svg>
-        <p id="model-note" class="quiet"></p>
-      </section>
-      <section class="note sheet">
-        <h2>How to read a row</h2>
-        <p>The title line is the thing you can open. The small line says how many distinct readers touched it, how many marks were left, and when the underlying record was created.</p>
-      </section>
-      <section class="glossary sheet">
-        <h2>Glossary</h2>
-        <ul id="glossary"></ul>
-      </section>
-    </aside>
-  </div>
-
-  <h2>References</h2>
-  <ol class="references">
-    <li>Hacker News API. Lists the compact story fields this page echoes.</li>
-    <li>SQLite aggregate functions. Gives <code>count</code> and <code>count(distinct ...)</code>, which produce the local evidence counts <a class="cite" href="https://www.sqlite.org/lang_aggfunc.html" target="_blank" rel="noreferrer" title="Documents SQLite aggregate counts used to build the feed.">SQLite</a>.</li>
-  </ol>
+  <main>
+    <section id="feed-head" class="feed-head" aria-live="polite"></section>
+    <ol id="feed" class="hn-list"></ol>
+  </main>
 </div>
-<section id="definition-card" class="definition-card sheet" aria-live="polite"><button id="close-def" type="button">Close</button><h3 id="def-title"></h3><p id="def-body"></p></section>
 <script id="frontpage-data" type="application/json">__FRONTPAGE_JSON__</script>
 <script>
 (() => {
@@ -1264,29 +1217,7 @@ __PAPER_CSS__
   const generatedAt = Date.parse(data.generatedAt) || Date.now();
   const feed = document.getElementById("feed");
   const feedHead = document.getElementById("feed-head");
-  const formulaLink = document.getElementById("formula-link");
-  const formulaHighlight = document.getElementById("formula-highlight");
-  const weightA = document.getElementById("weight-a");
-  const weightB = document.getElementById("weight-b");
-  const weightALabel = document.getElementById("weight-a-label");
-  const weightBLabel = document.getElementById("weight-b-label");
-  const diagram = document.getElementById("rank-diagram");
-  const modelNote = document.getElementById("model-note");
   const state = {kind: "links", sort: "popular"};
-  const weights = {links: {a: 3, b: 5}, highlights: {a: 4, b: 1}};
-  const definitions = {
-    slink: ["Slink", "The link popularity score used when the feed is sorted by popular."],
-    ws: ["ws", "Weight on distinct readers who saved a link. Larger values move broadly saved links upward."],
-    us: ["usave", "The number of distinct Curius users who saved the link."],
-    wm: ["wm", "Weight on distinct readers who marked text from the link. Larger values favor links that produced highlights."],
-    um: ["umark", "The number of distinct Curius users with at least one highlight on the link."],
-    h: ["h", "The total number of highlights on the link. It adds texture after distinct-reader counts."],
-    squote: ["Squote", "The highlight popularity score used when the feed is sorted by popular."],
-    wr: ["wr", "Weight on distinct readers who made the same highlight on the same link."],
-    ur: ["ureader", "The number of distinct readers behind a repeated highlight."],
-    wt: ["wt", "Weight on total repeats of the same highlighted passage."],
-    r: ["r", "The repeat count for the same highlight text on the same link."]
-  };
 
   function text(tag, className, value) {
     const node = document.createElement(tag);
@@ -1305,11 +1236,9 @@ __PAPER_CSS__
     }
     return "just now";
   }
-  function currentWeights() { return weights[state.kind]; }
   function score(item) {
-    const w = currentWeights();
-    if (state.kind === "links") return w.a * item.savers + w.b * item.highlighters + item.highlights;
-    return w.a * item.readers + w.b * item.repeats;
+    if (state.kind === "links") return 3 * item.savers + 5 * item.highlighters + item.highlights;
+    return 4 * item.readers + item.repeats;
   }
   function sortedItems() {
     const items = [...(data[state.kind] || [])];
@@ -1324,18 +1253,16 @@ __PAPER_CSS__
     feedHead.replaceChildren();
     const h = text("h2", "", `${state.sort === "popular" ? "Popular" : "Newest"} ${state.kind}`);
     const p = text("p", "quiet", state.sort === "popular"
-      ? `Sorted by the visible score. ${items.length.toLocaleString()} rows are shown from the generated sample.`
-      : `Sorted by creation time. The score remains visible, but it does not move the row.`);
+      ? `Sorted by score. ${items.length.toLocaleString()} rows are shown from the generated sample.`
+      : `Sorted by creation time. Score remains visible, but it does not move the row.`);
     feedHead.append(h, p);
   }
   function renderLink(item, body) {
     const title = text("div", "story-title");
     const a = text("a", "", item.title || item.url);
     a.href = item.url; a.target = "_blank"; a.rel = "noreferrer";
-    const domain = text("span", "domain", `(${item.domain})`);
-    title.append(a, domain);
-    const sub = text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.savers, "saver")} · ${plural(item.highlighters, "reader")} marked it · ${plural(item.highlights, "highlight")} · ${age(item.createdAt)}`);
-    body.append(title, sub);
+    title.append(a, text("span", "domain", `(${item.domain})`));
+    body.append(title, text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.savers, "saver")} · ${plural(item.highlighters, "reader")} marked it · ${plural(item.highlights, "highlight")} · ${age(item.createdAt)}`));
     if (item.snippet) body.append(text("p", "snippet", item.snippet));
   }
   function renderHighlight(item, body) {
@@ -1345,8 +1272,7 @@ __PAPER_CSS__
     a.href = item.url; a.target = "_blank"; a.rel = "noreferrer";
     title.append(a, text("span", "domain", `(${item.domain})`));
     const user = item.user ? ` · latest by ${item.user}` : "";
-    const sub = text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.readers, "reader")} · ${plural(item.repeats, "repeat")} · ${age(item.createdAt)}${user}`);
-    body.append(title, sub);
+    body.append(title, text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.readers, "reader")} · ${plural(item.repeats, "repeat")} · ${age(item.createdAt)}${user}`));
     if (item.context) body.append(text("p", "snippet", item.context));
   }
   function renderFeed(items) {
@@ -1363,96 +1289,85 @@ __PAPER_CSS__
       feed.append(li);
     }
   }
-  function configureControls() {
-    const isLinks = state.kind === "links";
-    formulaLink.hidden = !isLinks;
-    formulaHighlight.hidden = isLinks;
-    weightA.value = currentWeights().a;
-    weightB.value = currentWeights().b;
-    weightALabel.textContent = isLinks ? `save reader weight: ${weightA.value}` : `reader weight: ${weightA.value}`;
-    weightBLabel.textContent = isLinks ? `highlight reader weight: ${weightB.value}` : `repeat weight: ${weightB.value}`;
+  function render() {
     document.querySelectorAll("[data-kind]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.kind === state.kind)));
     document.querySelectorAll("[data-sort]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.sort === state.sort)));
-  }
-  function renderDiagram(items) {
-    const item = items[0];
-    if (!item) { diagram.replaceChildren(); return; }
-    const isLinks = state.kind === "links";
-    const a = isLinks ? item.savers : item.readers;
-    const b = isLinks ? item.highlighters : item.repeats;
-    const c = isLinks ? item.highlights : 0;
-    const maxA = Math.max(1, ...items.map(x => isLinks ? x.savers : x.readers));
-    const maxB = Math.max(1, ...items.map(x => isLinks ? x.highlighters : x.repeats));
-    const aw = 34 + Math.round(90 * a / maxA);
-    const bw = 34 + Math.round(90 * b / maxB);
-    const maxScore = Math.max(1, ...items.map(x => score(x)));
-    const sw = Math.min(140, 40 + Math.round(score(item) / maxScore * 95));
-    diagram.innerHTML = `
-      <defs><marker id="arrow-front" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8d7d68"></path></marker></defs>
-      <text x="16" y="24" class="diagram-label">evidence</text>
-      <rect x="18" y="46" width="${aw}" height="26" rx="13" fill="#d87c4a" opacity=".85"></rect>
-      <text x="28" y="64" class="diagram-small">${a.toLocaleString()} ${isLinks ? "savers" : "readers"}</text>
-      <rect x="18" y="90" width="${bw}" height="26" rx="13" fill="#4e85c8" opacity=".85"></rect>
-      <text x="28" y="108" class="diagram-small">${b.toLocaleString()} ${isLinks ? "markers" : "repeats"}</text>
-      ${isLinks ? `<rect x="18" y="134" width="${34 + Math.min(90, c)}" height="26" rx="13" fill="#55a36f" opacity=".78"></rect><text x="28" y="152" class="diagram-small">${c.toLocaleString()} highlights</text>` : ""}
-      <path d="M 158 62 C 190 62, 190 102, 220 102" stroke="#8d7d68" stroke-width="2" fill="none" marker-end="url(#arrow-front)"></path>
-      <path d="M 158 102 C 190 102, 190 102, 220 102" stroke="#8d7d68" stroke-width="2" fill="none" marker-end="url(#arrow-front)"></path>
-      ${isLinks ? `<path d="M 158 146 C 190 146, 190 102, 220 102" stroke="#8d7d68" stroke-width="2" fill="none" marker-end="url(#arrow-front)"></path>` : ""}
-      <text x="226" y="78" class="diagram-label">score</text>
-      <rect x="224" y="90" width="${sw}" height="36" rx="18" fill="#f1d08a" stroke="#d1b16d"></rect>
-      <text x="238" y="113" class="diagram-label">${Math.round(score(item)).toLocaleString()}</text>
-      <text x="18" y="202" class="diagram-small">${state.sort === "popular" ? "popular uses this score" : "newest ignores the arrows and sorts by date"}</text>`;
-    modelNote.textContent = state.sort === "popular"
-      ? "The first visible row is the current highest score under these weights."
-      : "The first visible row is newest; the diagram still shows how its popularity score is computed.";
-  }
-  function render() {
-    configureControls();
     const items = sortedItems();
     renderHead(items);
     renderFeed(items);
-    renderDiagram(items);
-  }
-  function showDef(key) {
-    const value = definitions[key];
-    if (!value) return;
-    document.getElementById("def-title").textContent = value[0];
-    document.getElementById("def-body").textContent = value[1];
-    document.getElementById("definition-card").setAttribute("open", "");
   }
 
   document.querySelectorAll("[data-kind]").forEach(button => button.addEventListener("click", () => { state.kind = button.dataset.kind; render(); }));
   document.querySelectorAll("[data-sort]").forEach(button => button.addEventListener("click", () => { state.sort = button.dataset.sort; render(); }));
-  weightA.addEventListener("input", () => { weights[state.kind].a = Number(weightA.value); render(); });
-  weightB.addEventListener("input", () => { weights[state.kind].b = Number(weightB.value); render(); });
-  document.addEventListener("click", event => {
-    const term = event.target.closest(".term");
-    if (term) showDef(term.dataset.term);
-  });
-  document.addEventListener("keydown", event => {
-    if (event.key === "Enter" || event.key === " ") {
-      const term = event.target.closest(".term");
-      if (term) { event.preventDefault(); showDef(term.dataset.term); }
-    }
-  });
-  document.getElementById("close-def").addEventListener("click", () => document.getElementById("definition-card").removeAttribute("open"));
-  document.querySelectorAll(".term").forEach(term => {
-    const value = definitions[term.dataset.term];
-    if (value) term.title = value[1];
-  });
-  const glossary = document.getElementById("glossary");
-  for (const [key, [title, body]] of Object.entries(definitions)) {
-    const li = document.createElement("li");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = title;
-    button.addEventListener("click", () => showDef(key));
-    li.append(button, ` — ${body}`);
-    glossary.append(li);
-  }
   render();
 })();
 </script>
+</body>
+</html>
+"""
+
+HOW_THIS_WORKS_HTML = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How this works — Curius Front Page</title>
+<style>
+__PAPER_CSS__
+  .article { max-width: 860px; }
+  .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: .8rem 0; }
+  .note-card { padding: 1rem; }
+  .note-card h3 { margin-top: 0; }
+  .terms, .references { list-style: none; padding: 0; margin: .5rem 0 0; }
+  .terms li, .references li { margin: .42rem 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="__ANALYSIS_INDEX_URL__">follower graph</a><a href="__ANALYSIS_METRICS_URL__">metrics</a><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><a href="__ANALYSIS_QUESTIONS_URL__">questions</a></nav>
+  <main class="article">
+    <h1>How this works</h1>
+    <p>Curius Front Page ranks public saves and highlights from the local Curius crawl. The page shows two kinds of rows: saved links and repeated highlighted passages.</p>
+
+    <h2>What the toggles do</h2>
+    <ol>
+      <li><b>Links</b> show saved URLs with title, domain, save counts, highlight counts, and age.</li>
+      <li><b>Highlights</b> show repeated quoted text, source link, reader/repeat counts, latest user, and age.</li>
+      <li><b>Popular</b> sorts by score; <b>newest</b> sorts by creation time and leaves score as context.</li>
+    </ol>
+
+    <h2>Popularity score</h2>
+    <div class="formula-grid">
+      <section class="sheet note-card">
+        <h3>Links</h3>
+        <div class="math">S<sub>link</sub> = 3u<sub>save</sub> + 5u<sub>mark</sub> + h</div>
+        <p><code>u<sub>save</sub></code> is distinct savers, <code>u<sub>mark</sub></code> is distinct readers who highlighted the link, and <code>h</code> is total highlights.</p>
+      </section>
+      <section class="sheet note-card">
+        <h3>Highlights</h3>
+        <div class="math">S<sub>quote</sub> = 4u<sub>reader</sub> + r</div>
+        <p><code>u<sub>reader</sub></code> is distinct readers behind the same quote on the same link, and <code>r</code> is repeat count.</p>
+      </section>
+    </div>
+
+    <h2>How to read a row</h2>
+    <p>The title line opens the source. The small line says how many distinct readers touched it, how many marks were left, and when the underlying record was created.</p>
+
+    <h2>Glossary</h2>
+    <ul class="terms">
+      <li><code>points</code> — the current popularity score for the active row type.</li>
+      <li><code>saver</code> — a distinct Curius user who saved a link.</li>
+      <li><code>reader</code> — a distinct Curius user who made a matching highlight.</li>
+      <li><code>repeat</code> — another copy of the same highlighted passage on the same link.</li>
+    </ul>
+
+    <h2>References</h2>
+    <ol class="references">
+      <li>Hacker News API. Lists the compact story fields this page echoes.</li>
+      <li>SQLite aggregate functions. Gives <code>count</code> and <code>count(distinct ...)</code>, which produce the local evidence counts <a class="cite" href="https://www.sqlite.org/lang_aggfunc.html" target="_blank" rel="noreferrer" title="Documents SQLite aggregate counts used to build the feed.">SQLite</a>.</li>
+    </ol>
+  </main>
+</div>
 </body>
 </html>
 """
@@ -2326,7 +2241,8 @@ def json_script(value: Any) -> str:
 
 
 def app_url(base: str, page: str = "index.html") -> str:
-    return f"{base.rstrip('/')}/{page}"
+    base = base.rstrip("/")
+    return f"{base}/{page}" if base else page
 
 
 def render_graph_html(graph: dict[str, Any], db_path: Path, frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
@@ -2336,6 +2252,20 @@ def render_graph_html(graph: dict[str, Any], db_path: Path, frontpage_url: str =
         .replace("__FRONTPAGE_INDEX_URL__", app_url(frontpage_url))
         .replace("__GRAPH_JSON__", json_script(payload))
     )
+
+
+def render_how_this_works_html(analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
+    replacements = {
+        "__PAPER_CSS__": PAPER_CSS,
+        "__ANALYSIS_INDEX_URL__": app_url(analysis_url),
+        "__ANALYSIS_METRICS_URL__": app_url(analysis_url, "metrics.html"),
+        "__ANALYSIS_ALGORITHMS_URL__": app_url(analysis_url, "algorithms.html"),
+        "__ANALYSIS_QUESTIONS_URL__": app_url(analysis_url, "questions.html"),
+    }
+    out = HOW_THIS_WORKS_HTML
+    for old, new in replacements.items():
+        out = out.replace(old, new)
+    return out
 
 
 def render_frontpage_html(payload: dict[str, Any], analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
@@ -2472,6 +2402,7 @@ def build(
     frontpage_out: Path = DEFAULT_FRONTPAGE_OUT,
     frontpage_url: str = DEFAULT_FRONTPAGE_URL,
     analysis_url: str = DEFAULT_ANALYSIS_URL,
+    how_out: Path = DEFAULT_HOW_OUT,
 ) -> dict[str, Any]:
     if not db_path.exists():
         raise SystemExit(f"Database not found: {db_path}")
@@ -2484,11 +2415,13 @@ def build(
     algorithms_out.parent.mkdir(parents=True, exist_ok=True)
     next_out.parent.mkdir(parents=True, exist_ok=True)
     frontpage_out.parent.mkdir(parents=True, exist_ok=True)
+    how_out.parent.mkdir(parents=True, exist_ok=True)
     graph_out.write_text(render_graph_html(graph, db_path, frontpage_url), encoding="utf-8")
     metrics_out.write_text(render_metrics_html(graph, frontpage_url), encoding="utf-8")
     algorithms_out.write_text(render_algorithms_html(graph, frontpage_url), encoding="utf-8")
     next_out.write_text(render_next_html(graph, frontpage_url), encoding="utf-8")
     frontpage_out.write_text(render_frontpage_html(frontpage, analysis_url), encoding="utf-8")
+    how_out.write_text(render_how_this_works_html(analysis_url), encoding="utf-8")
     return graph
 
 
@@ -2531,15 +2464,17 @@ def self_test() -> None:
         algorithms_out = Path(tmp) / "algorithms.html"
         next_out = Path(tmp) / "next.html"
         frontpage_out = Path(tmp) / "frontpage.html"
+        how_out = Path(tmp) / "how-this-works.html"
         graph = build(
             db, graph_out, metrics_out, algorithms_out, next_out, frontpage_out,
-            "https://front.example", "https://analysis.example",
+            "https://front.example", "https://analysis.example", how_out=how_out,
         )
         graph_html = graph_out.read_text(encoding="utf-8")
         metrics_html = metrics_out.read_text(encoding="utf-8")
         algorithms_html = algorithms_out.read_text(encoding="utf-8")
         next_html = next_out.read_text(encoding="utf-8")
         frontpage_html = frontpage_out.read_text(encoding="utf-8")
+        how_html = how_out.read_text(encoding="utf-8")
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "canvas" in graph_html and "Palatino" in graph_html
@@ -2548,10 +2483,11 @@ def self_test() -> None:
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
-        assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "Small ranking model" in frontpage_html
+        assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "how-this-works.html" in frontpage_html
+        assert "Small ranking model" not in frontpage_html and "S<sub>link</sub>" in how_html and "How this works" in how_html
         assert 'href="https://front.example/index.html"' in graph_html + metrics_html + algorithms_html + next_html
-        assert 'href="https://analysis.example/metrics.html"' in frontpage_html
-        assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html
+        assert 'href="https://analysis.example/metrics.html"' in frontpage_html + how_html
+        assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html + how_html
     print("self-test passed")
 
 
@@ -2563,6 +2499,7 @@ def main() -> None:
     parser.add_argument("--algorithms-out", type=Path, default=DEFAULT_ALGORITHMS_OUT, help="algorithms HTML output path")
     parser.add_argument("--next-out", type=Path, default=DEFAULT_NEXT_OUT, help="next-questions HTML output path")
     parser.add_argument("--frontpage-out", type=Path, default=DEFAULT_FRONTPAGE_OUT, help="front page HTML output path")
+    parser.add_argument("--how-out", type=Path, default=DEFAULT_HOW_OUT, help="front page how-this-works HTML output path")
     parser.add_argument("--frontpage-url", default=os.environ.get("CURIUS_FRONTPAGE_URL", DEFAULT_FRONTPAGE_URL), help="base URL for links from analysis to frontpage")
     parser.add_argument("--analysis-url", default=os.environ.get("CURIUS_ANALYSIS_URL", DEFAULT_ANALYSIS_URL), help="base URL for links from frontpage to analysis")
     parser.add_argument("--self-test", action="store_true", help="run a tiny generated-db check")
@@ -2572,10 +2509,10 @@ def main() -> None:
         return
     graph = build(
         args.db, args.graph_out, args.metrics_out, args.algorithms_out, args.next_out, args.frontpage_out,
-        args.frontpage_url, args.analysis_url,
+        args.frontpage_url, args.analysis_url, how_out=args.how_out,
     )
     counts = graph["metrics"]["counts"]
-    print(f"Wrote {args.frontpage_out}, {args.graph_out}, {args.metrics_out}, {args.algorithms_out}, and {args.next_out} ({counts['nodes']:,} people, {counts['edges']:,} follows)")
+    print(f"Wrote {args.frontpage_out}, {args.how_out}, {args.graph_out}, {args.metrics_out}, {args.algorithms_out}, and {args.next_out} ({counts['nodes']:,} people, {counts['edges']:,} follows)")
 
 
 if __name__ == "__main__":
