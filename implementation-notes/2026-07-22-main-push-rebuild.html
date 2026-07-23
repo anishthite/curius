@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Main push rebuild</title>
+<meta name="task" content="Rebuild Curius static apps from GitHub Actions on main pushes">
+<meta name="date-started" content="2026-07-22">
+<meta name="date-updated" content="2026-07-23">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,github-actions,cloudflare,pages,deploy">
+<meta name="related" content="2026-07-21-github-pages-refresh.html,2026-07-22-curius-custom-domain.html">
+<style>
+body{font:14px/1.45 -apple-system,system-ui,sans-serif;max-width:880px;margin:1.5rem auto;padding:0 1rem;color:#111}h1{font-size:20px;margin:0 0 .25rem}h2{font-size:15px;margin:1.4rem 0 .4rem;border-bottom:1px solid #ddd;padding-bottom:.2rem}table{border-collapse:collapse;width:100%;margin:.4rem 0 .8rem}th,td{border:1px solid #ddd;padding:4px 8px;text-align:left;vertical-align:top}th{background:#f6f6f6;font-weight:600}code{background:#f1f1f1;padding:1px 4px;border-radius:3px;font-size:12.5px}.blast-low{color:#2a7a2a}.meta{color:#555;font-size:12.5px;margin-bottom:.8rem}.kv{display:grid;grid-template-columns:140px 1fr;gap:2px 14px;font-size:13px;margin:.4rem 0 1rem}.kv b{color:#444;font-weight:600}ul{margin:.3rem 0 .8rem 1.2rem;padding:0}
+</style>
+</head>
+<body>
+<h1>Rebuild on main pushes</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-22 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Every pushed source change that can affect <code>apps/frontpage</code> or <code>apps/analysis</code> runs the existing rebuild workflow.</div>
+  <b>Surface</b><div><code>.github/workflows/update-curius.yml</code>, <code>README.md</code>.</div>
+  <b>Pages</b><div>Cloudflare Pages still needs two projects or <code>CLOUDFLARE_API_TOKEN</code>.</div>
+  <b>Commit</b><div>Commit step resets to current origin, rebuilds from cached SQLite, then pushes with retry.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+<h2>Files</h2>
+<table>
+<tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+<tr><td><code>.github/workflows/update-curius.yml</code></td><td>touch</td><td>Add <code>push</code> trigger and conflict-safe generated app commit loop.</td></tr>
+<tr><td><code>README.md</code></td><td>touch</td><td>Document push rebuilds and the required Pages setup fallback.</td></tr>
+</table>
+<h2>Decisions</h2>
+<table>
+<tr><th>ID</th><th>Choice · Rationale</th></tr>
+<tr><td>D-001</td><td>Extend the existing workflow. One job already tests, refreshes, rebuilds, commits, and optionally deploys both apps.</td></tr>
+<tr><td>D-002</td><td>Reset to <code>origin/$branch</code> before committing generated apps. It removes stale-run rebase conflicts in generated HTML.</td></tr>
+<tr><td>D-003</td><td>Commit generated apps with <code>[skip ci]</code>. Bot app commits should not trigger another app rebuild.</td></tr>
+</table>
+<h2>Tradeoffs</h2>
+<table>
+<tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+<tr><td>T-001</td><td>Path-filtered <code>push</code> over a second workflow. It avoids duplicate rebuild definitions.</td></tr>
+<tr><td>T-002</td><td>Reset-and-rebuild over rebase strategy flags. Generated files are cheaper to recreate than merge.</td></tr>
+</table>
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Remove the <code>push</code> trigger and rely on scheduled/manual refreshes.</p>
+<h2>Definition of done</h2>
+<ul>
+  <li><code>ruby -e "require 'yaml'; YAML.load_file('.github/workflows/update-curius.yml')"</code> parses the workflow.</li>
+  <li>The <code>Commit generated apps</code> shell block passes <code>bash -n</code>.</li>
+  <li><code>python3 scraper/curius_link_highlight_updater.py --self-test</code> passes.</li>
+  <li><code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li>README names both Cloudflare Pages projects and output directories.</li>
+</ul>
+</body>
+</html>

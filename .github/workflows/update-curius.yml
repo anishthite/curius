@@ -1,6 +1,13 @@
 name: Update Curius apps
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "analysis/**"
+      - "scraper/**"
+      - "apps/**"
+      - ".github/workflows/update-curius.yml"
   workflow_dispatch:
     inputs:
       refresh_limit:
@@ -118,17 +125,37 @@ jobs:
           key: ${{ runner.os }}-curius-sqlite-${{ github.run_id }}
 
       - name: Commit generated apps
+        env:
+          CURIUS_FRONTPAGE_URL: ${{ vars.CURIUS_FRONTPAGE_URL }}
+          CURIUS_ANALYSIS_URL: ${{ vars.CURIUS_ANALYSIS_URL }}
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/frontpage apps/analysis
-          if git diff --cached --quiet; then
-            echo "No generated app changes."
-            exit 0
-          fi
-          git commit -m "Update Curius static apps"
-          git pull --rebase
-          git push
+
+          branch="${GITHUB_REF_NAME:-main}"
+          frontpage_url="${CURIUS_FRONTPAGE_URL:-https://curius.thite.site}"
+          analysis_url="${CURIUS_ANALYSIS_URL:-https://curius-analysis.pages.dev}"
+
+          for attempt in 1 2 3; do
+            git fetch origin "$branch"
+            git reset --hard "origin/$branch"
+            CURIUS_FRONTPAGE_URL="$frontpage_url" CURIUS_ANALYSIS_URL="$analysis_url" python3 analysis/build_follower_site.py
+            git add apps/frontpage apps/analysis
+            if git diff --cached --quiet; then
+              echo "No generated app changes."
+              exit 0
+            fi
+            git commit -m "Update Curius static apps [skip ci]"
+            if git push origin "HEAD:$branch"; then
+              exit 0
+            fi
+            git reset --hard HEAD~1
+            sleep 2
+          done
+
+          echo "Could not push generated app changes after 3 attempts." >&2
+          exit 1
 
       - name: Deploy Cloudflare Pages
         if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}

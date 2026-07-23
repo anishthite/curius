@@ -71,14 +71,14 @@ python3 analysis/build_follower_site.py --self-test
 
 ## Deploy
 
-Create two Cloudflare Pages projects from this repo:
+Create two Cloudflare Pages projects from this repo, or set `CLOUDFLARE_API_TOKEN` for direct deploys:
 
 | Project | Build command | Output directory |
 | --- | --- | --- |
 | `curius-frontpage` | empty | `apps/frontpage` |
 | `curius-analysis` | empty | `apps/analysis` |
 
-`.github/workflows/update-curius.yml` runs twice a day and on demand. It restores the cached SQLite DB, refreshes stale links/highlights, rebuilds both apps, commits changed `apps/**/*.html`, and deploys directly when `CLOUDFLARE_API_TOKEN` is set.
+`.github/workflows/update-curius.yml` runs on relevant `main` pushes, twice a day, and on demand. It restores the cached SQLite DB, refreshes stale links/highlights, rebuilds both apps, commits changed `apps/**/*.html`, and deploys directly when `CLOUDFLARE_API_TOKEN` is set. Without that secret, connect both Cloudflare Pages projects to this GitHub repo with the empty build commands and output directories above.
 
 Repo secret for direct deploy:
 
