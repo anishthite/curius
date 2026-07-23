@@ -149,10 +149,12 @@ GRAPH_HTML = """<!doctype html>
 __PAPER_CSS__
   .page { width: min(1480px, 100%); }
   .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: .85rem; align-items: start; }
-  .graph-tools { grid-template-columns: minmax(180px, 1fr) minmax(120px, 140px) minmax(135px, 155px) auto; column-gap: .55rem; row-gap: .45rem; margin: .65rem 0 .45rem; align-items: end; }
-  .graph-tools label { min-width: 0; white-space: nowrap; font-size: .88rem; gap: .16rem; }
-  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 36px; padding: .28rem .62rem; font-size: .95rem; }
-  #fit { width: auto; min-width: 86px; justify-self: end; }
+  .graph-tools { display: flex; flex-wrap: wrap; gap: .42rem; margin: .55rem 0 .45rem; align-items: center; }
+  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .58rem; font-size: .9rem; }
+  #q { flex: 1 1 250px; max-width: 390px; }
+  #min-followers { width: 7ch; }
+  #mode { width: 10.2rem; }
+  #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; min-height: 720px; overflow: hidden; touch-action: none; }
   canvas { display: block; width: 100%; height: min(82vh, 860px); min-height: 640px; border-radius: 18px; cursor: grab; }
   canvas:active { cursor: grabbing; }
@@ -167,6 +169,7 @@ __PAPER_CSS__
   .person { width: 100%; border-radius: 12px; text-align: left; line-height: 1.2; min-height: 0; padding: .38rem .58rem; }
   .person small { display: block; color: var(--muted); margin-top: .08rem; }
   .matches { margin: .15rem 0 .75rem; padding: .45rem 0 .55rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .matches[hidden] { display: none; }
   .matches h2 { font-size: 1.08rem; margin: 0 0 .35rem; }
   .matches .people { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); max-height: 122px; overflow: auto; }
   .profile-links { display: flex; flex-wrap: wrap; gap: .4rem .7rem; margin: .45rem 0; }
@@ -174,7 +177,8 @@ __PAPER_CSS__
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
-    .graph-layout, .graph-tools { grid-template-columns: 1fr; }
+    .graph-layout { grid-template-columns: 1fr; }
+    #q { max-width: none; }
     .reader { position: static; }
     .canvas-wrap { min-height: 540px; }
     canvas { height: 70vh; min-height: 500px; }
@@ -185,14 +189,14 @@ __PAPER_CSS__
 <div class="page">
   <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="metrics.html">Read the metrics page</a><a href="algorithms.html">Go deeper on algorithms</a><a href="questions.html">Next questions</a></nav>
   <h1>Curius follower graph</h1>
-  <p class="quiet">Drag, scroll, click, or search.</p>
-  <section class="controls graph-tools">
-    <label>Search <input id="q" type="search" autocomplete="off" placeholder="name or handle"></label>
-    <label>Min followers <input id="min-followers" type="number" min="0" step="1" value="0"></label>
-    <label>View <select id="mode"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select></label>
+  <p class="quiet">Search a person, then zoom into who follows whom.</p>
+  <section class="controls graph-tools" aria-label="Graph controls">
+    <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
+    <input id="min-followers" type="number" min="0" step="1" value="0" aria-label="Minimum followers" title="Minimum followers">
+    <select id="mode" aria-label="View"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select>
     <button id="fit" type="button">Fit</button>
   </section>
-  <section class="matches">
+  <section class="matches" hidden>
     <h2>Search results</h2>
     <div id="matches" class="people"></div>
   </section>
@@ -227,6 +231,7 @@ __PAPER_CSS__
   const minFollowers = document.getElementById("min-followers");
   const mode = document.getElementById("mode");
   const matches = document.getElementById("matches");
+  const matchesSection = matches.closest(".matches");
   const view = {x: 0, y: 0, scale: 1};
   let selected = nodes[0]?.id || null;
   let visibleIds = new Set(nodes.map(n => n.id));
@@ -385,7 +390,7 @@ __PAPER_CSS__
       ctx.fillText(text, p.x + nodeRadius(n) * Math.sqrt(view.scale) + 4, p.y);
     }
     const suffix = selected ? ` Selected: ${byId.get(selected)?.slug}.` : "";
-    status.textContent = `Showing ${list.length.toLocaleString()} people and ${edgeCount.toLocaleString()} follows. Blue lines enter the selected person; green lines leave it.${suffix}`;
+    status.textContent = `Showing ${list.length.toLocaleString()} people and ${edgeCount.toLocaleString()} follows. Blue shows who follows the selected person; green shows who they follow.${suffix}`;
   }
   function hitTest(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
@@ -473,7 +478,9 @@ __PAPER_CSS__
   }
   function renderMatches() {
     const term = q.value.trim().toLowerCase();
-    const found = (term ? nodes.filter(n => matchesText(n, term)) : nodes.slice(0, 12)).slice(0, 18);
+    matchesSection.hidden = !term;
+    if (!term) { matches.replaceChildren(); return; }
+    const found = nodes.filter(n => matchesText(n, term)).slice(0, 18);
     matches.replaceChildren(...found.map(personButton));
   }
   function selectNode(id, shouldFit) {
@@ -2491,6 +2498,7 @@ def self_test() -> None:
         assert "graph-data" in graph_html and "canvas" in graph_html and "Palatino" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
+        assert "matchesSection.hidden = !term" in graph_html and 'class="matches" hidden' in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
