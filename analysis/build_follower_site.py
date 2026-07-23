@@ -148,14 +148,12 @@ GRAPH_HTML = """<!doctype html>
 <style>
 __PAPER_CSS__
   .graph-page { width: min(1640px, 100%); padding: 18px clamp(8px, 1.5vw, 20px) 30px; }
-  .graph-hero { text-align: center; margin: 0 auto .65rem; }
-  .link-pill { display: inline-flex; gap: .35rem; align-items: baseline; margin: 0 auto .65rem; padding: .28rem .62rem; border: 1px solid rgba(216, 200, 181, .78); border-radius: 999px; background: rgba(255, 250, 240, .62); color: var(--muted); font-size: .88rem; }
-  .link-pill a { color: var(--ink); }
+  .graph-hero { text-align: left; margin: 0 0 .65rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .2rem 0 .25rem; }
-  .graph-nav { justify-content: center; margin: 0; font-size: .9rem; }
+  .graph-nav { justify-content: flex-start; margin: 0; font-size: .9rem; }
   .graph-nav a { color: var(--muted); }
   .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 310px); gap: .65rem; align-items: start; }
-  .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .45rem auto .6rem; align-items: center; max-width: 940px; padding: .38rem; border: 1px solid rgba(216, 200, 181, .72); border-radius: 999px; background: rgba(255, 250, 240, .5); }
+  .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .45rem 0 .6rem; align-items: center; max-width: 940px; padding: .38rem; border: 1px solid rgba(216, 200, 181, .72); border-radius: 999px; background: rgba(255, 250, 240, .5); }
   .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .58rem; font-size: .9rem; background: rgba(255, 252, 245, .9); }
   #q { flex: 1 1 270px; max-width: none; }
   .min-filter { display: flex; grid-template-columns: none; gap: .32rem; align-items: center; color: var(--muted); font-size: .85rem; }
@@ -198,7 +196,6 @@ __PAPER_CSS__
 <body>
 <div class="page graph-page">
   <header class="graph-hero">
-    <aside class="link-pill" aria-label="More Curius links"><span>Explore saved links at</span><a href="https://curius-links.thite.site">curius-links.thite.site</a></aside>
     <h1>The Curius Follower Graph</h1>
     <nav class="nav graph-nav" aria-label="Analysis pages"><a href="metrics.html">Metrics</a><a href="algorithms.html">Algorithms</a><a href="questions.html">Next questions</a></nav>
   </header>
@@ -2509,7 +2506,7 @@ def self_test() -> None:
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "canvas" in graph_html and "Palatino" in graph_html
         assert "The Curius Follower Graph" in graph_html and "Search a person, then zoom into who follows whom." not in graph_html
-        assert "curius-links.thite.site" in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
+        assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
         assert "matchesSection.hidden = !term" in graph_html and 'class="matches" hidden' in graph_html
