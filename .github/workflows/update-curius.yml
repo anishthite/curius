@@ -84,6 +84,11 @@ jobs:
           frontpage_url="${CURIUS_FRONTPAGE_URL:-https://curius.thite.site}"
           analysis_url="${CURIUS_ANALYSIS_URL:-https://curius-analysis.pages.dev}"
 
+          if [[ "${GITHUB_EVENT_NAME:-}" == "push" && -s data/curius.sqlite ]]; then
+            CURIUS_FRONTPAGE_URL="$frontpage_url" CURIUS_ANALYSIS_URL="$analysis_url" python3 analysis/build_follower_site.py
+            exit 0
+          fi
+
           needs_social="$(python3 - <<'PY'
           import sqlite3
           from pathlib import Path

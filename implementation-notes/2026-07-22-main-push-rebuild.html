@@ -22,14 +22,15 @@ body{font:14px/1.45 -apple-system,system-ui,sans-serif;max-width:880px;margin:1.
   <b>Goal</b><div>Every pushed source change that can affect <code>apps/frontpage</code> or <code>apps/analysis</code> runs the existing rebuild workflow.</div>
   <b>Surface</b><div><code>.github/workflows/update-curius.yml</code>, <code>README.md</code>.</div>
   <b>Pages</b><div>Cloudflare Pages still needs two projects or <code>CLOUDFLARE_API_TOKEN</code>.</div>
+  <b>Push runs</b><div>Push runs rebuild from cached SQLite and skip scraper refresh when cache exists.</div>
   <b>Commit</b><div>Commit step resets to current origin, rebuilds from cached SQLite, then pushes with retry.</div>
   <b>Open Qs</b><div>0.</div>
 </div>
 <h2>Files</h2>
 <table>
 <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
-<tr><td><code>.github/workflows/update-curius.yml</code></td><td>touch</td><td>Add <code>push</code> trigger and conflict-safe generated app commit loop.</td></tr>
-<tr><td><code>README.md</code></td><td>touch</td><td>Document push rebuilds and the required Pages setup fallback.</td></tr>
+<tr><td><code>.github/workflows/update-curius.yml</code></td><td>touch</td><td>Add <code>push</code> trigger, cached push rebuild, and conflict-safe generated app commit loop.</td></tr>
+<tr><td><code>README.md</code></td><td>touch</td><td>Document cached push rebuilds and the required Pages setup fallback.</td></tr>
 </table>
 <h2>Decisions</h2>
 <table>
@@ -37,12 +38,14 @@ body{font:14px/1.45 -apple-system,system-ui,sans-serif;max-width:880px;margin:1.
 <tr><td>D-001</td><td>Extend the existing workflow. One job already tests, refreshes, rebuilds, commits, and optionally deploys both apps.</td></tr>
 <tr><td>D-002</td><td>Reset to <code>origin/$branch</code> before committing generated apps. It removes stale-run rebase conflicts in generated HTML.</td></tr>
 <tr><td>D-003</td><td>Commit generated apps with <code>[skip ci]</code>. Bot app commits should not trigger another app rebuild.</td></tr>
+<tr><td>D-004</td><td>Skip scraper refresh on push when the SQLite cache exists. Push verification should rebuild pages without waiting on Curius API refreshes.</td></tr>
 </table>
 <h2>Tradeoffs</h2>
 <table>
 <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
 <tr><td>T-001</td><td>Path-filtered <code>push</code> over a second workflow. It avoids duplicate rebuild definitions.</td></tr>
 <tr><td>T-002</td><td>Reset-and-rebuild over rebase strategy flags. Generated files are cheaper to recreate than merge.</td></tr>
+<tr><td>T-003</td><td>Cached push rebuild over full push refresh. Source-change verification should be fast; scheduled/manual runs own freshness.</td></tr>
 </table>
 <h2>Reversibility</h2>
 <p>R-001 · <span class="blast-low">low</span>. Remove the <code>push</code> trigger and rely on scheduled/manual refreshes.</p>
