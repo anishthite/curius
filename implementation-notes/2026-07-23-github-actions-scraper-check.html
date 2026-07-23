@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — GitHub Actions scraper check</title>
+<meta name="task" content="Verify Curius scraper in GitHub Actions">
+<meta name="date-started" content="2026-07-23">
+<meta name="date-updated" content="2026-07-23">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius,github-actions,scraper,ci">
+<meta name="related" content="2026-07-21-github-pages-refresh.html,2026-07-22-main-push-rebuild.html">
+<style>
+body{font:14px/1.45 -apple-system,system-ui,sans-serif;max-width:880px;margin:1.5rem auto;padding:0 1rem;color:#111}h1{font-size:20px;margin:0 0 .25rem}h2{font-size:15px;margin:1.4rem 0 .4rem;border-bottom:1px solid #ddd;padding-bottom:.2rem}table{border-collapse:collapse;width:100%;margin:.4rem 0 .8rem}th,td{border:1px solid #ddd;padding:4px 8px;text-align:left;vertical-align:top}th{background:#f6f6f6;font-weight:600}code{background:#f1f1f1;padding:1px 4px;border-radius:3px;font-size:12.5px}.blast-low{color:#2a7a2a}.meta{color:#555;font-size:12.5px;margin-bottom:.8rem}.kv{display:grid;grid-template-columns:140px 1fr;gap:2px 14px;font-size:13px;margin:.4rem 0 1rem}.kv b{color:#444;font-weight:600}ul{margin:.3rem 0 .8rem 1.2rem;padding:0}
+</style>
+</head>
+<body>
+<h1>GitHub Actions scraper check</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-23 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>GitHub Actions fails early when <code>scraper/curius_scraper.py</code> stops importing, parsing args, or writing SQLite/progress output.</div>
+  <b>Surface</b><div><code>.github/workflows/update-curius.yml</code>.</div>
+  <b>Scope</b><div>CI self-test only; live scheduled scraping stays unchanged.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+<h2>Files</h2>
+<table>
+<tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+<tr><td><code>.github/workflows/update-curius.yml</code></td><td>touch</td><td>Run the scraper self-test before updater/generator checks.</td></tr>
+<tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Add this CI task row.</td></tr>
+<tr><td><code>implementation-notes/2026-07-23-github-actions-scraper-check.html</code></td><td>new</td><td>Decision log.</td></tr>
+</table>
+<h2>Decisions</h2>
+<table>
+<tr><th>ID</th><th>Choice · Rationale</th></tr>
+<tr><td>D-001</td><td>Add <code>python3 scraper/curius_scraper.py --self-test</code> to the existing check step. It tests the scraper on the same runner without a network crawl.</td></tr>
+</table>
+<h2>Tradeoffs</h2>
+<table>
+<tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+<tr><td>T-001</td><td>Self-test over a live CI crawl. The scheduled job already does live scraping; checks should not fail on Curius API/network flakes.</td></tr>
+</table>
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Remove one self-test line from <code>.github/workflows/update-curius.yml</code>.</p>
+<h2>Definition of done</h2>
+<ul>
+  <li><code>ruby -e "require 'yaml'; YAML.load_file('.github/workflows/update-curius.yml')"</code> parses the workflow.</li>
+  <li><code>python3.13 scraper/curius_scraper.py --self-test</code> passes.</li>
+  <li><code>python3.13 scraper/curius_link_highlight_updater.py --self-test</code> passes.</li>
+  <li><code>python3.13 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li><code>python3.13 scraper/curius_scraper.py --limit-users 1 --delay 0 --timeout 15 --db "$tmpdir/curius.sqlite" --progress-html "$tmpdir/progress.html"</code> reaches the live API.</li>
+</ul>
+</body>
+</html>

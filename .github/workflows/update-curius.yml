@@ -60,8 +60,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-curius-sqlite-
 
-      - name: Check generators
+      - name: Check scraper and generators
         run: |
+          python3 scraper/curius_scraper.py --self-test
           python3 scraper/curius_link_highlight_updater.py --self-test
           python3 analysis/build_follower_site.py --self-test
 

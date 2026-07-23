@@ -144,22 +144,30 @@ GRAPH_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Curius follower graph</title>
+<title>The Curius Follower Graph</title>
 <style>
 __PAPER_CSS__
-  .page { width: min(1480px, 100%); }
-  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: .85rem; align-items: start; }
-  .graph-tools { display: flex; flex-wrap: wrap; gap: .42rem; margin: .55rem 0 .45rem; align-items: center; }
-  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .58rem; font-size: .9rem; }
-  #q { flex: 1 1 250px; max-width: 390px; }
+  .graph-page { width: min(1640px, 100%); padding: 18px clamp(8px, 1.5vw, 20px) 30px; }
+  .graph-hero { text-align: center; margin: 0 auto .65rem; }
+  .link-pill { display: inline-flex; gap: .35rem; align-items: baseline; margin: 0 auto .65rem; padding: .28rem .62rem; border: 1px solid rgba(216, 200, 181, .78); border-radius: 999px; background: rgba(255, 250, 240, .62); color: var(--muted); font-size: .88rem; }
+  .link-pill a { color: var(--ink); }
+  .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .2rem 0 .25rem; }
+  .graph-nav { justify-content: center; margin: 0; font-size: .9rem; }
+  .graph-nav a { color: var(--muted); }
+  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 310px); gap: .65rem; align-items: start; }
+  .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .45rem auto .6rem; align-items: center; max-width: 940px; padding: .38rem; border: 1px solid rgba(216, 200, 181, .72); border-radius: 999px; background: rgba(255, 250, 240, .5); }
+  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .58rem; font-size: .9rem; background: rgba(255, 252, 245, .9); }
+  #q { flex: 1 1 270px; max-width: none; }
+  .min-filter { display: flex; grid-template-columns: none; gap: .32rem; align-items: center; color: var(--muted); font-size: .85rem; }
+  .min-filter span { white-space: nowrap; }
   #min-followers { width: 7ch; }
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
-  .canvas-wrap { position: relative; min-height: 720px; overflow: hidden; touch-action: none; }
-  canvas { display: block; width: 100%; height: min(82vh, 860px); min-height: 640px; border-radius: 18px; cursor: grab; }
+  .canvas-wrap { position: relative; min-height: 720px; margin: 0; overflow: hidden; touch-action: none; }
+  canvas { display: block; width: 100%; height: min(82vh, 860px); min-height: 640px; border-radius: 16px; cursor: grab; }
   canvas:active { cursor: grabbing; }
-  .canvas-note { position: absolute; left: .8rem; right: .8rem; bottom: .7rem; color: var(--muted); background: rgba(255,250,240,.84); border: 1px solid var(--rule); border-radius: 14px; padding: .45rem .65rem; font-size: .92rem; }
-  .reader { padding: .2rem 0 .2rem .85rem; border-left: 1px solid var(--rule); position: sticky; top: 12px; }
+  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.76); border: 1px solid rgba(216, 200, 181, .72); border-radius: 12px; padding: .38rem .58rem; font-size: .9rem; }
+  .reader { padding: .1rem 0 .2rem .65rem; border-left: 1px solid var(--rule); position: sticky; top: 12px; }
   .reader h2 { margin-top: 0; }
   .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; margin: .75rem 0; }
   .count { border-top: 1px solid var(--rule); padding-top: .35rem; }
@@ -177,7 +185,9 @@ __PAPER_CSS__
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
+    .graph-page { padding-left: 8px; padding-right: 8px; }
     .graph-layout { grid-template-columns: 1fr; }
+    .graph-tools { border-radius: 18px; }
     #q { max-width: none; }
     .reader { position: static; }
     .canvas-wrap { min-height: 540px; }
@@ -186,13 +196,15 @@ __PAPER_CSS__
 </style>
 </head>
 <body>
-<div class="page">
-  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="metrics.html">Read the metrics page</a><a href="algorithms.html">Go deeper on algorithms</a><a href="questions.html">Next questions</a></nav>
-  <h1>Curius follower graph</h1>
-  <p class="quiet">Search a person, then zoom into who follows whom.</p>
+<div class="page graph-page">
+  <header class="graph-hero">
+    <aside class="link-pill" aria-label="More Curius links"><span>Explore saved links at</span><a href="https://curius-links.thite.site">curius-links.thite.site</a></aside>
+    <h1>The Curius Follower Graph</h1>
+    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="metrics.html">Metrics</a><a href="algorithms.html">Algorithms</a><a href="questions.html">Next questions</a></nav>
+  </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
-    <input id="min-followers" type="number" min="0" step="1" value="0" aria-label="Minimum followers" title="Minimum followers">
+    <label class="min-filter"><span>Min followers</span><input id="min-followers" type="number" min="0" step="1" value="0" aria-label="Minimum followers" title="Minimum followers"></label>
     <select id="mode" aria-label="View"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select>
     <button id="fit" type="button">Fit</button>
   </section>
@@ -2496,6 +2508,8 @@ def self_test() -> None:
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "canvas" in graph_html and "Palatino" in graph_html
+        assert "The Curius Follower Graph" in graph_html and "Search a person, then zoom into who follows whom." not in graph_html
+        assert "curius-links.thite.site" in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
         assert "matchesSection.hidden = !term" in graph_html and 'class="matches" hidden' in graph_html
