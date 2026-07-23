@@ -139,7 +139,7 @@
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="../frontpage/index.html">Curius front page</a><a href="index.html">Explore the graph</a><a href="metrics.html">Read metrics</a><a href="algorithms.html">Read algorithms</a></nav>
+  <nav class="nav"><a href="https://curius.thite.site/index.html">Curius front page</a><a href="index.html">Explore the graph</a><a href="metrics.html">Read metrics</a><a href="algorithms.html">Read algorithms</a></nav>
   <h1>Four next questions for the follower graph</h1>
   <div class="article">
     <main>
@@ -156,16 +156,9 @@
       <div class="plan">
         <section>
           <h2>Who bridges separate islands?</h2>
-          <p class="answer-line">The strongest bridge in the sampled run is <b>Anson Yu</b> with sampled betweenness <b>0.205</b>. These are people whose neighborhoods sit on many shortest routes through the largest weak component.</p>
+          <p class="answer-line">The strongest bridge in the sampled run is <b>No bridge computed</b> with sampled betweenness <b>0.000</b>. These are people whose neighborhoods sit on many shortest routes through the largest weak component.</p>
           <p>For a person v, betweenness counts how often shortest paths between other people pass through v. Brandes gives a faster exact algorithm, but this page uses 256 deterministic BFS sources to keep the build light <a class="cite" href="https://doi.org/10.1080/0022250X.2001.9990249" target="_blank" rel="noreferrer" title="Gives the standard faster exact betweenness-centrality algorithm.">Brandes 2001</a>.</p>
-          <table class="answer-table"><tr><th></th><th>bridge candidate</th><th>sampled score</th><th>followers</th><th>core</th></tr><tr><td>1</td><td><a href="https://curius.app/users/anson-yu" target="_blank" rel="noreferrer">Anson Yu</a><br><span class="quiet">anson-yu</span></td><td>0.205</td><td>635</td><td>27</td></tr>
-        <tr><td>2</td><td><a href="https://curius.app/users/vincent-huang" target="_blank" rel="noreferrer">Vincent Huang</a><br><span class="quiet">vincent-huang</span></td><td>0.101</td><td>450</td><td>27</td></tr>
-        <tr><td>3</td><td><a href="https://curius.app/users/marley-xiong" target="_blank" rel="noreferrer">Marley Xiong</a><br><span class="quiet">marley-xiong</span></td><td>0.088</td><td>415</td><td>27</td></tr>
-        <tr><td>4</td><td><a href="https://curius.app/users/yueh han-huang" target="_blank" rel="noreferrer">Yueh Han Huang</a><br><span class="quiet">yueh han-huang</span></td><td>0.086</td><td>135</td><td>27</td></tr>
-        <tr><td>5</td><td><a href="https://curius.app/users/kiss" target="_blank" rel="noreferrer">Daniel Kiss</a><br><span class="quiet">kiss</span></td><td>0.063</td><td>102</td><td>27</td></tr>
-        <tr><td>6</td><td><a href="https://curius.app/users/claire-wang" target="_blank" rel="noreferrer">Claire Wang</a><br><span class="quiet">claire-wang</span></td><td>0.061</td><td>284</td><td>27</td></tr>
-        <tr><td>7</td><td><a href="https://curius.app/users/raffi-hotter" target="_blank" rel="noreferrer">Raffi Hotter</a><br><span class="quiet">raffi-hotter</span></td><td>0.057</td><td>294</td><td>27</td></tr>
-        <tr><td>8</td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>0.051</td><td>243</td><td>27</td></tr></table>
+          <table class="answer-table"><tr><th></th><th>bridge candidate</th><th>sampled score</th><th>followers</th><th>core</th></tr></table>
         </section>
         <section>
           <h2>Which follows look surprising?</h2>
@@ -173,58 +166,53 @@
           <p>Common-neighbor scores predict a follow when people share outgoing neighborhoods. A residual asks what the score missed: high-score missing follows are plausible recommendations; low-support existing follows are unusual edges worth reading manually <a class="cite" href="https://doi.org/10.1002/asi.20591" target="_blank" rel="noreferrer" title="Surveys common-neighbor and related link-prediction scores.">Liben-Nowell and Kleinberg 2007</a>.</p>
           <h3>High-score missing follows</h3>
           <table class="answer-table"><tr><th></th><th>source</th><th>candidate</th><th>two-hop score</th><th>candidate followers</th></tr><tr><td>1</td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td><a href="https://curius.app/users/jacky-zhao" target="_blank" rel="noreferrer">Jacky Zhao</a><br><span class="quiet">jacky-zhao</span></td><td>70</td><td>327</td></tr>
-        <tr><td>2</td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td>56</td><td>131</td></tr>
-        <tr><td>3</td><td><a href="https://curius.app/users/agniv-sarkar" target="_blank" rel="noreferrer">agniv sarkar</a><br><span class="quiet">agniv-sarkar</span></td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td>56</td><td>131</td></tr>
+        <tr><td>2</td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td>56</td><td>133</td></tr>
+        <tr><td>3</td><td><a href="https://curius.app/users/agniv-sarkar" target="_blank" rel="noreferrer">agniv sarkar</a><br><span class="quiet">agniv-sarkar</span></td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td>56</td><td>133</td></tr>
         <tr><td>4</td><td><a href="https://curius.app/users/claire-wang" target="_blank" rel="noreferrer">Claire Wang</a><br><span class="quiet">claire-wang</span></td><td><a href="https://curius.app/users/aadil-a." target="_blank" rel="noreferrer">Aadil A.</a><br><span class="quiet">aadil-a.</span></td><td>49</td><td>132</td></tr>
-        <tr><td>5</td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td>44</td><td>128</td></tr>
+        <tr><td>5</td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td>44</td><td>129</td></tr>
         <tr><td>6</td><td><a href="https://curius.app/users/kiss" target="_blank" rel="noreferrer">Daniel Kiss</a><br><span class="quiet">kiss</span></td><td><a href="https://curius.app/users/alicia-guo" target="_blank" rel="noreferrer">Alicia Guo</a><br><span class="quiet">alicia-guo</span></td><td>43</td><td>193</td></tr>
-        <tr><td>7</td><td><a href="https://curius.app/users/kiss" target="_blank" rel="noreferrer">Daniel Kiss</a><br><span class="quiet">kiss</span></td><td><a href="https://curius.app/users/hudzah" target="_blank" rel="noreferrer">HudZah</a><br><span class="quiet">hudzah</span></td><td>43</td><td>167</td></tr>
+        <tr><td>7</td><td><a href="https://curius.app/users/kiss" target="_blank" rel="noreferrer">Daniel Kiss</a><br><span class="quiet">kiss</span></td><td><a href="https://curius.app/users/hudzah" target="_blank" rel="noreferrer">HudZah</a><br><span class="quiet">hudzah</span></td><td>43</td><td>168</td></tr>
         <tr><td>8</td><td><a href="https://curius.app/users/kelly-chong" target="_blank" rel="noreferrer">Kelly Chong</a><br><span class="quiet">kelly-chong</span></td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>39</td><td>243</td></tr></table>
           <h3>Low-support existing follows</h3>
           <table class="answer-table"><tr><th></th><th>source</th><th>target</th><th>two-hop support</th><th>source following → target followers</th></tr><tr><td>1</td><td><a href="https://curius.app/users/yeji-ma" target="_blank" rel="noreferrer">Yeji Ma</a><br><span class="quiet">yeji-ma</span></td><td><a href="https://curius.app/users/vincent-huang" target="_blank" rel="noreferrer">Vincent Huang</a><br><span class="quiet">vincent-huang</span></td><td>0</td><td>20 → 450</td></tr>
-        <tr><td>2</td><td><a href="https://curius.app/users/eshaan-moorjani" target="_blank" rel="noreferrer">Eshaan Moorjani</a><br><span class="quiet">eshaan-moorjani</span></td><td><a href="https://curius.app/users/noah-t" target="_blank" rel="noreferrer">Noah T</a><br><span class="quiet">noah-t</span></td><td>0</td><td>29 → 128</td></tr>
-        <tr><td>3</td><td><a href="https://curius.app/users/athena-leong" target="_blank" rel="noreferrer">Athena Leong</a><br><span class="quiet">athena-leong</span></td><td><a href="https://curius.app/users/hardeep-gambhir" target="_blank" rel="noreferrer">Hardeep Gambhir</a><br><span class="quiet">hardeep-gambhir</span></td><td>0</td><td>38 → 90</td></tr>
+        <tr><td>2</td><td><a href="https://curius.app/users/athena-leong" target="_blank" rel="noreferrer">Athena Leong</a><br><span class="quiet">athena-leong</span></td><td><a href="https://curius.app/users/hardeep-gambhir" target="_blank" rel="noreferrer">Hardeep Gambhir</a><br><span class="quiet">hardeep-gambhir</span></td><td>0</td><td>38 → 91</td></tr>
+        <tr><td>3</td><td><a href="https://curius.app/users/eshaan-moorjani" target="_blank" rel="noreferrer">Eshaan Moorjani</a><br><span class="quiet">eshaan-moorjani</span></td><td><a href="https://curius.app/users/noah-t" target="_blank" rel="noreferrer">Noah T</a><br><span class="quiet">noah-t</span></td><td>0</td><td>29 → 128</td></tr>
         <tr><td>4</td><td><a href="https://curius.app/users/huong-truong" target="_blank" rel="noreferrer">huong truong</a><br><span class="quiet">huong-truong</span></td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>0</td><td>14 → 243</td></tr>
         <tr><td>5</td><td><a href="https://curius.app/users/anson-yu" target="_blank" rel="noreferrer">Anson Yu</a><br><span class="quiet">anson-yu</span></td><td><a href="https://curius.app/users/michael-dawes" target="_blank" rel="noreferrer">Michael Dawes</a><br><span class="quiet">michael-dawes</span></td><td>0</td><td>101 → 22</td></tr>
-        <tr><td>6</td><td><a href="https://curius.app/users/matthew-siu" target="_blank" rel="noreferrer">Matthew Siu</a><br><span class="quiet">matthew-siu</span></td><td><a href="https://curius.app/users/aryan-naik" target="_blank" rel="noreferrer">Aryan Naik</a><br><span class="quiet">aryan-naik</span></td><td>0</td><td>23 → 88</td></tr>
+        <tr><td>6</td><td><a href="https://curius.app/users/matthew-siu" target="_blank" rel="noreferrer">Matthew Siu</a><br><span class="quiet">matthew-siu</span></td><td><a href="https://curius.app/users/aryan-naik" target="_blank" rel="noreferrer">Aryan Naik</a><br><span class="quiet">aryan-naik</span></td><td>0</td><td>23 → 89</td></tr>
         <tr><td>7</td><td><a href="https://curius.app/users/noah-t" target="_blank" rel="noreferrer">Noah T</a><br><span class="quiet">noah-t</span></td><td><a href="https://curius.app/users/davis-brown" target="_blank" rel="noreferrer">Davis Brown</a><br><span class="quiet">davis-brown</span></td><td>0</td><td>59 → 27</td></tr>
         <tr><td>8</td><td><a href="https://curius.app/users/van-hoang" target="_blank" rel="noreferrer">Van Hoang</a><br><span class="quiet">van-hoang</span></td><td><a href="https://curius.app/users/amir" target="_blank" rel="noreferrer">Amir</a><br><span class="quiet">amir</span></td><td>0</td><td>10 → 269</td></tr></table>
         </section>
         <section>
           <h2>Where are coherent communities?</h2>
-          <p class="answer-line">Louvain finds <b>22</b> communities inside the largest weak component, with modularity <b>0.464</b>. The largest groups are mostly separated by follow structure, not by school metadata, because most listed schools are McGill.</p>
+          <p class="answer-line">Louvain finds <b>0</b> communities inside the largest weak component, with modularity <b>0.000</b>. The largest groups are mostly separated by follow structure, not by school metadata, because most listed schools are McGill.</p>
           <p>Modularity methods search for groups with more internal edges than a random graph with similar degrees would expect. Louvain is a common greedy version; Leiden improves badly connected communities <a class="cite" href="https://doi.org/10.1038/s41598-019-41695-z" target="_blank" rel="noreferrer" title="Describes Leiden as a community-detection method that improves Louvain partitions.">Traag, Waltman, and van Eck 2019</a>.</p>
-          <table class="answer-table"><tr><th>group</th><th>people</th><th>visible names</th><th>top saved-link domains</th><th>school signal</th></tr><tr><td>1</td><td>578</td><td>Claire Wang, Yudhister Joel Kumar, Daniel Kiss, agniv sarkar</td><td>en.wikipedia.org, arxiv.org, lesswrong.com, youtube.com</td><td>McGill University</td></tr>
-        <tr><td>2</td><td>566</td><td>Anson Yu, Jaclyn, Aryan Naik, HudZah</td><td>en.wikipedia.org, youtube.com, x.com, github.com</td><td>McGill University</td></tr>
-        <tr><td>3</td><td>433</td><td>Vincent Huang, Amir, Sahil Patel, Emma Guo</td><td>en.wikipedia.org, arxiv.org, youtube.com, medium.com</td><td>McGill University</td></tr>
-        <tr><td>4</td><td>409</td><td>Marley Xiong, Raffi Hotter, Anna Brandenberger, Liam Hinzman</td><td>youtube.com, en.wikipedia.org, arxiv.org, nature.com</td><td>McGill University</td></tr>
-        <tr><td>5</td><td>395</td><td>Yueh Han Huang, Nguyen Tung, Svitlana Midianko, Phuong Do</td><td>youtube.com, medium.com, github.com, en.wikipedia.org</td><td>McGill University</td></tr>
-        <tr><td>6</td><td>349</td><td>Jacky Zhao, Alicia Guo, Katherine Huang, Wendi Yan</td><td>en.wikipedia.org, youtube.com, nytimes.com, github.com</td><td>McGill University</td></tr></table>
+          <table class="answer-table"><tr><th>group</th><th>people</th><th>visible names</th><th>top saved-link domains</th><th>school signal</th></tr></table>
         </section>
         <section>
           <h2>How do interests travel?</h2>
-          <p class="answer-line">Among <b>19,240</b> follow edges where both people have saved-link domains, <b>86.8%</b> share at least one domain. The graph carries broad reading channels more than narrow topics.</p>
+          <p class="answer-line">Among <b>19,351</b> follow edges where both people have saved-link domains, <b>85.6%</b> share at least one domain. The graph carries broad reading channels more than narrow topics.</p>
           <p>Random walks can mix follows with saved-link topics: start at a person, walk along follows, and occasionally jump to a saved link or highlighted source. Personalized PageRank is one way to keep the walk near a starting person while still letting it explore <a class="cite" href="https://doi.org/10.1145/775047.775126" target="_blank" rel="noreferrer" title="Uses topic-sensitive PageRank to bias random walks toward selected topics.">Haveliwala 2002</a>.</p>
           <h3>Domains shared along follow edges</h3>
-          <p><span class="tag">en.wikipedia.org · 7,947</span><span class="tag">youtube.com · 7,942</span><span class="tag">lesswrong.com · 6,354</span><span class="tag">medium.com · 6,338</span><span class="tag">paulgraham.com · 6,095</span><span class="tag">arxiv.org · 6,063</span><span class="tag">github.com · 5,594</span><span class="tag">docs.google.com · 5,494</span><span class="tag">nytimes.com · 4,597</span><span class="tag">substack.com · 4,581</span></p>
+          <p><span class="tag">youtube.com · 7,982</span><span class="tag">en.wikipedia.org · 7,978</span><span class="tag">lesswrong.com · 6,088</span><span class="tag">arxiv.org · 5,854</span><span class="tag">medium.com · 5,832</span><span class="tag">paulgraham.com · 5,666</span><span class="tag">github.com · 5,383</span><span class="tag">docs.google.com · 5,247</span><span class="tag">substack.com · 4,422</span><span class="tag">nytimes.com · 4,257</span></p>
           <h3>Domains shared across community boundaries</h3>
-          <p><span class="tag">youtube.com · 3,835</span><span class="tag">en.wikipedia.org · 3,625</span><span class="tag">medium.com · 3,285</span><span class="tag">paulgraham.com · 3,044</span><span class="tag">github.com · 2,976</span><span class="tag">docs.google.com · 2,841</span><span class="tag">arxiv.org · 2,781</span><span class="tag">lesswrong.com · 2,768</span><span class="tag">nytimes.com · 2,477</span><span class="tag">newyorker.com · 2,102</span></p>
+          <p></p>
           <h3>Domains weighted by follower PageRank</h3>
-          <p><span class="tag">curius.app · 9.23%</span><span class="tag">en.wikipedia.org · 3.11%</span><span class="tag">youtube.com · 2.21%</span><span class="tag">arxiv.org · 1.95%</span><span class="tag">lesswrong.com · 1.13%</span><span class="tag">medium.com · 0.97%</span><span class="tag">paulgraham.com · 0.91%</span><span class="tag">github.com · 0.76%</span><span class="tag">substack.com · 0.68%</span><span class="tag">nytimes.com · 0.67%</span></p>
+          <p><span class="tag">curius.app · 9.21%</span><span class="tag">en.wikipedia.org · 3.20%</span><span class="tag">youtube.com · 2.31%</span><span class="tag">arxiv.org · 2.00%</span><span class="tag">lesswrong.com · 1.14%</span><span class="tag">medium.com · 0.91%</span><span class="tag">paulgraham.com · 0.87%</span><span class="tag">github.com · 0.75%</span><span class="tag">substack.com · 0.71%</span><span class="tag">nytimes.com · 0.68%</span></p>
         </section>
       </div>
     </main>
     <aside class="side sheet">
       <h2>Answers in one breath</h2>
       <ol>
-        <li><b>Bridge:</b> Anson Yu is the top sampled betweenness bridge.</li>
+        <li><b>Bridge:</b> No bridge computed is the top sampled betweenness bridge.</li>
         <li><b>Surprising missing follow:</b> Yudhister Joel Kumar → Jacky Zhao has the highest two-hop score.</li>
-        <li><b>Communities:</b> 22 Louvain groups in the largest weak component.</li>
-        <li><b>Interests:</b> 86.8% of known-domain follow edges share at least one domain.</li>
+        <li><b>Communities:</b> 0 Louvain groups in the largest weak component.</li>
+        <li><b>Interests:</b> 85.6% of known-domain follow edges share at least one domain.</li>
       </ol>
       <p class="small quiet">These are computed answers, not proof of causality. The names are good places to inspect the graph manually.</p>
       <h2>Current graph</h2>
-      <p><b>6,372</b> people, <b>20,745</b> follows, largest weak component <b>3,099</b> people.</p>
+      <p><b>6,402</b> people, <b>20,864</b> follows, largest weak component <b>3,119</b> people.</p>
     </aside>
   </div>
   <h2>References</h2>
