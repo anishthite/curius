@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Analysis Graph Border Reduction</title>
+<meta name="task" content="Reduce visible borders on the Curius analysis graph">
+<meta name="date-started" content="2026-07-27">
+<meta name="date-updated" content="2026-07-27">
+<meta name="status" content="shipped">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, ui, static-site">
+<meta name="related" content="2026-07-22-graph-ui-compact-refresh.html,2026-07-23-analysis-graph-quiet-header.html,2026-07-27-snappier-page-performance.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+</style>
+</head>
+<body>
+<h1>Analysis Graph Border Reduction</h1>
+<p class="meta"><code>snappier-page-performance</code> · worktree <code>/Users/anishthite/conductor/workspaces/curious-index/halifax</code> · 2026-07-27 · status <b>shipped</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Reduce the visible border count in <code>apps/analysis/index.html</code> from the supplied screenshot.</div>
+  <b>Source</b><div><code>analysis/build_follower_site.py</code> graph template.</div>
+  <b>Surface</b><div>Toolbar, canvas frame, status note, result buttons, and reader stats.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Same borderless controls and canvas treatment apply below <code>920px</code>.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Toolbar</b>: remove the toolbar rule and use pale fill controls without individual visible borders.</li>
+  <li><b>Graph</b>: remove the framed <code>.sheet</code> treatment from the canvas wrapper.</li>
+  <li><b>Status</b>: keep the caption readable with a soft fill and no border.</li>
+  <li><b>Sidebar</b>: replace divider lines and button borders with spacing and quiet fills.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Update graph CSS to reduce visible borders.</td></tr>
+  <tr><td><code>apps/analysis/index.html</code></td><td>generated</td><td>Regenerate the static graph page from the updated template.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Keep the existing paper palette. The request targets border density, not brand direction.</td></tr>
+  <tr><td>D-002</td><td>Preserve native focus outlines. Border removal must not erase keyboard state.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>targeted graph CSS</code> over <code>global .sheet/input reset</code>. Other analysis pages keep their current rhythm.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Revert the graph CSS block in <code>analysis/build_follower_site.py</code> and regenerate <code>apps/analysis/index.html</code>.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: graph toolbar and canvas wrapper no longer draw visible enclosing borders.</li>
+  <li>Done: generated <code>apps/analysis/index.html</code> matches the generator CSS.</li>
+  <li>Done: <code>analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li>Done: browser smoke confirms the graph canvas renders after the style change.</li>
+</ul>
+</body>
+</html>
