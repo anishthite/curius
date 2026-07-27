@@ -105,33 +105,48 @@
     table { font-size: .9rem; }
   }
 
-  .graph-page { width: min(1640px, 100%); padding: 18px clamp(8px, 1.5vw, 20px) 30px; }
-  .graph-hero { text-align: left; margin: 0 0 .65rem; }
-  .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .2rem 0 .25rem; }
+  html, body { height: 100%; overflow: hidden; }
+  .graph-page { width: min(1640px, 100%); height: 100svh; display: flex; flex-direction: column; overflow: hidden; padding: 12px clamp(8px, 1.5vw, 20px); }
+  .graph-hero { flex: 0 0 auto; text-align: left; margin: 0 0 .35rem; }
+  .graph-hero h1 { font-size: clamp(1.85rem, 4.6vw, 3.8rem); margin: 0 0 .12rem; }
   .graph-nav { justify-content: flex-start; margin: 0; font-size: .9rem; }
   .graph-nav a { color: var(--muted); }
-  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 310px); gap: .65rem; align-items: start; }
-  .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .45rem 0 .6rem; align-items: center; max-width: 940px; padding: .38rem; border: 1px solid rgba(216, 200, 181, .72); border-radius: 999px; background: rgba(255, 250, 240, .5); }
+  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 310px); gap: .65rem; align-items: stretch; flex: 1 1 auto; min-height: 0; }
+  .graph-tools { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: .4rem; margin: .3rem 0 .45rem; align-items: center; max-width: 940px; padding: 0; border: 0; background: transparent; }
   .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .58rem; font-size: .9rem; background: rgba(255, 252, 245, .9); }
-  #q { flex: 1 1 270px; max-width: none; }
+  #q {
+    flex: 1 1 270px;
+    max-width: none;
+    padding-left: 2.1rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236f6254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: .72rem 50%;
+    background-size: 1rem 1rem;
+  }
+  #q::placeholder { color: var(--muted); opacity: .9; }
   .min-filter { display: flex; grid-template-columns: none; gap: .32rem; align-items: center; color: var(--muted); font-size: .85rem; }
   .min-filter span { white-space: nowrap; }
   #min-followers { width: 7ch; }
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
-  .canvas-wrap { position: relative; min-height: 720px; margin: 0; overflow: hidden; touch-action: none; }
-  canvas { display: block; width: 100%; height: min(82vh, 860px); min-height: 640px; border-radius: 16px; cursor: grab; }
+  .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
+  canvas { display: block; width: 100%; height: 100%; min-height: 0; border-radius: 16px; cursor: grab; }
   canvas:active { cursor: grabbing; }
   .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.76); border: 1px solid rgba(216, 200, 181, .72); border-radius: 12px; padding: .38rem .58rem; font-size: .9rem; }
-  .reader { padding: .1rem 0 .2rem .65rem; border-left: 1px solid var(--rule); position: sticky; top: 12px; }
+  .reader { min-height: 0; height: 100%; overflow: auto; padding: .1rem .25rem .2rem .65rem; border-left: 1px solid var(--rule); }
   .reader h2 { margin-top: 0; }
-  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; margin: .75rem 0; }
+  .counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.2rem, 1fr)); gap: .55rem; margin: .75rem 0; }
   .count { border-top: 1px solid var(--rule); padding-top: .35rem; }
   .count b { display: block; font-size: 1.45rem; font-weight: 500; line-height: 1.1; }
   .count span { color: var(--muted); font-size: .9rem; }
   .people { display: grid; gap: .35rem; max-height: 260px; overflow: auto; padding-right: .15rem; }
   .person { width: 100%; border-radius: 12px; text-align: left; line-height: 1.2; min-height: 0; padding: .38rem .58rem; }
   .person small { display: block; color: var(--muted); margin-top: .08rem; }
+  .reader .people { max-height: none; overflow: visible; padding-right: 0; }
+  .relationship-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .18rem; margin: 1rem 0 .55rem; padding: .18rem; border: 1px solid rgba(216, 200, 181, .82); border-radius: 999px; background: rgba(255, 250, 240, .62); }
+  .relationship-tabs button { width: 100%; min-width: 0; min-height: 38px; border: 0; border-radius: 999px; background: transparent; padding: .34rem .45rem; box-shadow: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .relationship-tabs button[aria-selected="true"] { border: 1px solid rgba(47, 99, 183, .34); background: rgba(255, 252, 245, .96); box-shadow: inset 0 0 0 1px rgba(47, 99, 183, .1); color: var(--ink); }
+  .relationship-empty { margin: .35rem 0; color: var(--muted); }
   .matches { margin: .15rem 0 .75rem; padding: .45rem 0 .55rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
   .matches[hidden] { display: none; }
   .matches h2 { font-size: 1.08rem; margin: 0 0 .35rem; }
@@ -142,12 +157,11 @@
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
     .graph-page { padding-left: 8px; padding-right: 8px; }
-    .graph-layout { grid-template-columns: 1fr; }
-    .graph-tools { border-radius: 18px; }
+    .graph-hero h1 { font-size: clamp(1.75rem, 7.5vw, 2.45rem); }
+    .graph-layout { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(190px, .78fr); }
+    .graph-tools { gap: .35rem; }
     #q { max-width: none; }
-    .reader { position: static; }
-    .canvas-wrap { min-height: 540px; }
-    canvas { height: 70vh; min-height: 500px; }
+    .reader { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem .35rem 0; }
   }
 </style>
 </head>
@@ -204,6 +218,7 @@
   let visibleIds = new Set(nodes.map(n => n.id));
   let pointer = null;
   let hover = null;
+  let readerTab = "followers";
 
   function label(n) { return n.name && n.name !== n.slug ? `${n.name} · ${n.slug}` : n.slug; }
   function profileUrl(n) { return `https://curius.app/users/${encodeURIComponent(n.slug)}`; }
@@ -433,15 +448,40 @@
     counts.innerHTML = `<div class="count"><b>${n.in.toLocaleString()}</b><span>followers</span></div><div class="count"><b>${n.out.toLocaleString()}</b><span>following</span></div><div class="count"><b>${n.core}</b><span>core</span></div>`;
     const rank = document.createElement("p");
     rank.textContent = `PageRank share ${(n.rank * 100).toFixed(2)}%. ${mutual.length.toLocaleString()} of these relationships are mutual in the stored graph.`;
-    reader.append(title, links, counts, rank, peopleSection("Followers", followers), peopleSection("Following", following));
+    reader.append(title, links, counts, rank, relationshipSection(followers, following));
   }
-  function peopleSection(title, people) {
+  function relationshipSection(followers, following) {
     const section = document.createElement("section");
-    const h = document.createElement("h3"); h.textContent = `${title} (${people.length.toLocaleString()})`;
+    const tabs = document.createElement("div");
+    tabs.className = "relationship-tabs";
+    tabs.setAttribute("role", "tablist");
+    tabs.setAttribute("aria-label", "Selected person's relationships");
+    tabs.append(relationshipTab("followers", "Followers", followers.length), relationshipTab("following", "Following", following.length));
+    const people = readerTab === "following" ? following : followers;
     const list = document.createElement("div"); list.className = "people";
     people.slice(0, 42).forEach(p => list.append(personButton(p)));
-    section.append(h, list);
+    section.append(tabs);
+    if (people.length) section.append(list);
+    else {
+      const empty = document.createElement("p");
+      empty.className = "relationship-empty";
+      empty.textContent = `No observed ${readerTab}.`;
+      section.append(empty);
+    }
     return section;
+  }
+  function relationshipTab(key, label, count) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(readerTab === key));
+    button.textContent = `${label} (${count.toLocaleString()})`;
+    button.addEventListener("click", () => {
+      if (readerTab === key) return;
+      readerTab = key;
+      renderReader();
+    });
+    return button;
   }
   function renderMatches() {
     const term = q.value.trim().toLowerCase();
