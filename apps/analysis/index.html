@@ -106,7 +106,6 @@
     table { font-size: .9rem; }
   }
 
-  body { background: var(--paper); }
   .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
@@ -123,22 +122,22 @@
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
-  .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
-  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; }
+  .canvas-wrap.sheet { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 0; cursor: grab; overflow: hidden; background: transparent; }
   .graph-page.has-matches .canvas-wrap { min-height: 0; }
   .graph-page.has-matches .graph-canvas { height: 100%; }
   .graph-canvas:active { cursor: grabbing; }
-  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 10px; transform-origin: 0 0; will-change: transform; }
-  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.78); border: 0; border-radius: 8px; padding: .42rem .6rem; font-size: .9rem; box-shadow: 0 1px 8px rgba(60, 42, 20, .05); }
+  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 0; transform-origin: 0 0; will-change: transform; }
+  .canvas-note { position: absolute; left: .2rem; right: .2rem; bottom: .15rem; color: var(--muted); background: transparent; border: 0; border-radius: 0; padding: 0; font-size: .86rem; text-shadow: 0 1px 0 rgba(255, 250, 240, .72); box-shadow: none; }
   .canvas-note b { color: var(--ink); font-weight: 500; }
   .graph-legend { display: flex; flex-wrap: wrap; gap: .28rem .7rem; align-items: center; }
   .legend-key { display: inline-flex; gap: .28rem; align-items: center; white-space: nowrap; }
   .legend-dot { width: .62rem; height: .62rem; border-radius: 999px; display: inline-block; box-shadow: 0 0 0 1px rgba(32, 23, 15, .12); }
-  .legend-dot.selected { background: #b74d2f; }
-  .legend-dot.follower { background: #2f63b7; }
-  .legend-dot.following { background: #247a4b; }
-  .legend-dot.mutual { background: #7047a8; }
-  .legend-dot.other { background: #786b58; opacity: .75; }
+  .legend-dot.selected { background: #9f3f26; }
+  .legend-dot.follower { background: #254f98; }
+  .legend-dot.following { background: #1c653d; }
+  .legend-dot.mutual { background: #5e398f; }
+  .legend-dot.other { background: #5f5140; opacity: .85; }
   .reader { position: fixed; inset: 0 0 0 auto; z-index: 12; display: flex; flex-direction: column; width: var(--reader-width); height: 100vh; margin: 0; overflow: hidden; padding: 20px 18px 24px; border-left: 1px solid rgba(216, 200, 181, .72); background: rgba(255, 250, 240, .92); box-shadow: -12px 0 28px rgba(60, 42, 20, .08); font-size: .94rem; }
   .reader h2 { margin-top: 0; }
   .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: .45rem 0; }
@@ -244,7 +243,7 @@
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">Next questions</a></nav>
+    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">What is this?</a></nav>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -287,7 +286,7 @@
   overlayCanvas.setAttribute("aria-hidden", "true");
   overlayCanvas.style.pointerEvents = "none";
   graphStage.append(webglCanvas, overlayCanvas);
-  const gl = webglCanvas.getContext("webgl", {alpha: false, antialias: true, powerPreference: "high-performance"});
+  const gl = webglCanvas.getContext("webgl", {alpha: true, antialias: true, powerPreference: "high-performance"});
   const overlay = overlayCanvas.getContext("2d");
   const reader = document.getElementById("reader");
   const status = document.getElementById("status");
@@ -321,7 +320,7 @@
   function degree(n) { return n.in + n.out; }
   function matchesText(n, term) { return `${n.name} ${n.slug}`.toLowerCase().includes(term); }
   function sortedPeople(ids) { return ids.map(id => byId.get(id)).filter(Boolean).sort((a, b) => degree(b) - degree(a) || a.slug.localeCompare(b.slug)); }
-  function nodeRadius(n) { return Math.max(2.5, Math.min(13, 2.55 + Math.sqrt(Math.max(0, n.in)) * .31 + n.core * .18)); }
+  function nodeRadius(n) { return Math.max(3, Math.min(14.5, 2.95 + Math.sqrt(Math.max(0, n.in)) * .34 + n.core * .2)); }
   function markVisibleDirty() { visibleDirty = true; graphDirty = true; }
   function ensureVisible() { if (visibleDirty) computeVisible(); }
   function computeVisible() {
@@ -357,15 +356,15 @@
     scheduleRender();
   }
   function relationColor(id) {
-    if (id === selected) return "#b74d2f";
+    if (id === selected) return "#9f3f26";
     const center = selected && byId.get(selected);
-    if (!center) return "#6f6454";
+    if (!center) return "#5b4f41";
     const incoming = center.followersSet.has(id);
     const outgoing = center.followingSet.has(id);
-    if (incoming && outgoing) return "#7047a8";
-    if (incoming) return "#2f63b7";
-    if (outgoing) return "#247a4b";
-    return "#786b58";
+    if (incoming && outgoing) return "#5e398f";
+    if (incoming) return "#254f98";
+    if (outgoing) return "#1c653d";
+    return "#5f5140";
   }
   function updateStatus() {
     ensureVisible();
@@ -573,7 +572,7 @@
   }
   function renderWebGL() {
     gl.viewport(0, 0, webglCanvas.width, webglCanvas.height);
-    gl.clearColor(1, 250 / 255, 240 / 255, 1);
+    gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -606,8 +605,6 @@
   }
   function renderFallback2d() {
     overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
-    overlay.fillStyle = "#fffaf0";
-    overlay.fillRect(0, 0, canvasSize.width, canvasSize.height);
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;

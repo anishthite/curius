@@ -148,7 +148,6 @@ GRAPH_HTML = """<!doctype html>
 <title>The Curius Follower Graph</title>
 <style>
 __PAPER_CSS__
-  body { background: var(--paper); }
   .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
@@ -165,22 +164,22 @@ __PAPER_CSS__
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
-  .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
-  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; }
+  .canvas-wrap.sheet { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 0; cursor: grab; overflow: hidden; background: transparent; }
   .graph-page.has-matches .canvas-wrap { min-height: 0; }
   .graph-page.has-matches .graph-canvas { height: 100%; }
   .graph-canvas:active { cursor: grabbing; }
-  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 10px; transform-origin: 0 0; will-change: transform; }
-  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.78); border: 0; border-radius: 8px; padding: .42rem .6rem; font-size: .9rem; box-shadow: 0 1px 8px rgba(60, 42, 20, .05); }
+  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 0; transform-origin: 0 0; will-change: transform; }
+  .canvas-note { position: absolute; left: .2rem; right: .2rem; bottom: .15rem; color: var(--muted); background: transparent; border: 0; border-radius: 0; padding: 0; font-size: .86rem; text-shadow: 0 1px 0 rgba(255, 250, 240, .72); box-shadow: none; }
   .canvas-note b { color: var(--ink); font-weight: 500; }
   .graph-legend { display: flex; flex-wrap: wrap; gap: .28rem .7rem; align-items: center; }
   .legend-key { display: inline-flex; gap: .28rem; align-items: center; white-space: nowrap; }
   .legend-dot { width: .62rem; height: .62rem; border-radius: 999px; display: inline-block; box-shadow: 0 0 0 1px rgba(32, 23, 15, .12); }
-  .legend-dot.selected { background: #b74d2f; }
-  .legend-dot.follower { background: #2f63b7; }
-  .legend-dot.following { background: #247a4b; }
-  .legend-dot.mutual { background: #7047a8; }
-  .legend-dot.other { background: #786b58; opacity: .75; }
+  .legend-dot.selected { background: #9f3f26; }
+  .legend-dot.follower { background: #254f98; }
+  .legend-dot.following { background: #1c653d; }
+  .legend-dot.mutual { background: #5e398f; }
+  .legend-dot.other { background: #5f5140; opacity: .85; }
   .reader { position: fixed; inset: 0 0 0 auto; z-index: 12; display: flex; flex-direction: column; width: var(--reader-width); height: 100vh; margin: 0; overflow: hidden; padding: 20px 18px 24px; border-left: 1px solid rgba(216, 200, 181, .72); background: rgba(255, 250, 240, .92); box-shadow: -12px 0 28px rgba(60, 42, 20, .08); font-size: .94rem; }
   .reader h2 { margin-top: 0; }
   .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: .45rem 0; }
@@ -286,7 +285,7 @@ __PAPER_CSS__
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">Next questions</a></nav>
+    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">What is this?</a></nav>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -329,7 +328,7 @@ __PAPER_CSS__
   overlayCanvas.setAttribute("aria-hidden", "true");
   overlayCanvas.style.pointerEvents = "none";
   graphStage.append(webglCanvas, overlayCanvas);
-  const gl = webglCanvas.getContext("webgl", {alpha: false, antialias: true, powerPreference: "high-performance"});
+  const gl = webglCanvas.getContext("webgl", {alpha: true, antialias: true, powerPreference: "high-performance"});
   const overlay = overlayCanvas.getContext("2d");
   const reader = document.getElementById("reader");
   const status = document.getElementById("status");
@@ -363,7 +362,7 @@ __PAPER_CSS__
   function degree(n) { return n.in + n.out; }
   function matchesText(n, term) { return `${n.name} ${n.slug}`.toLowerCase().includes(term); }
   function sortedPeople(ids) { return ids.map(id => byId.get(id)).filter(Boolean).sort((a, b) => degree(b) - degree(a) || a.slug.localeCompare(b.slug)); }
-  function nodeRadius(n) { return Math.max(2.5, Math.min(13, 2.55 + Math.sqrt(Math.max(0, n.in)) * .31 + n.core * .18)); }
+  function nodeRadius(n) { return Math.max(3, Math.min(14.5, 2.95 + Math.sqrt(Math.max(0, n.in)) * .34 + n.core * .2)); }
   function markVisibleDirty() { visibleDirty = true; graphDirty = true; }
   function ensureVisible() { if (visibleDirty) computeVisible(); }
   function computeVisible() {
@@ -399,15 +398,15 @@ __PAPER_CSS__
     scheduleRender();
   }
   function relationColor(id) {
-    if (id === selected) return "#b74d2f";
+    if (id === selected) return "#9f3f26";
     const center = selected && byId.get(selected);
-    if (!center) return "#6f6454";
+    if (!center) return "#5b4f41";
     const incoming = center.followersSet.has(id);
     const outgoing = center.followingSet.has(id);
-    if (incoming && outgoing) return "#7047a8";
-    if (incoming) return "#2f63b7";
-    if (outgoing) return "#247a4b";
-    return "#786b58";
+    if (incoming && outgoing) return "#5e398f";
+    if (incoming) return "#254f98";
+    if (outgoing) return "#1c653d";
+    return "#5f5140";
   }
   function updateStatus() {
     ensureVisible();
@@ -615,7 +614,7 @@ __PAPER_CSS__
   }
   function renderWebGL() {
     gl.viewport(0, 0, webglCanvas.width, webglCanvas.height);
-    gl.clearColor(1, 250 / 255, 240 / 255, 1);
+    gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -648,8 +647,6 @@ __PAPER_CSS__
   }
   function renderFallback2d() {
     overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
-    overlay.fillStyle = "#fffaf0";
-    overlay.fillRect(0, 0, canvasSize.width, canvasSize.height);
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
@@ -945,7 +942,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="questions.html">What is this?</a></nav>
   <h1>How to read this follower graph</h1>
   <div class="article">
     <main>
@@ -1216,7 +1213,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="questions.html">What is this?</a></nav>
   <h1>More graph algorithms for this follower graph</h1>
   <div class="article">
     <main>
@@ -1412,112 +1409,98 @@ NEXT_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Curius next graph questions</title>
+<title>What is this? The Curius graph</title>
 <style>
 __PAPER_CSS__
   .article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 2rem; align-items: start; }
   .article > main { min-width: 0; }
   .side { position: sticky; top: 14px; padding: 1rem; }
-  .question-table td:first-child { font-weight: 500; width: 24%; }
-  .question-table td:nth-child(2) { width: 28%; }
   .answer-table td:first-child { width: 2rem; color: var(--muted); }
   .answer-table td, .answer-table th { font-size: .94rem; }
   .answer-line { border-left: 3px solid var(--rule); padding: .65rem .9rem; background: rgba(255,250,240,.62); }
+  .lede { font-size: clamp(1.18rem, 2.8vw, 1.55rem); line-height: 1.38; max-width: 60ch; }
+  .domain-chart { display: grid; gap: .62rem; margin: 1.1rem 0 1.4rem; }
+  .domain-row { display: grid; grid-template-columns: minmax(9rem, 15rem) minmax(0, 1fr) 5rem; gap: .65rem; align-items: center; }
+  .domain-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .domain-track { height: .78rem; border-radius: 999px; background: rgba(216, 200, 181, .42); overflow: hidden; }
+  .domain-bar { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
+  .domain-count { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1.2rem 0; }
+  .summary-stat { padding: .8rem 0; border-top: 1px solid var(--rule); }
+  .summary-stat b { display: block; font-size: 1.7rem; font-weight: 500; line-height: 1.05; }
+  .summary-stat span { color: var(--muted); }
   .plan { display: grid; gap: 1rem; margin: 1rem 0; }
   .plan section { padding: 1rem; border-left: 3px solid var(--rule); background: rgba(255,250,240,.55); }
   .plan h2 { margin-top: 0; }
   .tag { display: inline-block; border: 1px solid var(--rule); border-radius: 999px; padding: .08rem .5rem; margin: .15rem .2rem .15rem 0; color: var(--muted); }
   .small { font-size: .95rem; }
-  .references { padding-left: 1.1rem; }
-  .references li { margin: .45rem 0; }
   @media (max-width: 900px) {
     .article { display: flex; flex-direction: column; }
     .article > main, .plan, .plan section { width: 100%; max-width: 100%; min-width: 0; }
     .side { position: static; }
-    .question-table, .question-table tbody, .question-table tr, .question-table td, .question-table th { display: block; width: 100%; max-width: 100%; }
-    .question-table th { display: none; }
-    .question-table td { border-bottom: 0; padding: .25rem 0; }
-    .question-table tr { border-bottom: 1px solid var(--rule); padding: .7rem 0; }
-    .question-table td::before { display: block; color: var(--muted); font-size: .88rem; }
-    .question-table td:nth-child(1)::before { content: "question"; }
-    .question-table td:nth-child(2)::before { content: "algorithm"; }
-    .question-table td:first-child, .question-table td:nth-child(2), .question-table td:nth-child(3) { width: 100%; }
-    .question-table td:nth-child(3)::before { content: "why it fits"; }
+    .summary-grid { grid-template-columns: 1fr; gap: .25rem; }
+    .domain-row { grid-template-columns: minmax(0, 1fr) 4.5rem; gap: .42rem .65rem; }
+    .domain-track { grid-column: 1 / -1; grid-row: 2; }
     .answer-table { display: block; overflow-x: auto; }
   }
 </style>
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">Next questions</a></nav>
-  <h1>Four next questions for the follower graph</h1>
+  <nav class="nav"><a href="questions.html">What is this?</a></nav>
+  <h1>What is this?</h1>
   <div class="article">
     <main>
-      <p>This page answers the four follow-up questions with the data we have now. The answers are still inspectable: sampled betweenness for bridges, two-hop residuals for follows, Louvain modularity for communities, and saved-link domains as lightweight interest topics.</p>
+      <p class="lede">This is a public, read-only map of Curius: who follows whom, what pages people save, and which sources show up often enough to shape the shared reading room.</p>
+      <p>The graph starts with a simple directed edge: one person follows another. From thousands of those edges, the page can show dense neighborhoods, peripheral islands, bridge people, and likely paths between readers. The companion front page looks at the saved links and highlights that travel through the same network.</p>
+      <p>It is not a ranking of people or a claim about influence. It is a way to inspect a public social archive: where attention pools, which domains become common ground, and where the follow graph suggests adjacent readers.</p>
 
-      <table class="question-table">
-        <tr><th>question</th><th>algorithm</th><th>why it fits this graph</th></tr>
-        <tr><td>Who bridges separate islands?</td><td>Betweenness on the largest weak component</td><td>It finds people sitting on many shortest paths, but exact all-pairs scoring is heavier than this static build needs.</td></tr>
-        <tr><td>Which follows look surprising?</td><td>Link prediction residuals</td><td>Compare observed follows against common-neighbor scores and inspect high-score missing edges.</td></tr>
-        <tr><td>Where are coherent communities?</td><td>Modularity or Leiden/Louvain</td><td>Useful on the giant component; it needs a real community package, so this page stops at components and cores.</td></tr>
-        <tr><td>How do interests travel?</td><td>Random walks over follows plus saved-link topics</td><td>The database has saved links and highlights, so graph paths can be connected to reading behavior.</td></tr>
-      </table>
+      <div class="summary-grid">
+        <div class="summary-stat"><b>__NODES__</b><span>people in the stored user table</span></div>
+        <div class="summary-stat"><b>__EDGES__</b><span>directed follows</span></div>
+        <div class="summary-stat"><b>__KNOWN_DOMAIN_USERS__</b><span>people with saved-link domains</span></div>
+      </div>
+
+      <h2>Most popular saved-link domains</h2>
+      <p>The chart counts saved links by domain across users. Repeated saves count because they show which sources recur in the community archive.</p>
+      <div class="domain-chart" role="list" aria-label="Most popular saved-link domains">
+        __POPULAR_DOMAIN_CHART__
+      </div>
 
       <div class="plan">
         <section>
-          <h2>Who bridges separate islands?</h2>
+          <h2>What can the graph answer?</h2>
           <p class="answer-line">The strongest bridge in the sampled run is <b>__BRIDGE_TOP__</b> with sampled betweenness <b>__BRIDGE_SCORE__</b>. These are people whose neighborhoods sit on many shortest routes through the largest weak component.</p>
-          <p>For a person v, betweenness counts how often shortest paths between other people pass through v. Brandes gives a faster exact algorithm, but this page uses 256 deterministic BFS sources to keep the build light <a class="cite" href="https://doi.org/10.1080/0022250X.2001.9990249" target="_blank" rel="noreferrer" title="Gives the standard faster exact betweenness-centrality algorithm.">Brandes 2001</a>.</p>
+          <p>It can surface bridge people, surprising missing follows, coherent follow communities, and domains that are shared along follow edges.</p>
           <table class="answer-table"><tr><th></th><th>bridge candidate</th><th>sampled score</th><th>followers</th><th>core</th></tr>__BRIDGE_ROWS__</table>
         </section>
         <section>
-          <h2>Which follows look surprising?</h2>
-          <p class="answer-line">The highest-scoring missing follow is <b>__MISSING_TOP__</b>. It appears repeatedly in two-hop neighborhoods but is not an observed follow edge.</p>
-          <p>Common-neighbor scores predict a follow when people share outgoing neighborhoods. A residual asks what the score missed: high-score missing follows are plausible recommendations; low-support existing follows are unusual edges worth reading manually <a class="cite" href="https://doi.org/10.1002/asi.20591" target="_blank" rel="noreferrer" title="Surveys common-neighbor and related link-prediction scores.">Liben-Nowell and Kleinberg 2007</a>.</p>
-          <h3>High-score missing follows</h3>
-          <table class="answer-table"><tr><th></th><th>source</th><th>candidate</th><th>two-hop score</th><th>candidate followers</th></tr>__MISSING_ROWS__</table>
-          <h3>Low-support existing follows</h3>
-          <table class="answer-table"><tr><th></th><th>source</th><th>target</th><th>two-hop support</th><th>source following → target followers</th></tr>__SURPRISING_ROWS__</table>
-        </section>
-        <section>
-          <h2>Where are coherent communities?</h2>
-          <p class="answer-line">Louvain finds <b>__COMMUNITY_COUNT__</b> communities inside the largest weak component, with modularity <b>__MODULARITY__</b>. The largest groups are mostly separated by follow structure, not by school metadata, because most listed schools are McGill.</p>
-          <p>Modularity methods search for groups with more internal edges than a random graph with similar degrees would expect. Louvain is a common greedy version; Leiden improves badly connected communities <a class="cite" href="https://doi.org/10.1038/s41598-019-41695-z" target="_blank" rel="noreferrer" title="Describes Leiden as a community-detection method that improves Louvain partitions.">Traag, Waltman, and van Eck 2019</a>.</p>
-          <table class="answer-table"><tr><th>group</th><th>people</th><th>visible names</th><th>top saved-link domains</th><th>school signal</th></tr>__COMMUNITY_ROWS__</table>
-        </section>
-        <section>
           <h2>How do interests travel?</h2>
-          <p class="answer-line">Among <b>__INTEREST_KNOWN__</b> follow edges where both people have saved-link domains, <b>__INTEREST_OVERLAP__</b> share at least one domain. The graph carries broad reading channels more than narrow topics.</p>
-          <p>Random walks can mix follows with saved-link topics: start at a person, walk along follows, and occasionally jump to a saved link or highlighted source. Personalized PageRank is one way to keep the walk near a starting person while still letting it explore <a class="cite" href="https://doi.org/10.1145/775047.775126" target="_blank" rel="noreferrer" title="Uses topic-sensitive PageRank to bias random walks toward selected topics.">Haveliwala 2002</a>.</p>
+          <p class="answer-line">Among <b>__INTEREST_KNOWN__</b> follow edges where both people have saved-link domains, <b>__INTEREST_OVERLAP__</b> share at least one domain.</p>
+          <p>The overlap is broad rather than precise: large public domains become shared channels, while smaller blogs and papers make the graph interesting when you zoom into neighborhoods.</p>
           <h3>Domains shared along follow edges</h3>
           <p>__SHARED_DOMAINS__</p>
-          <h3>Domains shared across community boundaries</h3>
-          <p>__CROSS_SHARED_DOMAINS__</p>
-          <h3>Domains weighted by follower PageRank</h3>
-          <p>__WEIGHTED_DOMAINS__</p>
+        </section>
+        <section>
+          <h2>What should be inspected manually?</h2>
+          <p class="answer-line">The highest-scoring missing follow is <b>__MISSING_TOP__</b>. It appears repeatedly in two-hop neighborhoods but is not an observed follow edge.</p>
+          <p>Computed rows are starting points for reading the network, not conclusions. High-score missing follows and low-support existing follows are places where the social graph may have a story the aggregate view cannot explain.</p>
+          <h3>High-score missing follows</h3>
+          <table class="answer-table"><tr><th></th><th>source</th><th>candidate</th><th>two-hop score</th><th>candidate followers</th></tr>__MISSING_ROWS__</table>
         </section>
       </div>
     </main>
     <aside class="side sheet">
-      <h2>Answers in one breath</h2>
+      <h2>In one breath</h2>
       <ol>
-        <li><b>Bridge:</b> __BRIDGE_TOP__ is the top sampled betweenness bridge.</li>
-        <li><b>Surprising missing follow:</b> __MISSING_TOP__ has the highest two-hop score.</li>
-        <li><b>Communities:</b> __COMMUNITY_COUNT__ Louvain groups in the largest weak component.</li>
-        <li><b>Interests:</b> __INTEREST_OVERLAP__ of known-domain follow edges share at least one domain.</li>
+        <li><b>People:</b> __NODES__ public user records.</li>
+        <li><b>Follows:</b> __EDGES__ directed edges.</li>
+        <li><b>Domains:</b> __POPULAR_DOMAIN_TOP__ is the most-saved domain.</li>
+        <li><b>Overlap:</b> __INTEREST_OVERLAP__ of known-domain follow edges share at least one domain.</li>
       </ol>
-      <p class="small quiet">These are computed answers, not proof of causality. The names are good places to inspect the graph manually.</p>
-      <h2>Current graph</h2>
-      <p><b>__NODES__</b> people, <b>__EDGES__</b> follows, largest weak component <b>__LARGEST_WEAK__</b> people.</p>
+      <p class="small quiet">The data is public Curius activity captured into a local SQLite file and rendered as static HTML.</p>
     </aside>
   </div>
-  <h2>References</h2>
-  <ol class="references">
-    <li>Brandes. “A Faster Algorithm for Betweenness Centrality.” Gives exact betweenness scoring.</li>
-    <li>Liben-Nowell and Kleinberg. “The Link-Prediction Problem for Social Networks.” Surveys link-prediction scores.</li>
-    <li>Traag, Waltman, and van Eck. “From Louvain to Leiden.” Describes Leiden community detection.</li>
-    <li>Haveliwala. “Topic-sensitive PageRank.” Biases random walks by topic.</li>
-  </ol>
 </div>
 </body>
 </html>
@@ -1704,7 +1687,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="__ANALYSIS_INDEX_URL__">follower graph</a><a href="__ANALYSIS_METRICS_URL__">metrics</a><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><a href="__ANALYSIS_QUESTIONS_URL__">questions</a></nav>
+  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="__ANALYSIS_INDEX_URL__">follower graph</a><a href="__ANALYSIS_METRICS_URL__">metrics</a><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><a href="__ANALYSIS_QUESTIONS_URL__">What is this?</a></nav>
   <main class="article">
     <h1>How this works</h1>
     <p>Curius Front Page ranks public saves and highlights from the local Curius crawl. The page shows two kinds of rows: saved links and repeated highlighted passages.</p>
@@ -2416,10 +2399,12 @@ def next_question_analyses(
         if community_id.get(source) != community_id.get(target):
             cross_shared_domains.update(overlap)
     weighted_domains: Counter[str] = Counter()
+    popular_domains: Counter[str] = Counter()
     for node_id, domains in user_domains.items():
         total = sum(domains.values())
         if not total:
             continue
+        popular_domains.update(domains)
         for domain, count in domains.items():
             weighted_domains[domain] += ranks.get(node_id, 0.0) * count / total
 
@@ -2437,6 +2422,8 @@ def next_question_analyses(
             "sharedDomains": shared_domains.most_common(12),
             "crossSharedDomains": cross_shared_domains.most_common(12),
             "weightedDomains": weighted_domains.most_common(12),
+            "knownDomainUsers": sum(1 for domains in user_domains.values() if sum(domains.values()) > 0),
+            "popularDomains": popular_domains.most_common(12),
         },
     }
 
@@ -2727,6 +2714,22 @@ def weighted_domain_pills(rows: list[tuple[str, float]], limit: int = 10) -> str
     return "".join(f"<span class=\"tag\">{html.escape(domain)} · {fmt_pct(value, 2)}</span>" for domain, value in rows[:limit])
 
 
+def domain_chart(rows: list[tuple[str, int]], limit: int = 10) -> str:
+    picked = rows[:limit]
+    max_count = max((count for _domain, count in picked), default=1)
+    out = []
+    for domain, count in picked:
+        pct = max(1, round(count / max_count * 100))
+        out.append(
+            f"<div class=\"domain-row\" role=\"listitem\">"
+            f"<span class=\"domain-name\">{html.escape(domain)}</span>"
+            f"<span class=\"domain-track\" aria-hidden=\"true\"><span class=\"domain-bar\" style=\"width: {pct}%\"></span></span>"
+            f"<span class=\"domain-count\">{fmt_int(count)}</span>"
+            f"</div>"
+        )
+    return "\n        ".join(out)
+
+
 def json_script(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
 
@@ -2841,6 +2844,9 @@ def render_next_html(graph: dict[str, Any], frontpage_url: str = DEFAULT_FRONTPA
         "__NODES__": fmt_int(metrics["counts"]["nodes"]),
         "__EDGES__": fmt_int(metrics["counts"]["edges"]),
         "__LARGEST_WEAK__": fmt_int(metrics["largestWeak"]),
+        "__KNOWN_DOMAIN_USERS__": fmt_int(interest["knownDomainUsers"]),
+        "__POPULAR_DOMAIN_TOP__": html.escape(interest["popularDomains"][0][0]) if interest["popularDomains"] else "No domain",
+        "__POPULAR_DOMAIN_CHART__": domain_chart(interest["popularDomains"]),
         "__BRIDGE_TOP__": html.escape(top_bridge["name"]),
         "__BRIDGE_SCORE__": fmt_float(float(top_bridge.get("score", 0)), 3),
         "__BRIDGE_ROWS__": bridge_rows(next_data["bridges"]),
@@ -2978,6 +2984,9 @@ def self_test() -> None:
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Palatino" in graph_html
+        assert 'getContext("webgl", {alpha: true' in graph_html and "gl.clearColor(0, 0, 0, 0)" in graph_html
+        assert ".canvas-wrap.sheet { border: 0;" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 0; cursor: grab; overflow: hidden; background: transparent;" in graph_html
+        assert 'overlay.fillStyle = "#fffaf0"' not in graph_html and "body { background: var(--paper); }" not in graph_html
         assert "The Curius Follower Graph" in graph_html and "Search a person, then zoom into who follows whom." not in graph_html
         assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
@@ -2992,14 +3001,15 @@ def self_test() -> None:
         assert 'reader.scrollIntoView({block: "start", behavior})' in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
-        assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
+        analysis_html = graph_html + metrics_html + algorithms_html + next_html
+        assert "What is this? The Curius graph" in next_html and "Most popular saved-link domains" in next_html and "domain-chart" in next_html
+        assert "Curius next graph questions" not in next_html and "Next questions" not in analysis_html
         assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "how-this-works.html" in frontpage_html
         assert ".more-banner a { display: inline-flex; align-items: center; min-height: 44px; }" in frontpage_html
         assert ".front-controls { display: grid; grid-template-columns: max-content max-content;" in frontpage_html
         assert "Small ranking model" not in frontpage_html and "S<sub>link</sub>" in how_html and "How this works" in how_html
-        analysis_html = graph_html + metrics_html + algorithms_html + next_html
         assert analysis_html.count('<nav class="nav') == 4
-        assert analysis_html.count('href="questions.html"') == 4
+        assert analysis_html.count('href="questions.html"') == 4 and analysis_html.count("What is this?") >= 5
         assert 'href="https://front.example/index.html"' not in analysis_html
         payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
         assert payload["views"]["links:newest"][0]["id"] == 10

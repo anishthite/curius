@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Curius next graph questions</title>
+<title>What is this? The Curius graph</title>
 <style>
 
   :root {
@@ -109,56 +109,72 @@
   .article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 2rem; align-items: start; }
   .article > main { min-width: 0; }
   .side { position: sticky; top: 14px; padding: 1rem; }
-  .question-table td:first-child { font-weight: 500; width: 24%; }
-  .question-table td:nth-child(2) { width: 28%; }
   .answer-table td:first-child { width: 2rem; color: var(--muted); }
   .answer-table td, .answer-table th { font-size: .94rem; }
   .answer-line { border-left: 3px solid var(--rule); padding: .65rem .9rem; background: rgba(255,250,240,.62); }
+  .lede { font-size: clamp(1.18rem, 2.8vw, 1.55rem); line-height: 1.38; max-width: 60ch; }
+  .domain-chart { display: grid; gap: .62rem; margin: 1.1rem 0 1.4rem; }
+  .domain-row { display: grid; grid-template-columns: minmax(9rem, 15rem) minmax(0, 1fr) 5rem; gap: .65rem; align-items: center; }
+  .domain-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .domain-track { height: .78rem; border-radius: 999px; background: rgba(216, 200, 181, .42); overflow: hidden; }
+  .domain-bar { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
+  .domain-count { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1.2rem 0; }
+  .summary-stat { padding: .8rem 0; border-top: 1px solid var(--rule); }
+  .summary-stat b { display: block; font-size: 1.7rem; font-weight: 500; line-height: 1.05; }
+  .summary-stat span { color: var(--muted); }
   .plan { display: grid; gap: 1rem; margin: 1rem 0; }
   .plan section { padding: 1rem; border-left: 3px solid var(--rule); background: rgba(255,250,240,.55); }
   .plan h2 { margin-top: 0; }
   .tag { display: inline-block; border: 1px solid var(--rule); border-radius: 999px; padding: .08rem .5rem; margin: .15rem .2rem .15rem 0; color: var(--muted); }
   .small { font-size: .95rem; }
-  .references { padding-left: 1.1rem; }
-  .references li { margin: .45rem 0; }
   @media (max-width: 900px) {
     .article { display: flex; flex-direction: column; }
     .article > main, .plan, .plan section { width: 100%; max-width: 100%; min-width: 0; }
     .side { position: static; }
-    .question-table, .question-table tbody, .question-table tr, .question-table td, .question-table th { display: block; width: 100%; max-width: 100%; }
-    .question-table th { display: none; }
-    .question-table td { border-bottom: 0; padding: .25rem 0; }
-    .question-table tr { border-bottom: 1px solid var(--rule); padding: .7rem 0; }
-    .question-table td::before { display: block; color: var(--muted); font-size: .88rem; }
-    .question-table td:nth-child(1)::before { content: "question"; }
-    .question-table td:nth-child(2)::before { content: "algorithm"; }
-    .question-table td:first-child, .question-table td:nth-child(2), .question-table td:nth-child(3) { width: 100%; }
-    .question-table td:nth-child(3)::before { content: "why it fits"; }
+    .summary-grid { grid-template-columns: 1fr; gap: .25rem; }
+    .domain-row { grid-template-columns: minmax(0, 1fr) 4.5rem; gap: .42rem .65rem; }
+    .domain-track { grid-column: 1 / -1; grid-row: 2; }
     .answer-table { display: block; overflow-x: auto; }
   }
 </style>
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">Next questions</a></nav>
-  <h1>Four next questions for the follower graph</h1>
+  <nav class="nav"><a href="questions.html">What is this?</a></nav>
+  <h1>What is this?</h1>
   <div class="article">
     <main>
-      <p>This page answers the four follow-up questions with the data we have now. The answers are still inspectable: sampled betweenness for bridges, two-hop residuals for follows, Louvain modularity for communities, and saved-link domains as lightweight interest topics.</p>
+      <p class="lede">This is a public, read-only map of Curius: who follows whom, what pages people save, and which sources show up often enough to shape the shared reading room.</p>
+      <p>The graph starts with a simple directed edge: one person follows another. From thousands of those edges, the page can show dense neighborhoods, peripheral islands, bridge people, and likely paths between readers. The companion front page looks at the saved links and highlights that travel through the same network.</p>
+      <p>It is not a ranking of people or a claim about influence. It is a way to inspect a public social archive: where attention pools, which domains become common ground, and where the follow graph suggests adjacent readers.</p>
 
-      <table class="question-table">
-        <tr><th>question</th><th>algorithm</th><th>why it fits this graph</th></tr>
-        <tr><td>Who bridges separate islands?</td><td>Betweenness on the largest weak component</td><td>It finds people sitting on many shortest paths, but exact all-pairs scoring is heavier than this static build needs.</td></tr>
-        <tr><td>Which follows look surprising?</td><td>Link prediction residuals</td><td>Compare observed follows against common-neighbor scores and inspect high-score missing edges.</td></tr>
-        <tr><td>Where are coherent communities?</td><td>Modularity or Leiden/Louvain</td><td>Useful on the giant component; it needs a real community package, so this page stops at components and cores.</td></tr>
-        <tr><td>How do interests travel?</td><td>Random walks over follows plus saved-link topics</td><td>The database has saved links and highlights, so graph paths can be connected to reading behavior.</td></tr>
-      </table>
+      <div class="summary-grid">
+        <div class="summary-stat"><b>6,402</b><span>people in the stored user table</span></div>
+        <div class="summary-stat"><b>20,745</b><span>directed follows</span></div>
+        <div class="summary-stat"><b>19,244</b><span>known-domain follow edges</span></div>
+      </div>
+
+      <h2>Most popular saved-link domains</h2>
+      <p>The chart uses the current frontpage snapshot and sums popularity score by domain. It shows which sources recur most visibly in the community archive.</p>
+      <div class="domain-chart" role="list" aria-label="Most popular saved-link domains">
+        <div class="domain-row" role="listitem"><span class="domain-name">curius.app</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 100%"></span></span><span class="domain-count">18,509</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">paulgraham.com</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 21%"></span></span><span class="domain-count">3,846</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">henrikkarlsson.xyz</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 19%"></span></span><span class="domain-count">3,542</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">blog.samaltman.com</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 16%"></span></span><span class="domain-count">2,975</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">mail.google.com</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 8%"></span></span><span class="domain-count">1,446</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">cs.virginia.edu</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 4%"></span></span><span class="domain-count">766</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">facebook.com</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 3%"></span></span><span class="domain-count">567</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">harpers.org</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 3%"></span></span><span class="domain-count">567</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">palladiummag.com</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 3%"></span></span><span class="domain-count">556</span></div>
+        <div class="domain-row" role="listitem"><span class="domain-name">danwang.co</span><span class="domain-track" aria-hidden="true"><span class="domain-bar" style="width: 3%"></span></span><span class="domain-count">547</span></div>
+      </div>
 
       <div class="plan">
         <section>
-          <h2>Who bridges separate islands?</h2>
+          <h2>What can the graph answer?</h2>
           <p class="answer-line">The strongest bridge in the sampled run is <b>Anson Yu</b> with sampled betweenness <b>0.205</b>. These are people whose neighborhoods sit on many shortest routes through the largest weak component.</p>
-          <p>For a person v, betweenness counts how often shortest paths between other people pass through v. Brandes gives a faster exact algorithm, but this page uses 256 deterministic BFS sources to keep the build light <a class="cite" href="https://doi.org/10.1080/0022250X.2001.9990249" target="_blank" rel="noreferrer" title="Gives the standard faster exact betweenness-centrality algorithm.">Brandes 2001</a>.</p>
+          <p>It can surface bridge people, surprising missing follows, coherent follow communities, and domains that are shared along follow edges.</p>
           <table class="answer-table"><tr><th></th><th>bridge candidate</th><th>sampled score</th><th>followers</th><th>core</th></tr><tr><td>1</td><td><a href="https://curius.app/users/anson-yu" target="_blank" rel="noreferrer">Anson Yu</a><br><span class="quiet">anson-yu</span></td><td>0.205</td><td>635</td><td>27</td></tr>
         <tr><td>2</td><td><a href="https://curius.app/users/vincent-huang" target="_blank" rel="noreferrer">Vincent Huang</a><br><span class="quiet">vincent-huang</span></td><td>0.101</td><td>450</td><td>27</td></tr>
         <tr><td>3</td><td><a href="https://curius.app/users/marley-xiong" target="_blank" rel="noreferrer">Marley Xiong</a><br><span class="quiet">marley-xiong</span></td><td>0.088</td><td>415</td><td>27</td></tr>
@@ -169,9 +185,16 @@
         <tr><td>8</td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>0.051</td><td>243</td><td>27</td></tr></table>
         </section>
         <section>
-          <h2>Which follows look surprising?</h2>
+          <h2>How do interests travel?</h2>
+          <p class="answer-line">Among <b>19,244</b> follow edges where both people have saved-link domains, <b>86.8%</b> share at least one domain.</p>
+          <p>The overlap is broad rather than precise: large public domains become shared channels, while smaller blogs and papers make the graph interesting when you zoom into neighborhoods.</p>
+          <h3>Domains shared along follow edges</h3>
+          <p><span class="tag">youtube.com · 8,027</span><span class="tag">en.wikipedia.org · 7,962</span><span class="tag">lesswrong.com · 6,371</span><span class="tag">medium.com · 6,338</span><span class="tag">paulgraham.com · 6,141</span><span class="tag">arxiv.org · 6,084</span><span class="tag">github.com · 5,608</span><span class="tag">docs.google.com · 5,552</span><span class="tag">substack.com · 4,614</span><span class="tag">nytimes.com · 4,597</span></p>
+        </section>
+        <section>
+          <h2>What should be inspected manually?</h2>
           <p class="answer-line">The highest-scoring missing follow is <b>Yudhister Joel Kumar → Jacky Zhao</b>. It appears repeatedly in two-hop neighborhoods but is not an observed follow edge.</p>
-          <p>Common-neighbor scores predict a follow when people share outgoing neighborhoods. A residual asks what the score missed: high-score missing follows are plausible recommendations; low-support existing follows are unusual edges worth reading manually <a class="cite" href="https://doi.org/10.1002/asi.20591" target="_blank" rel="noreferrer" title="Surveys common-neighbor and related link-prediction scores.">Liben-Nowell and Kleinberg 2007</a>.</p>
+          <p>Computed rows are starting points for reading the network, not conclusions. High-score missing follows and low-support existing follows are places where the social graph may have a story the aggregate view cannot explain.</p>
           <h3>High-score missing follows</h3>
           <table class="answer-table"><tr><th></th><th>source</th><th>candidate</th><th>two-hop score</th><th>candidate followers</th></tr><tr><td>1</td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td><a href="https://curius.app/users/jacky-zhao" target="_blank" rel="noreferrer">Jacky Zhao</a><br><span class="quiet">jacky-zhao</span></td><td>70</td><td>327</td></tr>
         <tr><td>2</td><td><a href="https://curius.app/users/yudhister-joel-kumar" target="_blank" rel="noreferrer">Yudhister Joel Kumar</a><br><span class="quiet">yudhister-joel-kumar</span></td><td><a href="https://curius.app/users/lydia-nottingham" target="_blank" rel="noreferrer">Lydia Nottingham</a><br><span class="quiet">lydia-nottingham</span></td><td>56</td><td>131</td></tr>
@@ -181,60 +204,20 @@
         <tr><td>6</td><td><a href="https://curius.app/users/kiss" target="_blank" rel="noreferrer">Daniel Kiss</a><br><span class="quiet">kiss</span></td><td><a href="https://curius.app/users/alicia-guo" target="_blank" rel="noreferrer">Alicia Guo</a><br><span class="quiet">alicia-guo</span></td><td>43</td><td>193</td></tr>
         <tr><td>7</td><td><a href="https://curius.app/users/kiss" target="_blank" rel="noreferrer">Daniel Kiss</a><br><span class="quiet">kiss</span></td><td><a href="https://curius.app/users/hudzah" target="_blank" rel="noreferrer">HudZah</a><br><span class="quiet">hudzah</span></td><td>43</td><td>167</td></tr>
         <tr><td>8</td><td><a href="https://curius.app/users/kelly-chong" target="_blank" rel="noreferrer">Kelly Chong</a><br><span class="quiet">kelly-chong</span></td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>39</td><td>243</td></tr></table>
-          <h3>Low-support existing follows</h3>
-          <table class="answer-table"><tr><th></th><th>source</th><th>target</th><th>two-hop support</th><th>source following → target followers</th></tr><tr><td>1</td><td><a href="https://curius.app/users/yeji-ma" target="_blank" rel="noreferrer">Yeji Ma</a><br><span class="quiet">yeji-ma</span></td><td><a href="https://curius.app/users/vincent-huang" target="_blank" rel="noreferrer">Vincent Huang</a><br><span class="quiet">vincent-huang</span></td><td>0</td><td>20 → 450</td></tr>
-        <tr><td>2</td><td><a href="https://curius.app/users/eshaan-moorjani" target="_blank" rel="noreferrer">Eshaan Moorjani</a><br><span class="quiet">eshaan-moorjani</span></td><td><a href="https://curius.app/users/noah-t" target="_blank" rel="noreferrer">Noah T</a><br><span class="quiet">noah-t</span></td><td>0</td><td>29 → 128</td></tr>
-        <tr><td>3</td><td><a href="https://curius.app/users/athena-leong" target="_blank" rel="noreferrer">Athena Leong</a><br><span class="quiet">athena-leong</span></td><td><a href="https://curius.app/users/hardeep-gambhir" target="_blank" rel="noreferrer">Hardeep Gambhir</a><br><span class="quiet">hardeep-gambhir</span></td><td>0</td><td>38 → 90</td></tr>
-        <tr><td>4</td><td><a href="https://curius.app/users/huong-truong" target="_blank" rel="noreferrer">huong truong</a><br><span class="quiet">huong-truong</span></td><td><a href="https://curius.app/users/jaclyn" target="_blank" rel="noreferrer">Jaclyn</a><br><span class="quiet">jaclyn</span></td><td>0</td><td>14 → 243</td></tr>
-        <tr><td>5</td><td><a href="https://curius.app/users/anson-yu" target="_blank" rel="noreferrer">Anson Yu</a><br><span class="quiet">anson-yu</span></td><td><a href="https://curius.app/users/michael-dawes" target="_blank" rel="noreferrer">Michael Dawes</a><br><span class="quiet">michael-dawes</span></td><td>0</td><td>101 → 22</td></tr>
-        <tr><td>6</td><td><a href="https://curius.app/users/matthew-siu" target="_blank" rel="noreferrer">Matthew Siu</a><br><span class="quiet">matthew-siu</span></td><td><a href="https://curius.app/users/aryan-naik" target="_blank" rel="noreferrer">Aryan Naik</a><br><span class="quiet">aryan-naik</span></td><td>0</td><td>23 → 88</td></tr>
-        <tr><td>7</td><td><a href="https://curius.app/users/noah-t" target="_blank" rel="noreferrer">Noah T</a><br><span class="quiet">noah-t</span></td><td><a href="https://curius.app/users/davis-brown" target="_blank" rel="noreferrer">Davis Brown</a><br><span class="quiet">davis-brown</span></td><td>0</td><td>59 → 27</td></tr>
-        <tr><td>8</td><td><a href="https://curius.app/users/van-hoang" target="_blank" rel="noreferrer">Van Hoang</a><br><span class="quiet">van-hoang</span></td><td><a href="https://curius.app/users/amir" target="_blank" rel="noreferrer">Amir</a><br><span class="quiet">amir</span></td><td>0</td><td>10 → 269</td></tr></table>
-        </section>
-        <section>
-          <h2>Where are coherent communities?</h2>
-          <p class="answer-line">Louvain finds <b>22</b> communities inside the largest weak component, with modularity <b>0.464</b>. The largest groups are mostly separated by follow structure, not by school metadata, because most listed schools are McGill.</p>
-          <p>Modularity methods search for groups with more internal edges than a random graph with similar degrees would expect. Louvain is a common greedy version; Leiden improves badly connected communities <a class="cite" href="https://doi.org/10.1038/s41598-019-41695-z" target="_blank" rel="noreferrer" title="Describes Leiden as a community-detection method that improves Louvain partitions.">Traag, Waltman, and van Eck 2019</a>.</p>
-          <table class="answer-table"><tr><th>group</th><th>people</th><th>visible names</th><th>top saved-link domains</th><th>school signal</th></tr><tr><td>1</td><td>578</td><td>Claire Wang, Yudhister Joel Kumar, Daniel Kiss, agniv sarkar</td><td>en.wikipedia.org, arxiv.org, lesswrong.com, youtube.com</td><td>McGill University</td></tr>
-        <tr><td>2</td><td>566</td><td>Anson Yu, Jaclyn, Aryan Naik, HudZah</td><td>en.wikipedia.org, youtube.com, x.com, github.com</td><td>McGill University</td></tr>
-        <tr><td>3</td><td>433</td><td>Vincent Huang, Amir, Sahil Patel, Emma Guo</td><td>en.wikipedia.org, arxiv.org, youtube.com, medium.com</td><td>McGill University</td></tr>
-        <tr><td>4</td><td>409</td><td>Marley Xiong, Raffi Hotter, Anna Brandenberger, Liam Hinzman</td><td>youtube.com, en.wikipedia.org, arxiv.org, nature.com</td><td>McGill University</td></tr>
-        <tr><td>5</td><td>395</td><td>Yueh Han Huang, Nguyen Tung, Svitlana Midianko, Phuong Do</td><td>youtube.com, medium.com, github.com, en.wikipedia.org</td><td>McGill University</td></tr>
-        <tr><td>6</td><td>349</td><td>Jacky Zhao, Alicia Guo, Katherine Huang, Wendi Yan</td><td>en.wikipedia.org, youtube.com, nytimes.com, github.com</td><td>McGill University</td></tr></table>
-        </section>
-        <section>
-          <h2>How do interests travel?</h2>
-          <p class="answer-line">Among <b>19,244</b> follow edges where both people have saved-link domains, <b>86.8%</b> share at least one domain. The graph carries broad reading channels more than narrow topics.</p>
-          <p>Random walks can mix follows with saved-link topics: start at a person, walk along follows, and occasionally jump to a saved link or highlighted source. Personalized PageRank is one way to keep the walk near a starting person while still letting it explore <a class="cite" href="https://doi.org/10.1145/775047.775126" target="_blank" rel="noreferrer" title="Uses topic-sensitive PageRank to bias random walks toward selected topics.">Haveliwala 2002</a>.</p>
-          <h3>Domains shared along follow edges</h3>
-          <p><span class="tag">youtube.com · 8,027</span><span class="tag">en.wikipedia.org · 7,962</span><span class="tag">lesswrong.com · 6,371</span><span class="tag">medium.com · 6,338</span><span class="tag">paulgraham.com · 6,141</span><span class="tag">arxiv.org · 6,084</span><span class="tag">github.com · 5,608</span><span class="tag">docs.google.com · 5,552</span><span class="tag">substack.com · 4,614</span><span class="tag">nytimes.com · 4,597</span></p>
-          <h3>Domains shared across community boundaries</h3>
-          <p><span class="tag">youtube.com · 3,851</span><span class="tag">en.wikipedia.org · 3,632</span><span class="tag">medium.com · 3,285</span><span class="tag">paulgraham.com · 3,072</span><span class="tag">github.com · 2,976</span><span class="tag">docs.google.com · 2,881</span><span class="tag">arxiv.org · 2,792</span><span class="tag">lesswrong.com · 2,770</span><span class="tag">nytimes.com · 2,477</span><span class="tag">newyorker.com · 2,107</span></p>
-          <h3>Domains weighted by follower PageRank</h3>
-          <p><span class="tag">curius.app · 9.25%</span><span class="tag">en.wikipedia.org · 3.11%</span><span class="tag">youtube.com · 2.20%</span><span class="tag">arxiv.org · 1.95%</span><span class="tag">lesswrong.com · 1.13%</span><span class="tag">medium.com · 0.96%</span><span class="tag">paulgraham.com · 0.91%</span><span class="tag">github.com · 0.76%</span><span class="tag">substack.com · 0.68%</span><span class="tag">nytimes.com · 0.67%</span></p>
         </section>
       </div>
     </main>
     <aside class="side sheet">
-      <h2>Answers in one breath</h2>
+      <h2>In one breath</h2>
       <ol>
-        <li><b>Bridge:</b> Anson Yu is the top sampled betweenness bridge.</li>
-        <li><b>Surprising missing follow:</b> Yudhister Joel Kumar → Jacky Zhao has the highest two-hop score.</li>
-        <li><b>Communities:</b> 22 Louvain groups in the largest weak component.</li>
-        <li><b>Interests:</b> 86.8% of known-domain follow edges share at least one domain.</li>
+        <li><b>People:</b> 6,402 public user records.</li>
+        <li><b>Follows:</b> 20,745 directed edges.</li>
+        <li><b>Domains:</b> curius.app is the most visible domain.</li>
+        <li><b>Overlap:</b> 86.8% of known-domain follow edges share at least one domain.</li>
       </ol>
-      <p class="small quiet">These are computed answers, not proof of causality. The names are good places to inspect the graph manually.</p>
-      <h2>Current graph</h2>
-      <p><b>6,402</b> people, <b>20,745</b> follows, largest weak component <b>3,099</b> people.</p>
+      <p class="small quiet">The data is public Curius activity captured into a local SQLite file and rendered as static HTML.</p>
     </aside>
   </div>
-  <h2>References</h2>
-  <ol class="references">
-    <li>Brandes. “A Faster Algorithm for Betweenness Centrality.” Gives exact betweenness scoring.</li>
-    <li>Liben-Nowell and Kleinberg. “The Link-Prediction Problem for Social Networks.” Surveys link-prediction scores.</li>
-    <li>Traag, Waltman, and van Eck. “From Louvain to Leiden.” Describes Leiden community detection.</li>
-    <li>Haveliwala. “Topic-sensitive PageRank.” Biases random walks by topic.</li>
-  </ol>
 </div>
 </body>
 </html>
