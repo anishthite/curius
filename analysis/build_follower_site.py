@@ -894,14 +894,15 @@ __POSTHOG_HTML__
   }
   function selectNode(id, shouldFit) {
     if (!byId.has(id)) return;
+    const isMobile = window.matchMedia("(max-width: 920px)").matches;
     selected = id;
     q.value = byId.get(id).slug;
     q.blur();
     markVisibleDirty();
     renderReader();
-    if (shouldFit && window.matchMedia("(max-width: 920px)").matches) hideMatches();
+    if (isMobile) hideMatches();
     else renderMatches();
-    if (shouldFit && window.matchMedia("(max-width: 920px)").matches) focusNode(id);
+    if (shouldFit && isMobile) focusNode(id);
     else if (mode.value === "whole") refreshGraph();
     else shouldFit ? fit() : refreshGraph();
     if (shouldFit) scrollMobileGraphIntoView();
@@ -3161,6 +3162,7 @@ def self_test() -> None:
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
         assert "const activePointers = new Map()" in graph_html and "function startPinch()" in graph_html and "function updatePinch()" in graph_html
         assert "function focusNode(id)" in graph_html and "function hideMatches()" in graph_html and "graphStage.scrollIntoView" in graph_html
+        assert "const isMobile = window.matchMedia" in graph_html and "if (isMobile) hideMatches()" in graph_html
         assert "const mobileLabels = window.matchMedia" in graph_html and "slice(0, mobileLabels ? 12 : 70)" in graph_html
         assert "touch-action: none;" in graph_html and "height: clamp(400px, 58vh, 540px)" in graph_html and "height: clamp(430px, 62vh, 560px)" in graph_html
         assert ".person:hover { outline: 0;" in graph_html and ".person:focus-visible { outline: 0;" in graph_html
