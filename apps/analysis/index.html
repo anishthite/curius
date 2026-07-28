@@ -110,8 +110,8 @@
   .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
-  .graph-nav { justify-content: flex-start; margin: 0; font-size: .9rem; }
-  .graph-nav a { color: var(--muted); }
+  .graph-subhead { max-width: 82ch; margin: 0 0 .55rem; color: var(--muted); font-size: clamp(.96rem, 1.4vw, 1.08rem); line-height: 1.34; }
+  .graph-subhead a { color: var(--ink); }
   .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; min-height: 0; align-items: stretch; }
   .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0 .35rem; align-items: center; max-width: 940px; padding: .05rem 0; background: transparent; }
   .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .62rem; border: 0; font-size: .9rem; background: rgba(255, 252, 245, .76); }
@@ -124,7 +124,7 @@
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
   .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
-  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; }
+  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; touch-action: none; }
   .graph-page.has-matches .canvas-wrap { min-height: 0; }
   .graph-page.has-matches .graph-canvas { height: 100%; }
   .graph-canvas:active { cursor: grabbing; }
@@ -134,11 +134,11 @@
   .graph-legend { display: flex; flex-wrap: wrap; gap: .28rem .7rem; align-items: center; }
   .legend-key { display: inline-flex; gap: .28rem; align-items: center; white-space: nowrap; }
   .legend-dot { width: .62rem; height: .62rem; border-radius: 999px; display: inline-block; box-shadow: 0 0 0 1px rgba(32, 23, 15, .12); }
-  .legend-dot.selected { background: #b74d2f; }
-  .legend-dot.follower { background: #2f63b7; }
-  .legend-dot.following { background: #247a4b; }
-  .legend-dot.mutual { background: #7047a8; }
-  .legend-dot.other { background: #786b58; opacity: .75; }
+  .legend-dot.selected { background: #9f3f26; }
+  .legend-dot.follower { background: #254f98; }
+  .legend-dot.following { background: #1c653d; }
+  .legend-dot.mutual { background: #5e398f; }
+  .legend-dot.other { background: #5f5140; opacity: .85; }
   .reader { position: fixed; inset: 0 0 0 auto; z-index: 12; display: flex; flex-direction: column; width: var(--reader-width); height: 100vh; margin: 0; overflow: hidden; padding: 20px 18px 24px; border-left: 1px solid rgba(216, 200, 181, .72); background: rgba(255, 250, 240, .92); box-shadow: -12px 0 28px rgba(60, 42, 20, .08); font-size: .94rem; }
   .reader h2 { margin-top: 0; }
   .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: .45rem 0; }
@@ -188,12 +188,12 @@
   .info-dot:hover .info-tooltip, .info-dot:focus .info-tooltip { visibility: visible; opacity: 1; transform: translateY(0); }
   .reader .people-section { position: relative; display: flex; flex: 0 1 auto; min-height: 0; flex-direction: column; margin-top: .95rem; }
   .reader .people-section h3 { flex: 0 0 auto; }
-  .reader .people-section::after { content: ""; position: absolute; left: 0; right: .55rem; bottom: 0; height: 24px; pointer-events: none; border-radius: 0 0 8px 8px; background: linear-gradient(to bottom, rgba(255, 250, 240, 0), rgba(255, 250, 240, .96)); }
+  .reader .people-section::after { content: none; }
   .reader .people-section .people { flex: 0 1 auto; min-height: 0; max-height: clamp(150px, 28vh, 290px); }
-  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: inset 0 -16px 18px rgba(60, 42, 20, .055); }
+  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: none; }
   .people::-webkit-scrollbar { width: 8px; }
   .people::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(111, 98, 84, .34); }
-  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: rgba(255, 252, 245, .62); }
+  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: transparent; }
   .person:hover { outline: 0; background: rgba(255, 252, 245, .96); }
   .person:focus-visible { outline: 0; background: rgba(255, 252, 245, .96); box-shadow: inset 0 0 0 2px rgba(47, 99, 183, .3); }
   .person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; line-height: 1.08; }
@@ -211,32 +211,38 @@
   .reader-footer a { color: var(--muted); }
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
+  @media (max-width: 1280px) {
+    .graph-hero h1 { font-size: clamp(2.1rem, 4.8vw, 3.8rem); }
+    .graph-subhead { font-size: clamp(.96rem, 1.18vw, 1.04rem); }
+  }
   @media (max-width: 920px) {
-    .graph-page { display: block; min-height: 0; height: auto; padding-left: 8px; padding-right: 8px; padding-bottom: 42px; }
-    .graph-layout { grid-template-columns: 1fr; }
-    .graph-tools { border-radius: 18px; gap: .45rem; }
-    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .42rem .76rem; font-size: 1rem; }
+    .graph-page { display: block; min-height: 0; height: auto; padding: 14px 12px 48px; }
+    .graph-hero { margin-bottom: .55rem; }
+    .graph-layout { grid-template-columns: 1fr; gap: 1rem; }
+    .graph-tools { border-radius: 18px; gap: .55rem; margin: .35rem 0 .8rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .48rem .82rem; font-size: 1rem; }
     .min-filter { min-height: 44px; font-size: .94rem; }
     #q { max-width: none; }
-    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 0; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
+    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 1.25rem; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
     .reader .people-section { display: block; min-height: 0; }
     .reader .people-section .people { max-height: clamp(220px, 38vh, 320px); overflow: auto; }
-    .canvas-wrap { height: auto; min-height: clamp(320px, 46vh, 390px); }
-    .graph-canvas { height: clamp(320px, 46vh, 390px); min-height: 0; }
+    .canvas-wrap { height: auto; min-height: clamp(360px, 52vh, 460px); }
+    .graph-canvas { height: clamp(360px, 52vh, 460px); min-height: 0; }
   }
   @media (max-width: 520px) {
-    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; }
+    .graph-page { padding-left: 14px; padding-right: 14px; }
+    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; gap: .55rem .5rem; }
     #q { grid-column: 1 / -1; width: 100%; }
-    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .4rem .62rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .46rem .66rem; }
     #q { min-height: 48px; padding: .52rem .72rem; }
     .min-filter { min-height: 44px; gap: .38rem; min-width: 0; }
     .min-filter span { display: block; max-width: 1.75rem; overflow: hidden; white-space: nowrap; }
     #min-followers { width: 4.6rem; text-align: center; }
     #mode { width: 100%; min-width: 0; }
-    .matches { margin-bottom: .65rem; padding: .45rem 0; }
+    .matches { margin-bottom: .85rem; padding: .55rem 0; }
     .matches.people { display: grid; grid-template-columns: 1fr; max-height: none; overflow: visible; }
     .matches .person { max-width: 100%; }
-    .person { min-height: 3.18rem; padding: .42rem .58rem; }
+    .person { min-height: 3.4rem; padding: .5rem .62rem; }
   }
 </style>
 </head>
@@ -244,7 +250,7 @@
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">Next questions</a></nav>
+    <p class="graph-subhead">The social network from <a href="https://curius.app" target="_blank" rel="noreferrer">curius.app</a>, visualized. <a href="about.html">See more about the data</a>.</p>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -304,7 +310,9 @@
   let visibleEdges = edgeRecords;
   let visibleDirty = true;
   let graphDirty = true;
+  const activePointers = new Map();
   let pointer = null;
+  let pinch = null;
   let hover = null;
   let moving = false;
   let settleTimer = 0;
@@ -321,7 +329,7 @@
   function degree(n) { return n.in + n.out; }
   function matchesText(n, term) { return `${n.name} ${n.slug}`.toLowerCase().includes(term); }
   function sortedPeople(ids) { return ids.map(id => byId.get(id)).filter(Boolean).sort((a, b) => degree(b) - degree(a) || a.slug.localeCompare(b.slug)); }
-  function nodeRadius(n) { return Math.max(2.5, Math.min(13, 2.55 + Math.sqrt(Math.max(0, n.in)) * .31 + n.core * .18)); }
+  function nodeRadius(n) { return Math.max(3, Math.min(14.5, 2.95 + Math.sqrt(Math.max(0, n.in)) * .34 + n.core * .2)); }
   function markVisibleDirty() { visibleDirty = true; graphDirty = true; }
   function ensureVisible() { if (visibleDirty) computeVisible(); }
   function computeVisible() {
@@ -357,15 +365,15 @@
     scheduleRender();
   }
   function relationColor(id) {
-    if (id === selected) return "#b74d2f";
+    if (id === selected) return "#9f3f26";
     const center = selected && byId.get(selected);
-    if (!center) return "#6f6454";
+    if (!center) return "#5b4f41";
     const incoming = center.followersSet.has(id);
     const outgoing = center.followingSet.has(id);
-    if (incoming && outgoing) return "#7047a8";
-    if (incoming) return "#2f63b7";
-    if (outgoing) return "#247a4b";
-    return "#786b58";
+    if (incoming && outgoing) return "#5e398f";
+    if (incoming) return "#254f98";
+    if (outgoing) return "#1c653d";
+    return "#5f5140";
   }
   function updateStatus() {
     ensureVisible();
@@ -527,6 +535,15 @@
   }
   function unproject(x, y) {
     return {x: (x - canvasSize.width / 2) / view.scale - view.x, y: (y - canvasSize.height / 2) / view.scale - view.y};
+  }
+  function clampScale(value) {
+    return Math.max(.12, Math.min(8, value));
+  }
+  function pointerDistance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  function pointerMidpoint(a, b) {
+    return {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2};
   }
   function scheduleRender() {
     if (renderPending) return;
@@ -771,9 +788,63 @@
       });
     }
   }
+  function trackPointer(ev) {
+    activePointers.set(ev.pointerId, {id: ev.pointerId, x: ev.clientX, y: ev.clientY});
+  }
+  function startPinch() {
+    const points = [...activePointers.values()];
+    if (points.length < 2) return;
+    const [a, b] = points;
+    const center = pointerMidpoint(a, b);
+    const rect = graphStage.getBoundingClientRect();
+    const world = unproject(center.x - rect.left, center.y - rect.top);
+    pinch = {
+      a: a.id,
+      b: b.id,
+      distance: Math.max(1, pointerDistance(a, b)),
+      scale: view.scale,
+      worldX: world.x,
+      worldY: world.y,
+    };
+    pointer = null;
+    moving = true;
+    setLayerOffset(0, 0);
+  }
+  function updatePinch() {
+    if (!pinch) return false;
+    const a = activePointers.get(pinch.a);
+    const b = activePointers.get(pinch.b);
+    if (!a || !b) return false;
+    const center = pointerMidpoint(a, b);
+    const rect = graphStage.getBoundingClientRect();
+    const nextScale = clampScale(pinch.scale * pointerDistance(a, b) / pinch.distance);
+    view.scale = nextScale;
+    view.x = (center.x - rect.left - canvasSize.width / 2) / nextScale - pinch.worldX;
+    view.y = (center.y - rect.top - canvasSize.height / 2) / nextScale - pinch.worldY;
+    moving = true;
+    scheduleRender();
+    return true;
+  }
+  function endPinchPointer(pointerId) {
+    activePointers.delete(pointerId);
+    if (!pinch) return false;
+    if (activePointers.size >= 2) startPinch();
+    else {
+      pinch = null;
+      moving = false;
+      settleRender(90);
+    }
+    return true;
+  }
   graphStage.addEventListener("pointerdown", ev => {
     graphStage.setPointerCapture(ev.pointerId);
+    trackPointer(ev);
     clearTimeout(settleTimer);
+    if (activePointers.size >= 2) {
+      startPinch();
+      hover = null;
+      return;
+    }
     const hit = hitTest(ev.clientX, ev.clientY);
     pointer = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, startX: ev.clientX, startY: ev.clientY, startViewX: view.x, startViewY: view.y, dx: 0, dy: 0, moved: false, hit: hit?.id || null};
     hover = null;
@@ -794,6 +865,11 @@
     });
   }
   graphStage.addEventListener("pointermove", ev => {
+    if (activePointers.has(ev.pointerId)) trackPointer(ev);
+    if (pinch) {
+      updatePinch();
+      return;
+    }
     if (pointer && pointer.id === ev.pointerId) {
       pointer.dx = ev.clientX - pointer.startX;
       pointer.dy = ev.clientY - pointer.startY;
@@ -809,6 +885,8 @@
     scheduleHover(ev);
   });
   graphStage.addEventListener("pointerup", ev => {
+    if (endPinchPointer(ev.pointerId)) return;
+    activePointers.delete(ev.pointerId);
     if (!pointer) return;
     if (pointer.moved) {
       view.x = pointer.startViewX + pointer.dx / view.scale;
@@ -822,11 +900,19 @@
     }
     pointer = null;
   });
-  graphStage.addEventListener("pointercancel", () => {
-    pointer = null;
-    moving = false;
-    setLayerOffset(0, 0);
-    scheduleRender();
+  graphStage.addEventListener("pointercancel", ev => {
+    activePointers.delete(ev.pointerId);
+    if (pinch && activePointers.size >= 2) {
+      startPinch();
+      return;
+    }
+    pinch = null;
+    if (pointer?.id === ev.pointerId) pointer = null;
+    if (!activePointers.size) {
+      moving = false;
+      setLayerOffset(0, 0);
+      scheduleRender();
+    }
   });
   graphStage.addEventListener("wheel", ev => {
     ev.preventDefault();
@@ -834,7 +920,7 @@
     const rect = graphStage.getBoundingClientRect();
     const before = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     const factor = Math.exp(-ev.deltaY * .0012);
-    view.scale = Math.max(.12, Math.min(8, view.scale * factor));
+    view.scale = clampScale(view.scale * factor);
     const after = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     view.x += after.x - before.x;
     view.y += after.y - before.y;

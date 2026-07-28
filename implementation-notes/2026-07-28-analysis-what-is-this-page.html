@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec - Analysis what-is-this page</title>
+<meta name="task" content="Repurpose next-questions page into what-is-this narrative">
+<meta name="date-started" content="2026-07-28">
+<meta name="date-updated" content="2026-07-28">
+<meta name="status" content="ready-for-review">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, ui, static-site, domains">
+<meta name="related" content="2026-07-17-follower-next-questions-page.html,2026-07-27-analysis-nav-next-questions-only.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .status-in-progress { color: #b85c00; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Analysis what-is-this page</h1>
+<p class="meta"><code>push-pending-changes</code> - worktree <code>/Users/anishthite/conductor/workspaces/curious-index/mbabane</code> - 2026-07-28 - status <b>ready-for-review</b> - blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Turn the single analysis nav link into <code>What is this?</code> and make <code>questions.html</code> explain the graph with a popular-domain chart.</div>
+  <b>Source</b><div><code>analysis/build_follower_site.py</code> generated from <code>data/curius.sqlite</code>.</div>
+  <b>Surface</b><div><code>apps/analysis/questions.html</code> plus nav labels on generated analysis pages.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Domain chart collapses label/count above full-width bar.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Nav</b>: render one top analysis link labeled <code>What is this?</code> and keep <code>questions.html</code> as the href.</li>
+  <li><b>Page body</b>: lead with narrative description, then graph counts, then the saved-link domain chart.</li>
+  <li><b>Lower analysis</b>: retain bridge and follow-inspection snippets as supporting context, not the page premise.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Rename nav labels, add domain-chart aggregation, and replace the next-questions template.</td></tr>
+  <tr><td><code>apps/analysis/*.html</code></td><td>generated</td><td>Mirror the generator changes in checked-in static pages.</td></tr>
+  <tr><td><code>apps/frontpage/how-this-works.html</code></td><td>generated</td><td>Rename its analysis nav label for <code>questions.html</code>.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Keep the file path <code>questions.html</code>. Existing links stay valid.</td></tr>
+  <tr><td>D-002</td><td>Count saved links per domain across users. The requested chart says popular domains, not PageRank-weighted domains.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 · <code>next questions page link</code> means the visible nav label, not a route rename. If wrong: add redirects or rename the output path.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Restore the old <code>NEXT_HTML</code> template and nav label strings, then regenerate static HTML.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: <code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li>Blocked: <code>python3 analysis/build_follower_site.py</code> needs missing <code>data/curius.sqlite</code>; static page patched from the checked-in snapshot.</li>
+  <li>Done: Playwright smoke at <code>390px</code> shows narrative copy, 10 chart rows, and <code>0</code> horizontal overflow.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "frontpage": {
+    "subheader": "A public readout of what Curius readers are saving, marking, and returning to.",
+    "seeMoreLabel": "See more"
+  },
+  "graph": {
+    "subheader": "The social network from",
+    "seeMoreText": "See more about the data"
+  },
+  "about": {
+    "title": "About the Curius Graph",
+    "lede": "This is a public follower graph of curius.app, updated July 28, 2026 at 11:59 AM PDT.",
+    "paragraphs": [],
+    "followersHeading": "Most followed people",
+    "followersCopy": "",
+    "domainsHeading": "Most popular saved-link domains",
+    "domainsCopy": ""
+  }
+}
