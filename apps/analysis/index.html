@@ -106,11 +106,12 @@
     table { font-size: .9rem; }
   }
 
+  body { background: var(--paper); }
   .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
-  .graph-nav { justify-content: flex-start; margin: 0; font-size: .9rem; }
-  .graph-nav a { color: var(--muted); }
+  .graph-subhead { max-width: 64ch; margin: 0 0 .55rem; color: var(--muted); font-size: clamp(.96rem, 1.4vw, 1.08rem); line-height: 1.34; }
+  .graph-subhead a { color: var(--ink); }
   .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; min-height: 0; align-items: stretch; }
   .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0 .35rem; align-items: center; max-width: 940px; padding: .05rem 0; background: transparent; }
   .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .62rem; border: 0; font-size: .9rem; background: rgba(255, 252, 245, .76); }
@@ -122,13 +123,13 @@
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
-  .canvas-wrap.sheet { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
-  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 0; cursor: grab; overflow: hidden; background: transparent; }
+  .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
+  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; touch-action: none; }
   .graph-page.has-matches .canvas-wrap { min-height: 0; }
   .graph-page.has-matches .graph-canvas { height: 100%; }
   .graph-canvas:active { cursor: grabbing; }
-  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 0; transform-origin: 0 0; will-change: transform; }
-  .canvas-note { position: absolute; left: .2rem; right: .2rem; bottom: .15rem; color: var(--muted); background: transparent; border: 0; border-radius: 0; padding: 0; font-size: .86rem; text-shadow: 0 1px 0 rgba(255, 250, 240, .72); box-shadow: none; }
+  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 10px; transform-origin: 0 0; will-change: transform; }
+  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.78); border: 0; border-radius: 8px; padding: .42rem .6rem; font-size: .9rem; box-shadow: 0 1px 8px rgba(60, 42, 20, .05); }
   .canvas-note b { color: var(--ink); font-weight: 500; }
   .graph-legend { display: flex; flex-wrap: wrap; gap: .28rem .7rem; align-items: center; }
   .legend-key { display: inline-flex; gap: .28rem; align-items: center; white-space: nowrap; }
@@ -187,12 +188,12 @@
   .info-dot:hover .info-tooltip, .info-dot:focus .info-tooltip { visibility: visible; opacity: 1; transform: translateY(0); }
   .reader .people-section { position: relative; display: flex; flex: 0 1 auto; min-height: 0; flex-direction: column; margin-top: .95rem; }
   .reader .people-section h3 { flex: 0 0 auto; }
-  .reader .people-section::after { content: ""; position: absolute; left: 0; right: .55rem; bottom: 0; height: 24px; pointer-events: none; border-radius: 0 0 8px 8px; background: linear-gradient(to bottom, rgba(255, 250, 240, 0), rgba(255, 250, 240, .96)); }
+  .reader .people-section::after { content: none; }
   .reader .people-section .people { flex: 0 1 auto; min-height: 0; max-height: clamp(150px, 28vh, 290px); }
-  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: inset 0 -16px 18px rgba(60, 42, 20, .055); }
+  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: none; }
   .people::-webkit-scrollbar { width: 8px; }
   .people::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(111, 98, 84, .34); }
-  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: rgba(255, 252, 245, .62); }
+  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: transparent; }
   .person:hover { outline: 0; background: rgba(255, 252, 245, .96); }
   .person:focus-visible { outline: 0; background: rgba(255, 252, 245, .96); box-shadow: inset 0 0 0 2px rgba(47, 99, 183, .3); }
   .person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; line-height: 1.08; }
@@ -211,31 +212,33 @@
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
-    .graph-page { display: block; min-height: 0; height: auto; padding-left: 8px; padding-right: 8px; padding-bottom: 42px; }
-    .graph-layout { grid-template-columns: 1fr; }
-    .graph-tools { border-radius: 18px; gap: .45rem; }
-    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .42rem .76rem; font-size: 1rem; }
+    .graph-page { display: block; min-height: 0; height: auto; padding: 14px 12px 48px; }
+    .graph-hero { margin-bottom: .55rem; }
+    .graph-layout { grid-template-columns: 1fr; gap: 1rem; }
+    .graph-tools { border-radius: 18px; gap: .55rem; margin: .35rem 0 .8rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .48rem .82rem; font-size: 1rem; }
     .min-filter { min-height: 44px; font-size: .94rem; }
     #q { max-width: none; }
-    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 0; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
+    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 1.25rem; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
     .reader .people-section { display: block; min-height: 0; }
     .reader .people-section .people { max-height: clamp(220px, 38vh, 320px); overflow: auto; }
-    .canvas-wrap { height: auto; min-height: clamp(320px, 46vh, 390px); }
-    .graph-canvas { height: clamp(320px, 46vh, 390px); min-height: 0; }
+    .canvas-wrap { height: auto; min-height: clamp(360px, 52vh, 460px); }
+    .graph-canvas { height: clamp(360px, 52vh, 460px); min-height: 0; }
   }
   @media (max-width: 520px) {
-    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; }
+    .graph-page { padding-left: 14px; padding-right: 14px; }
+    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; gap: .55rem .5rem; }
     #q { grid-column: 1 / -1; width: 100%; }
-    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .4rem .62rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .46rem .66rem; }
     #q { min-height: 48px; padding: .52rem .72rem; }
     .min-filter { min-height: 44px; gap: .38rem; min-width: 0; }
     .min-filter span { display: block; max-width: 1.75rem; overflow: hidden; white-space: nowrap; }
     #min-followers { width: 4.6rem; text-align: center; }
     #mode { width: 100%; min-width: 0; }
-    .matches { margin-bottom: .65rem; padding: .45rem 0; }
+    .matches { margin-bottom: .85rem; padding: .55rem 0; }
     .matches.people { display: grid; grid-template-columns: 1fr; max-height: none; overflow: visible; }
     .matches .person { max-width: 100%; }
-    .person { min-height: 3.18rem; padding: .42rem .58rem; }
+    .person { min-height: 3.4rem; padding: .5rem .62rem; }
   }
 </style>
 </head>
@@ -243,7 +246,7 @@
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">What is this?</a></nav>
+    <p class="graph-subhead">Search the public follow graph, then zoom from one reader into the neighborhoods around them. <a href="about.html">See more about the data</a>.</p>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -286,7 +289,7 @@
   overlayCanvas.setAttribute("aria-hidden", "true");
   overlayCanvas.style.pointerEvents = "none";
   graphStage.append(webglCanvas, overlayCanvas);
-  const gl = webglCanvas.getContext("webgl", {alpha: true, antialias: true, powerPreference: "high-performance"});
+  const gl = webglCanvas.getContext("webgl", {alpha: false, antialias: true, powerPreference: "high-performance"});
   const overlay = overlayCanvas.getContext("2d");
   const reader = document.getElementById("reader");
   const status = document.getElementById("status");
@@ -303,7 +306,9 @@
   let visibleEdges = edgeRecords;
   let visibleDirty = true;
   let graphDirty = true;
+  const activePointers = new Map();
   let pointer = null;
+  let pinch = null;
   let hover = null;
   let moving = false;
   let settleTimer = 0;
@@ -527,6 +532,15 @@
   function unproject(x, y) {
     return {x: (x - canvasSize.width / 2) / view.scale - view.x, y: (y - canvasSize.height / 2) / view.scale - view.y};
   }
+  function clampScale(value) {
+    return Math.max(.12, Math.min(8, value));
+  }
+  function pointerDistance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  function pointerMidpoint(a, b) {
+    return {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2};
+  }
   function scheduleRender() {
     if (renderPending) return;
     renderPending = true;
@@ -572,7 +586,7 @@
   }
   function renderWebGL() {
     gl.viewport(0, 0, webglCanvas.width, webglCanvas.height);
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(1, 250 / 255, 240 / 255, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -605,6 +619,8 @@
   }
   function renderFallback2d() {
     overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    overlay.fillStyle = "#fffaf0";
+    overlay.fillRect(0, 0, canvasSize.width, canvasSize.height);
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
@@ -768,9 +784,63 @@
       });
     }
   }
+  function trackPointer(ev) {
+    activePointers.set(ev.pointerId, {id: ev.pointerId, x: ev.clientX, y: ev.clientY});
+  }
+  function startPinch() {
+    const points = [...activePointers.values()];
+    if (points.length < 2) return;
+    const [a, b] = points;
+    const center = pointerMidpoint(a, b);
+    const rect = graphStage.getBoundingClientRect();
+    const world = unproject(center.x - rect.left, center.y - rect.top);
+    pinch = {
+      a: a.id,
+      b: b.id,
+      distance: Math.max(1, pointerDistance(a, b)),
+      scale: view.scale,
+      worldX: world.x,
+      worldY: world.y,
+    };
+    pointer = null;
+    moving = true;
+    setLayerOffset(0, 0);
+  }
+  function updatePinch() {
+    if (!pinch) return false;
+    const a = activePointers.get(pinch.a);
+    const b = activePointers.get(pinch.b);
+    if (!a || !b) return false;
+    const center = pointerMidpoint(a, b);
+    const rect = graphStage.getBoundingClientRect();
+    const nextScale = clampScale(pinch.scale * pointerDistance(a, b) / pinch.distance);
+    view.scale = nextScale;
+    view.x = (center.x - rect.left - canvasSize.width / 2) / nextScale - pinch.worldX;
+    view.y = (center.y - rect.top - canvasSize.height / 2) / nextScale - pinch.worldY;
+    moving = true;
+    scheduleRender();
+    return true;
+  }
+  function endPinchPointer(pointerId) {
+    activePointers.delete(pointerId);
+    if (!pinch) return false;
+    if (activePointers.size >= 2) startPinch();
+    else {
+      pinch = null;
+      moving = false;
+      settleRender(90);
+    }
+    return true;
+  }
   graphStage.addEventListener("pointerdown", ev => {
     graphStage.setPointerCapture(ev.pointerId);
+    trackPointer(ev);
     clearTimeout(settleTimer);
+    if (activePointers.size >= 2) {
+      startPinch();
+      hover = null;
+      return;
+    }
     const hit = hitTest(ev.clientX, ev.clientY);
     pointer = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, startX: ev.clientX, startY: ev.clientY, startViewX: view.x, startViewY: view.y, dx: 0, dy: 0, moved: false, hit: hit?.id || null};
     hover = null;
@@ -791,6 +861,11 @@
     });
   }
   graphStage.addEventListener("pointermove", ev => {
+    if (activePointers.has(ev.pointerId)) trackPointer(ev);
+    if (pinch) {
+      updatePinch();
+      return;
+    }
     if (pointer && pointer.id === ev.pointerId) {
       pointer.dx = ev.clientX - pointer.startX;
       pointer.dy = ev.clientY - pointer.startY;
@@ -806,6 +881,8 @@
     scheduleHover(ev);
   });
   graphStage.addEventListener("pointerup", ev => {
+    if (endPinchPointer(ev.pointerId)) return;
+    activePointers.delete(ev.pointerId);
     if (!pointer) return;
     if (pointer.moved) {
       view.x = pointer.startViewX + pointer.dx / view.scale;
@@ -819,11 +896,19 @@
     }
     pointer = null;
   });
-  graphStage.addEventListener("pointercancel", () => {
-    pointer = null;
-    moving = false;
-    setLayerOffset(0, 0);
-    scheduleRender();
+  graphStage.addEventListener("pointercancel", ev => {
+    activePointers.delete(ev.pointerId);
+    if (pinch && activePointers.size >= 2) {
+      startPinch();
+      return;
+    }
+    pinch = null;
+    if (pointer?.id === ev.pointerId) pointer = null;
+    if (!activePointers.size) {
+      moving = false;
+      setLayerOffset(0, 0);
+      scheduleRender();
+    }
   });
   graphStage.addEventListener("wheel", ev => {
     ev.preventDefault();
@@ -831,7 +916,7 @@
     const rect = graphStage.getBoundingClientRect();
     const before = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     const factor = Math.exp(-ev.deltaY * .0012);
-    view.scale = Math.max(.12, Math.min(8, view.scale * factor));
+    view.scale = clampScale(view.scale * factor);
     const after = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     view.x += after.x - before.x;
     view.y += after.y - before.y;

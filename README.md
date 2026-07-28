@@ -60,7 +60,7 @@ open apps/frontpage/how-this-works.html
 open apps/analysis/index.html
 open apps/analysis/metrics.html
 open apps/analysis/algorithms.html
-open apps/analysis/questions.html
+open apps/analysis/about.html
 ```
 
 Check the generator:

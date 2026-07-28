@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec - Analysis about page refresh</title>
+<meta name="task" content="Rename questions page to editable about page with two charts">
+<meta name="date-started" content="2026-07-28">
+<meta name="date-updated" content="2026-07-28">
+<meta name="status" content="ready-for-review">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, ui, static-site, copy">
+<meta name="related" content="2026-07-28-analysis-what-is-this-page.html,2026-07-27-analysis-nav-next-questions-only.html,2026-07-22-frontpage-copy-refresh.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  code, pre { font-family: ui-monospace, Menlo, monospace; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Analysis about page refresh</h1>
+<p class="meta"><code>push-pending-changes</code> · worktree <code>/Users/anishthite/conductor/workspaces/curious-index/mbabane</code> · 2026-07-28 · status <b>ready-for-review</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Rename <code>questions.html</code> to <code>about.html</code> and reduce the page to editable copy plus two charts.</div>
+  <b>Source</b><div><code>analysis/about_copy.json</code> for copy; graph metrics for followers; saved-link domains for domains.</div>
+  <b>Surface</b><div><code>apps/analysis/about.html</code>, analysis nav, frontpage banner, generator CLI.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Chart rows collapse to label/count over full-width bars.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Graph header</b>: add a short subheader with a <code>See more about the data</code> link to <code>about.html</code>.</li>
+  <li><b>About page</b>: show intro copy, <code>Most followed people</code>, and <code>Most popular saved-link domains</code>.</li>
+  <li><b>Frontpage</b>: replace the generic intro and add <code>about the graph</code> to the <code>See more</code> banner.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/about_copy.json</code></td><td>new</td><td>Editable copy for frontpage, graph header, and about page text.</td></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Generate <code>about.html</code>, load copy JSON, render two bar charts, and keep <code>--next-out</code> as an alias.</td></tr>
+  <tr><td><code>apps/analysis/about.html</code></td><td>new</td><td>Static renamed page with two chart sections and no summary side panel.</td></tr>
+  <tr><td><code>apps/analysis/questions.html</code></td><td>delete</td><td>Remove old route after links move to <code>about.html</code>.</td></tr>
+  <tr><td><code>apps/analysis/index.html</code></td><td>touch</td><td>Add graph subheader and update analysis nav href.</td></tr>
+  <tr><td><code>apps/analysis/metrics.html</code></td><td>touch</td><td>Update analysis nav href.</td></tr>
+  <tr><td><code>apps/analysis/algorithms.html</code></td><td>touch</td><td>Update analysis nav href.</td></tr>
+  <tr><td><code>apps/frontpage/index.html</code></td><td>touch</td><td>Update subheader copy and add about link to the see-more banner.</td></tr>
+  <tr><td><code>apps/frontpage/how-this-works.html</code></td><td>touch</td><td>Update analysis nav href.</td></tr>
+  <tr><td><code>README.md</code></td><td>touch</td><td>Document opening <code>apps/analysis/about.html</code>.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use <code>about.html</code> as the generated route. The user asked for the file rename and link update.</td></tr>
+  <tr><td>D-002</td><td>Use <code>analysis/about_copy.json</code> for editable copy. JSON keeps rebuild-time escaping explicit and avoids editing generated HTML.</td></tr>
+  <tr><td>D-003</td><td>Keep only two charts on the about page. The removed bridge, overlap, missing-follow, and side-summary content conflicts with the requested focus.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>--about-out</code> with <code>--next-out</code> alias over hard removal. Existing scripts keep working while new output defaults to <code>about.html</code>.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 · <code>abotu.html</code> means <code>about.html</code>. If wrong: rename the output path again.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Restore <code>questions.html</code>, swap hrefs back, and remove the copy JSON loader.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: <code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li>Done: Browser smoke confirms <code>about.html</code> has two charts, 20 rows, no <code>In one breath</code>, and <code>0</code> horizontal overflow at <code>1280px</code> and <code>390px</code>.</li>
+  <li>Done: Browser smoke confirms graph and frontpage links point to <code>about.html</code>.</li>
+</ul>
+</body>
+</html>

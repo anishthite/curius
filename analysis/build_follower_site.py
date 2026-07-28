@@ -31,12 +31,33 @@ DEFAULT_FRONTPAGE_APP = REPO_ROOT / "apps/frontpage"
 DEFAULT_GRAPH_OUT = DEFAULT_ANALYSIS_APP / "index.html"
 DEFAULT_METRICS_OUT = DEFAULT_ANALYSIS_APP / "metrics.html"
 DEFAULT_ALGORITHMS_OUT = DEFAULT_ANALYSIS_APP / "algorithms.html"
-DEFAULT_NEXT_OUT = DEFAULT_ANALYSIS_APP / "questions.html"
+DEFAULT_ABOUT_OUT = DEFAULT_ANALYSIS_APP / "about.html"
 DEFAULT_FRONTPAGE_OUT = DEFAULT_FRONTPAGE_APP / "index.html"
 DEFAULT_HOW_OUT = DEFAULT_FRONTPAGE_APP / "how-this-works.html"
+DEFAULT_ABOUT_COPY_FILE = REPO_ROOT / "analysis/about_copy.json"
 DEFAULT_ANALYSIS_URL = "../analysis"
 DEFAULT_FRONTPAGE_URL = "../frontpage"
 GOLDEN_ANGLE = math.pi * (3 - math.sqrt(5))
+
+DEFAULT_ABOUT_COPY = {
+    "frontpage": {
+        "subheader": "A public readout of what Curius readers are saving, marking, and returning to.",
+        "seeMoreLabel": "See more",
+    },
+    "graph": {
+        "subheader": "Search the public follow graph, then zoom from one reader into the neighborhoods around them.",
+        "seeMoreText": "See more about the data",
+    },
+    "about": {
+        "title": "About the Curius Graph",
+        "lede": "This is a public follower graph of curius.app, updated July 28, 2026 at 11:59 AM PDT.",
+        "paragraphs": [],
+        "followersHeading": "Most followed people",
+        "followersCopy": "",
+        "domainsHeading": "Most popular saved-link domains",
+        "domainsCopy": "",
+    },
+}
 
 PAPER_CSS = """
   :root {
@@ -148,11 +169,12 @@ GRAPH_HTML = """<!doctype html>
 <title>The Curius Follower Graph</title>
 <style>
 __PAPER_CSS__
+  body { background: var(--paper); }
   .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
-  .graph-nav { justify-content: flex-start; margin: 0; font-size: .9rem; }
-  .graph-nav a { color: var(--muted); }
+  .graph-subhead { max-width: 64ch; margin: 0 0 .55rem; color: var(--muted); font-size: clamp(.96rem, 1.4vw, 1.08rem); line-height: 1.34; }
+  .graph-subhead a { color: var(--ink); }
   .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; min-height: 0; align-items: stretch; }
   .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0 .35rem; align-items: center; max-width: 940px; padding: .05rem 0; background: transparent; }
   .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .62rem; border: 0; font-size: .9rem; background: rgba(255, 252, 245, .76); }
@@ -164,13 +186,13 @@ __PAPER_CSS__
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
-  .canvas-wrap.sheet { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
-  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 0; cursor: grab; overflow: hidden; background: transparent; }
+  .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
+  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; touch-action: none; }
   .graph-page.has-matches .canvas-wrap { min-height: 0; }
   .graph-page.has-matches .graph-canvas { height: 100%; }
   .graph-canvas:active { cursor: grabbing; }
-  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 0; transform-origin: 0 0; will-change: transform; }
-  .canvas-note { position: absolute; left: .2rem; right: .2rem; bottom: .15rem; color: var(--muted); background: transparent; border: 0; border-radius: 0; padding: 0; font-size: .86rem; text-shadow: 0 1px 0 rgba(255, 250, 240, .72); box-shadow: none; }
+  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 10px; transform-origin: 0 0; will-change: transform; }
+  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.78); border: 0; border-radius: 8px; padding: .42rem .6rem; font-size: .9rem; box-shadow: 0 1px 8px rgba(60, 42, 20, .05); }
   .canvas-note b { color: var(--ink); font-weight: 500; }
   .graph-legend { display: flex; flex-wrap: wrap; gap: .28rem .7rem; align-items: center; }
   .legend-key { display: inline-flex; gap: .28rem; align-items: center; white-space: nowrap; }
@@ -229,12 +251,12 @@ __PAPER_CSS__
   .info-dot:hover .info-tooltip, .info-dot:focus .info-tooltip { visibility: visible; opacity: 1; transform: translateY(0); }
   .reader .people-section { position: relative; display: flex; flex: 0 1 auto; min-height: 0; flex-direction: column; margin-top: .95rem; }
   .reader .people-section h3 { flex: 0 0 auto; }
-  .reader .people-section::after { content: ""; position: absolute; left: 0; right: .55rem; bottom: 0; height: 24px; pointer-events: none; border-radius: 0 0 8px 8px; background: linear-gradient(to bottom, rgba(255, 250, 240, 0), rgba(255, 250, 240, .96)); }
+  .reader .people-section::after { content: none; }
   .reader .people-section .people { flex: 0 1 auto; min-height: 0; max-height: clamp(150px, 28vh, 290px); }
-  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: inset 0 -16px 18px rgba(60, 42, 20, .055); }
+  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: none; }
   .people::-webkit-scrollbar { width: 8px; }
   .people::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(111, 98, 84, .34); }
-  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: rgba(255, 252, 245, .62); }
+  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: transparent; }
   .person:hover { outline: 0; background: rgba(255, 252, 245, .96); }
   .person:focus-visible { outline: 0; background: rgba(255, 252, 245, .96); box-shadow: inset 0 0 0 2px rgba(47, 99, 183, .3); }
   .person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; line-height: 1.08; }
@@ -253,31 +275,33 @@ __PAPER_CSS__
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
-    .graph-page { display: block; min-height: 0; height: auto; padding-left: 8px; padding-right: 8px; padding-bottom: 42px; }
-    .graph-layout { grid-template-columns: 1fr; }
-    .graph-tools { border-radius: 18px; gap: .45rem; }
-    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .42rem .76rem; font-size: 1rem; }
+    .graph-page { display: block; min-height: 0; height: auto; padding: 14px 12px 48px; }
+    .graph-hero { margin-bottom: .55rem; }
+    .graph-layout { grid-template-columns: 1fr; gap: 1rem; }
+    .graph-tools { border-radius: 18px; gap: .55rem; margin: .35rem 0 .8rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .48rem .82rem; font-size: 1rem; }
     .min-filter { min-height: 44px; font-size: .94rem; }
     #q { max-width: none; }
-    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 0; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
+    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 1.25rem; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
     .reader .people-section { display: block; min-height: 0; }
     .reader .people-section .people { max-height: clamp(220px, 38vh, 320px); overflow: auto; }
-    .canvas-wrap { height: auto; min-height: clamp(320px, 46vh, 390px); }
-    .graph-canvas { height: clamp(320px, 46vh, 390px); min-height: 0; }
+    .canvas-wrap { height: auto; min-height: clamp(360px, 52vh, 460px); }
+    .graph-canvas { height: clamp(360px, 52vh, 460px); min-height: 0; }
   }
   @media (max-width: 520px) {
-    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; }
+    .graph-page { padding-left: 14px; padding-right: 14px; }
+    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; gap: .55rem .5rem; }
     #q { grid-column: 1 / -1; width: 100%; }
-    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .4rem .62rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .46rem .66rem; }
     #q { min-height: 48px; padding: .52rem .72rem; }
     .min-filter { min-height: 44px; gap: .38rem; min-width: 0; }
     .min-filter span { display: block; max-width: 1.75rem; overflow: hidden; white-space: nowrap; }
     #min-followers { width: 4.6rem; text-align: center; }
     #mode { width: 100%; min-width: 0; }
-    .matches { margin-bottom: .65rem; padding: .45rem 0; }
+    .matches { margin-bottom: .85rem; padding: .55rem 0; }
     .matches.people { display: grid; grid-template-columns: 1fr; max-height: none; overflow: visible; }
     .matches .person { max-width: 100%; }
-    .person { min-height: 3.18rem; padding: .42rem .58rem; }
+    .person { min-height: 3.4rem; padding: .5rem .62rem; }
   }
 </style>
 </head>
@@ -285,7 +309,7 @@ __PAPER_CSS__
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">What is this?</a></nav>
+    <p class="graph-subhead">__GRAPH_SUBHEADER__ <a href="about.html">__GRAPH_SEE_MORE_TEXT__</a>.</p>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -328,7 +352,7 @@ __PAPER_CSS__
   overlayCanvas.setAttribute("aria-hidden", "true");
   overlayCanvas.style.pointerEvents = "none";
   graphStage.append(webglCanvas, overlayCanvas);
-  const gl = webglCanvas.getContext("webgl", {alpha: true, antialias: true, powerPreference: "high-performance"});
+  const gl = webglCanvas.getContext("webgl", {alpha: false, antialias: true, powerPreference: "high-performance"});
   const overlay = overlayCanvas.getContext("2d");
   const reader = document.getElementById("reader");
   const status = document.getElementById("status");
@@ -345,7 +369,9 @@ __PAPER_CSS__
   let visibleEdges = edgeRecords;
   let visibleDirty = true;
   let graphDirty = true;
+  const activePointers = new Map();
   let pointer = null;
+  let pinch = null;
   let hover = null;
   let moving = false;
   let settleTimer = 0;
@@ -569,6 +595,15 @@ __PAPER_CSS__
   function unproject(x, y) {
     return {x: (x - canvasSize.width / 2) / view.scale - view.x, y: (y - canvasSize.height / 2) / view.scale - view.y};
   }
+  function clampScale(value) {
+    return Math.max(.12, Math.min(8, value));
+  }
+  function pointerDistance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  function pointerMidpoint(a, b) {
+    return {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2};
+  }
   function scheduleRender() {
     if (renderPending) return;
     renderPending = true;
@@ -614,7 +649,7 @@ __PAPER_CSS__
   }
   function renderWebGL() {
     gl.viewport(0, 0, webglCanvas.width, webglCanvas.height);
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(1, 250 / 255, 240 / 255, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -647,6 +682,8 @@ __PAPER_CSS__
   }
   function renderFallback2d() {
     overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    overlay.fillStyle = "#fffaf0";
+    overlay.fillRect(0, 0, canvasSize.width, canvasSize.height);
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
@@ -810,9 +847,63 @@ __PAPER_CSS__
       });
     }
   }
+  function trackPointer(ev) {
+    activePointers.set(ev.pointerId, {id: ev.pointerId, x: ev.clientX, y: ev.clientY});
+  }
+  function startPinch() {
+    const points = [...activePointers.values()];
+    if (points.length < 2) return;
+    const [a, b] = points;
+    const center = pointerMidpoint(a, b);
+    const rect = graphStage.getBoundingClientRect();
+    const world = unproject(center.x - rect.left, center.y - rect.top);
+    pinch = {
+      a: a.id,
+      b: b.id,
+      distance: Math.max(1, pointerDistance(a, b)),
+      scale: view.scale,
+      worldX: world.x,
+      worldY: world.y,
+    };
+    pointer = null;
+    moving = true;
+    setLayerOffset(0, 0);
+  }
+  function updatePinch() {
+    if (!pinch) return false;
+    const a = activePointers.get(pinch.a);
+    const b = activePointers.get(pinch.b);
+    if (!a || !b) return false;
+    const center = pointerMidpoint(a, b);
+    const rect = graphStage.getBoundingClientRect();
+    const nextScale = clampScale(pinch.scale * pointerDistance(a, b) / pinch.distance);
+    view.scale = nextScale;
+    view.x = (center.x - rect.left - canvasSize.width / 2) / nextScale - pinch.worldX;
+    view.y = (center.y - rect.top - canvasSize.height / 2) / nextScale - pinch.worldY;
+    moving = true;
+    scheduleRender();
+    return true;
+  }
+  function endPinchPointer(pointerId) {
+    activePointers.delete(pointerId);
+    if (!pinch) return false;
+    if (activePointers.size >= 2) startPinch();
+    else {
+      pinch = null;
+      moving = false;
+      settleRender(90);
+    }
+    return true;
+  }
   graphStage.addEventListener("pointerdown", ev => {
     graphStage.setPointerCapture(ev.pointerId);
+    trackPointer(ev);
     clearTimeout(settleTimer);
+    if (activePointers.size >= 2) {
+      startPinch();
+      hover = null;
+      return;
+    }
     const hit = hitTest(ev.clientX, ev.clientY);
     pointer = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, startX: ev.clientX, startY: ev.clientY, startViewX: view.x, startViewY: view.y, dx: 0, dy: 0, moved: false, hit: hit?.id || null};
     hover = null;
@@ -833,6 +924,11 @@ __PAPER_CSS__
     });
   }
   graphStage.addEventListener("pointermove", ev => {
+    if (activePointers.has(ev.pointerId)) trackPointer(ev);
+    if (pinch) {
+      updatePinch();
+      return;
+    }
     if (pointer && pointer.id === ev.pointerId) {
       pointer.dx = ev.clientX - pointer.startX;
       pointer.dy = ev.clientY - pointer.startY;
@@ -848,6 +944,8 @@ __PAPER_CSS__
     scheduleHover(ev);
   });
   graphStage.addEventListener("pointerup", ev => {
+    if (endPinchPointer(ev.pointerId)) return;
+    activePointers.delete(ev.pointerId);
     if (!pointer) return;
     if (pointer.moved) {
       view.x = pointer.startViewX + pointer.dx / view.scale;
@@ -861,11 +959,19 @@ __PAPER_CSS__
     }
     pointer = null;
   });
-  graphStage.addEventListener("pointercancel", () => {
-    pointer = null;
-    moving = false;
-    setLayerOffset(0, 0);
-    scheduleRender();
+  graphStage.addEventListener("pointercancel", ev => {
+    activePointers.delete(ev.pointerId);
+    if (pinch && activePointers.size >= 2) {
+      startPinch();
+      return;
+    }
+    pinch = null;
+    if (pointer?.id === ev.pointerId) pointer = null;
+    if (!activePointers.size) {
+      moving = false;
+      setLayerOffset(0, 0);
+      scheduleRender();
+    }
   });
   graphStage.addEventListener("wheel", ev => {
     ev.preventDefault();
@@ -873,7 +979,7 @@ __PAPER_CSS__
     const rect = graphStage.getBoundingClientRect();
     const before = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     const factor = Math.exp(-ev.deltaY * .0012);
-    view.scale = Math.max(.12, Math.min(8, view.scale * factor));
+    view.scale = clampScale(view.scale * factor);
     const after = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     view.x += after.x - before.x;
     view.y += after.y - before.y;
@@ -942,7 +1048,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">What is this?</a></nav>
+  <nav class="nav"><a href="about.html">About</a></nav>
   <h1>How to read this follower graph</h1>
   <div class="article">
     <main>
@@ -1213,7 +1319,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">What is this?</a></nav>
+  <nav class="nav"><a href="about.html">About</a></nav>
   <h1>More graph algorithms for this follower graph</h1>
   <div class="article">
     <main>
@@ -1404,103 +1510,54 @@ __PAPER_CSS__
 """
 
 
-NEXT_HTML = """<!doctype html>
+ABOUT_HTML = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>What is this? The Curius graph</title>
+<title>About the Curius graph</title>
 <style>
 __PAPER_CSS__
-  .article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 2rem; align-items: start; }
-  .article > main { min-width: 0; }
-  .side { position: sticky; top: 14px; padding: 1rem; }
-  .answer-table td:first-child { width: 2rem; color: var(--muted); }
-  .answer-table td, .answer-table th { font-size: .94rem; }
-  .answer-line { border-left: 3px solid var(--rule); padding: .65rem .9rem; background: rgba(255,250,240,.62); }
+  .article { max-width: 940px; }
   .lede { font-size: clamp(1.18rem, 2.8vw, 1.55rem); line-height: 1.38; max-width: 60ch; }
-  .domain-chart { display: grid; gap: .62rem; margin: 1.1rem 0 1.4rem; }
-  .domain-row { display: grid; grid-template-columns: minmax(9rem, 15rem) minmax(0, 1fr) 5rem; gap: .65rem; align-items: center; }
-  .domain-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .domain-track { height: .78rem; border-radius: 999px; background: rgba(216, 200, 181, .42); overflow: hidden; }
-  .domain-bar { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
-  .domain-count { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
-  .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1.2rem 0; }
-  .summary-stat { padding: .8rem 0; border-top: 1px solid var(--rule); }
-  .summary-stat b { display: block; font-size: 1.7rem; font-weight: 500; line-height: 1.05; }
-  .summary-stat span { color: var(--muted); }
-  .plan { display: grid; gap: 1rem; margin: 1rem 0; }
-  .plan section { padding: 1rem; border-left: 3px solid var(--rule); background: rgba(255,250,240,.55); }
-  .plan h2 { margin-top: 0; }
-  .tag { display: inline-block; border: 1px solid var(--rule); border-radius: 999px; padding: .08rem .5rem; margin: .15rem .2rem .15rem 0; color: var(--muted); }
-  .small { font-size: .95rem; }
-  @media (max-width: 900px) {
-    .article { display: flex; flex-direction: column; }
-    .article > main, .plan, .plan section { width: 100%; max-width: 100%; min-width: 0; }
-    .side { position: static; }
-    .summary-grid { grid-template-columns: 1fr; gap: .25rem; }
-    .domain-row { grid-template-columns: minmax(0, 1fr) 4.5rem; gap: .42rem .65rem; }
-    .domain-track { grid-column: 1 / -1; grid-row: 2; }
-    .answer-table { display: block; overflow-x: auto; }
+  .chart-section { margin: 2.2rem 0 0; padding-top: 1rem; border-top: 1px solid var(--rule); }
+  .bar-chart { display: grid; gap: .66rem; margin: 1.1rem 0 1.4rem; }
+  .chart-row { display: grid; grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr) 5.5rem; gap: .7rem; align-items: center; }
+  .chart-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chart-label a { color: var(--ink); text-decoration: none; }
+  .chart-label a:hover { text-decoration: underline; text-underline-offset: .16em; }
+  .chart-label small { display: block; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; line-height: 1.12; }
+  .chart-track { height: .8rem; border-radius: 999px; background: rgba(216, 200, 181, .42); overflow: hidden; }
+  .chart-bar { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
+  .chart-count { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 700px) {
+    .chart-row { grid-template-columns: minmax(0, 1fr) 4.8rem; gap: .42rem .65rem; }
+    .chart-track { grid-column: 1 / -1; grid-row: 2; }
   }
 </style>
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="questions.html">What is this?</a></nav>
-  <h1>What is this?</h1>
-  <div class="article">
-    <main>
-      <p class="lede">This is a public, read-only map of Curius: who follows whom, what pages people save, and which sources show up often enough to shape the shared reading room.</p>
-      <p>The graph starts with a simple directed edge: one person follows another. From thousands of those edges, the page can show dense neighborhoods, peripheral islands, bridge people, and likely paths between readers. The companion front page looks at the saved links and highlights that travel through the same network.</p>
-      <p>It is not a ranking of people or a claim about influence. It is a way to inspect a public social archive: where attention pools, which domains become common ground, and where the follow graph suggests adjacent readers.</p>
+  <nav class="nav"><a href="index.html">Back</a></nav>
+  <main class="article">
+    <h1>__ABOUT_TITLE__</h1>
+    <p class="lede">__ABOUT_LEDE__</p>
+    __ABOUT_PARAGRAPHS__
 
-      <div class="summary-grid">
-        <div class="summary-stat"><b>__NODES__</b><span>people in the stored user table</span></div>
-        <div class="summary-stat"><b>__EDGES__</b><span>directed follows</span></div>
-        <div class="summary-stat"><b>__KNOWN_DOMAIN_USERS__</b><span>people with saved-link domains</span></div>
+    <section class="chart-section" aria-labelledby="followers-heading">
+      <h2 id="followers-heading">__FOLLOWERS_HEADING__</h2>
+      <div class="bar-chart people-chart" role="list" aria-label="Most followed people">
+        __FOLLOWER_CHART__
       </div>
+    </section>
 
-      <h2>Most popular saved-link domains</h2>
-      <p>The chart counts saved links by domain across users. Repeated saves count because they show which sources recur in the community archive.</p>
-      <div class="domain-chart" role="list" aria-label="Most popular saved-link domains">
+    <section class="chart-section" aria-labelledby="domains-heading">
+      <h2 id="domains-heading">__DOMAINS_HEADING__</h2>
+      <div class="bar-chart domain-chart" role="list" aria-label="Most popular saved-link domains">
         __POPULAR_DOMAIN_CHART__
       </div>
-
-      <div class="plan">
-        <section>
-          <h2>What can the graph answer?</h2>
-          <p class="answer-line">The strongest bridge in the sampled run is <b>__BRIDGE_TOP__</b> with sampled betweenness <b>__BRIDGE_SCORE__</b>. These are people whose neighborhoods sit on many shortest routes through the largest weak component.</p>
-          <p>It can surface bridge people, surprising missing follows, coherent follow communities, and domains that are shared along follow edges.</p>
-          <table class="answer-table"><tr><th></th><th>bridge candidate</th><th>sampled score</th><th>followers</th><th>core</th></tr>__BRIDGE_ROWS__</table>
-        </section>
-        <section>
-          <h2>How do interests travel?</h2>
-          <p class="answer-line">Among <b>__INTEREST_KNOWN__</b> follow edges where both people have saved-link domains, <b>__INTEREST_OVERLAP__</b> share at least one domain.</p>
-          <p>The overlap is broad rather than precise: large public domains become shared channels, while smaller blogs and papers make the graph interesting when you zoom into neighborhoods.</p>
-          <h3>Domains shared along follow edges</h3>
-          <p>__SHARED_DOMAINS__</p>
-        </section>
-        <section>
-          <h2>What should be inspected manually?</h2>
-          <p class="answer-line">The highest-scoring missing follow is <b>__MISSING_TOP__</b>. It appears repeatedly in two-hop neighborhoods but is not an observed follow edge.</p>
-          <p>Computed rows are starting points for reading the network, not conclusions. High-score missing follows and low-support existing follows are places where the social graph may have a story the aggregate view cannot explain.</p>
-          <h3>High-score missing follows</h3>
-          <table class="answer-table"><tr><th></th><th>source</th><th>candidate</th><th>two-hop score</th><th>candidate followers</th></tr>__MISSING_ROWS__</table>
-        </section>
-      </div>
-    </main>
-    <aside class="side sheet">
-      <h2>In one breath</h2>
-      <ol>
-        <li><b>People:</b> __NODES__ public user records.</li>
-        <li><b>Follows:</b> __EDGES__ directed edges.</li>
-        <li><b>Domains:</b> __POPULAR_DOMAIN_TOP__ is the most-saved domain.</li>
-        <li><b>Overlap:</b> __INTEREST_OVERLAP__ of known-domain follow edges share at least one domain.</li>
-      </ol>
-      <p class="small quiet">The data is public Curius activity captured into a local SQLite file and rendered as static HTML.</p>
-    </aside>
-  </div>
+    </section>
+  </main>
 </div>
 </body>
 </html>
@@ -1547,9 +1604,9 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <aside class="more-banner" aria-label="More Curius things"><span>See more Curius things</span><a href="how-this-works.html">how this works</a><span aria-hidden="true">·</span><a href="__ANALYSIS_INDEX_URL__">follower graph</a></aside>
+  <aside class="more-banner" aria-label="More Curius things"><span>__FRONTPAGE_SEE_MORE_LABEL__</span><a href="how-this-works.html">how this works</a><span aria-hidden="true">·</span><a href="__ANALYSIS_ABOUT_URL__">about the graph</a><span aria-hidden="true">·</span><a href="__ANALYSIS_INDEX_URL__">follower graph</a></aside>
   <h1>Curius Front Page</h1>
-  <p class="intro">Curius Front Page is a public readout of what Curius readers are saving and highlighting.</p>
+  <p class="intro">__FRONTPAGE_SUBHEADER__</p>
 
   <section class="front-controls" aria-label="Feed controls">
     <button type="button" data-kind="links" aria-pressed="true">Links</button>
@@ -1687,7 +1744,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="__ANALYSIS_INDEX_URL__">follower graph</a><a href="__ANALYSIS_METRICS_URL__">metrics</a><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><a href="__ANALYSIS_QUESTIONS_URL__">What is this?</a></nav>
+  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="__ANALYSIS_INDEX_URL__">follower graph</a><a href="__ANALYSIS_METRICS_URL__">metrics</a><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><a href="__ANALYSIS_ABOUT_URL__">about</a></nav>
   <main class="article">
     <h1>How this works</h1>
     <p>Curius Front Page ranks public saves and highlights from the local Curius crawl. The page shows two kinds of rows: saved links and repeated highlighted passages.</p>
@@ -2714,6 +2771,31 @@ def weighted_domain_pills(rows: list[tuple[str, float]], limit: int = 10) -> str
     return "".join(f"<span class=\"tag\">{html.escape(domain)} · {fmt_pct(value, 2)}</span>" for domain, value in rows[:limit])
 
 
+def merge_copy(defaults: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(defaults)
+    for key, value in overrides.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = merge_copy(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def load_about_copy(copy_file: Path = DEFAULT_ABOUT_COPY_FILE) -> dict[str, Any]:
+    if not copy_file.exists():
+        return DEFAULT_ABOUT_COPY
+    loaded = json.loads(copy_file.read_text(encoding="utf-8"))
+    return merge_copy(DEFAULT_ABOUT_COPY, loaded)
+
+
+def copy_text(copy: dict[str, Any], section: str, key: str) -> str:
+    return html.escape(str(copy[section][key]))
+
+
+def copy_paragraphs(copy: dict[str, Any], section: str, key: str) -> str:
+    return "\n    ".join(f"<p>{html.escape(str(value))}</p>" for value in copy[section].get(key, []))
+
+
 def domain_chart(rows: list[tuple[str, int]], limit: int = 10) -> str:
     picked = rows[:limit]
     max_count = max((count for _domain, count in picked), default=1)
@@ -2721,10 +2803,29 @@ def domain_chart(rows: list[tuple[str, int]], limit: int = 10) -> str:
     for domain, count in picked:
         pct = max(1, round(count / max_count * 100))
         out.append(
-            f"<div class=\"domain-row\" role=\"listitem\">"
-            f"<span class=\"domain-name\">{html.escape(domain)}</span>"
-            f"<span class=\"domain-track\" aria-hidden=\"true\"><span class=\"domain-bar\" style=\"width: {pct}%\"></span></span>"
-            f"<span class=\"domain-count\">{fmt_int(count)}</span>"
+            f"<div class=\"chart-row\" role=\"listitem\">"
+            f"<span class=\"chart-label\">{html.escape(domain)}</span>"
+            f"<span class=\"chart-track\" aria-hidden=\"true\"><span class=\"chart-bar\" style=\"width: {pct}%\"></span></span>"
+            f"<span class=\"chart-count\">{fmt_int(count)}</span>"
+            f"</div>"
+        )
+    return "\n        ".join(out)
+
+
+def follower_chart(rows: list[dict[str, Any]], limit: int = 10) -> str:
+    picked = rows[:limit]
+    max_count = max((int(person["followers"]) for person in picked), default=1)
+    out = []
+    for person in picked:
+        count = int(person["followers"])
+        pct = max(1, round(count / max_count * 100))
+        name = html.escape(person["name"])
+        slug = html.escape(person["slug"])
+        out.append(
+            f"<div class=\"chart-row\" role=\"listitem\">"
+            f"<span class=\"chart-label\"><a href=\"https://curius.app/users/{slug}\" target=\"_blank\" rel=\"noreferrer\">{name}</a><small>{slug}</small></span>"
+            f"<span class=\"chart-track\" aria-hidden=\"true\"><span class=\"chart-bar\" style=\"width: {pct}%\"></span></span>"
+            f"<span class=\"chart-count\">{fmt_int(count)}</span>"
             f"</div>"
         )
     return "\n        ".join(out)
@@ -2739,11 +2840,19 @@ def app_url(base: str, page: str = "index.html") -> str:
     return f"{base}/{page}" if base else page
 
 
-def render_graph_html(graph: dict[str, Any], db_path: Path, frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
+def render_graph_html(
+    graph: dict[str, Any],
+    db_path: Path,
+    frontpage_url: str = DEFAULT_FRONTPAGE_URL,
+    about_copy: dict[str, Any] | None = None,
+) -> str:
     payload = graph_payload(graph, db_path)
+    copy = about_copy or DEFAULT_ABOUT_COPY
     return (
         GRAPH_HTML.replace("__PAPER_CSS__", PAPER_CSS)
         .replace("__FRONTPAGE_INDEX_URL__", app_url(frontpage_url))
+        .replace("__GRAPH_SUBHEADER__", copy_text(copy, "graph", "subheader"))
+        .replace("__GRAPH_SEE_MORE_TEXT__", copy_text(copy, "graph", "seeMoreText"))
         .replace("__GRAPH_JSON__", json_script(payload))
     )
 
@@ -2754,7 +2863,7 @@ def render_how_this_works_html(analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
         "__ANALYSIS_INDEX_URL__": app_url(analysis_url),
         "__ANALYSIS_METRICS_URL__": app_url(analysis_url, "metrics.html"),
         "__ANALYSIS_ALGORITHMS_URL__": app_url(analysis_url, "algorithms.html"),
-        "__ANALYSIS_QUESTIONS_URL__": app_url(analysis_url, "questions.html"),
+        "__ANALYSIS_ABOUT_URL__": app_url(analysis_url, "about.html"),
     }
     out = HOW_THIS_WORKS_HTML
     for old, new in replacements.items():
@@ -2762,9 +2871,14 @@ def render_how_this_works_html(analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
     return out
 
 
-def render_frontpage_html(payload: dict[str, Any], analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
+def render_frontpage_html(
+    payload: dict[str, Any],
+    analysis_url: str = DEFAULT_ANALYSIS_URL,
+    about_copy: dict[str, Any] | None = None,
+) -> str:
     views = frontpage_views(payload)
     default_rows = views["links:popular"]
+    copy = about_copy or DEFAULT_ABOUT_COPY
     script_payload = {
         "generatedAt": payload["generatedAt"],
         "source": payload["source"],
@@ -2775,7 +2889,9 @@ def render_frontpage_html(payload: dict[str, Any], analysis_url: str = DEFAULT_A
         "__ANALYSIS_INDEX_URL__": app_url(analysis_url),
         "__ANALYSIS_METRICS_URL__": app_url(analysis_url, "metrics.html"),
         "__ANALYSIS_ALGORITHMS_URL__": app_url(analysis_url, "algorithms.html"),
-        "__ANALYSIS_QUESTIONS_URL__": app_url(analysis_url, "questions.html"),
+        "__ANALYSIS_ABOUT_URL__": app_url(analysis_url, "about.html"),
+        "__FRONTPAGE_SUBHEADER__": copy_text(copy, "frontpage", "subheader"),
+        "__FRONTPAGE_SEE_MORE_LABEL__": copy_text(copy, "frontpage", "seeMoreLabel"),
         "__FRONTPAGE_HEAD_HTML__": render_frontpage_head("links", "popular", len(default_rows)),
         "__FRONTPAGE_FEED_HTML__": render_frontpage_feed("links", default_rows, payload["generatedAt"]),
         "__FRONTPAGE_JSON__": json_script(script_payload),
@@ -2831,38 +2947,26 @@ def render_metrics_html(graph: dict[str, Any], frontpage_url: str = DEFAULT_FRON
     return out
 
 
-def render_next_html(graph: dict[str, Any], frontpage_url: str = DEFAULT_FRONTPAGE_URL) -> str:
+def render_about_html(
+    graph: dict[str, Any],
+    frontpage_url: str = DEFAULT_FRONTPAGE_URL,
+    about_copy: dict[str, Any] | None = None,
+) -> str:
     metrics = graph["metrics"]
-    next_data = metrics["nextAnalyses"]
-    interest = next_data["interest"]
-    top_bridge = next_data["bridges"][0] if next_data["bridges"] else {"name": "No bridge computed", "score": 0}
-    top_missing = next_data["missingFollows"][0] if next_data["missingFollows"] else None
-    top_missing_text = f"{top_missing['source']['name']} → {top_missing['target']['name']}" if top_missing else "No missing follow scored"
+    interest = metrics["nextAnalyses"]["interest"]
+    copy = about_copy or DEFAULT_ABOUT_COPY
     replacements = {
         "__PAPER_CSS__": PAPER_CSS,
         "__FRONTPAGE_INDEX_URL__": app_url(frontpage_url),
-        "__NODES__": fmt_int(metrics["counts"]["nodes"]),
-        "__EDGES__": fmt_int(metrics["counts"]["edges"]),
-        "__LARGEST_WEAK__": fmt_int(metrics["largestWeak"]),
-        "__KNOWN_DOMAIN_USERS__": fmt_int(interest["knownDomainUsers"]),
-        "__POPULAR_DOMAIN_TOP__": html.escape(interest["popularDomains"][0][0]) if interest["popularDomains"] else "No domain",
+        "__ABOUT_TITLE__": copy_text(copy, "about", "title"),
+        "__ABOUT_LEDE__": copy_text(copy, "about", "lede"),
+        "__ABOUT_PARAGRAPHS__": copy_paragraphs(copy, "about", "paragraphs"),
+        "__FOLLOWERS_HEADING__": copy_text(copy, "about", "followersHeading"),
+        "__FOLLOWER_CHART__": follower_chart(metrics["topFollowers"]),
+        "__DOMAINS_HEADING__": copy_text(copy, "about", "domainsHeading"),
         "__POPULAR_DOMAIN_CHART__": domain_chart(interest["popularDomains"]),
-        "__BRIDGE_TOP__": html.escape(top_bridge["name"]),
-        "__BRIDGE_SCORE__": fmt_float(float(top_bridge.get("score", 0)), 3),
-        "__BRIDGE_ROWS__": bridge_rows(next_data["bridges"]),
-        "__MISSING_TOP__": html.escape(top_missing_text),
-        "__MISSING_ROWS__": missing_follow_rows(next_data["missingFollows"]),
-        "__SURPRISING_ROWS__": surprising_follow_rows(next_data["surprisingFollows"]),
-        "__COMMUNITY_COUNT__": fmt_int(next_data["communityCount"]),
-        "__MODULARITY__": fmt_float(next_data["modularity"], 3),
-        "__COMMUNITY_ROWS__": community_rows(next_data["communities"]),
-        "__INTEREST_KNOWN__": fmt_int(interest["knownEdges"]),
-        "__INTEREST_OVERLAP__": fmt_pct(interest["overlapShare"], 1),
-        "__SHARED_DOMAINS__": domain_pills(interest["sharedDomains"]),
-        "__CROSS_SHARED_DOMAINS__": domain_pills(interest["crossSharedDomains"]),
-        "__WEIGHTED_DOMAINS__": weighted_domain_pills(interest["weightedDomains"]),
     }
-    out = NEXT_HTML
+    out = ABOUT_HTML
     for old, new in replacements.items():
         out = out.replace(old, new)
     return out
@@ -2904,14 +3008,16 @@ def build(
     graph_out: Path,
     metrics_out: Path,
     algorithms_out: Path,
-    next_out: Path,
+    about_out: Path,
     frontpage_out: Path = DEFAULT_FRONTPAGE_OUT,
     frontpage_url: str = DEFAULT_FRONTPAGE_URL,
     analysis_url: str = DEFAULT_ANALYSIS_URL,
     how_out: Path = DEFAULT_HOW_OUT,
+    copy_file: Path = DEFAULT_ABOUT_COPY_FILE,
 ) -> dict[str, Any]:
     if not db_path.exists():
         raise SystemExit(f"Database not found: {db_path}")
+    about_copy = load_about_copy(copy_file)
     frontpage = load_frontpage(db_path)
     user_domains = load_user_domains(db_path)
     nodes, edges = load_graph(db_path)
@@ -2919,14 +3025,14 @@ def build(
     graph_out.parent.mkdir(parents=True, exist_ok=True)
     metrics_out.parent.mkdir(parents=True, exist_ok=True)
     algorithms_out.parent.mkdir(parents=True, exist_ok=True)
-    next_out.parent.mkdir(parents=True, exist_ok=True)
+    about_out.parent.mkdir(parents=True, exist_ok=True)
     frontpage_out.parent.mkdir(parents=True, exist_ok=True)
     how_out.parent.mkdir(parents=True, exist_ok=True)
-    graph_out.write_text(render_graph_html(graph, db_path, frontpage_url), encoding="utf-8")
+    graph_out.write_text(render_graph_html(graph, db_path, frontpage_url, about_copy), encoding="utf-8")
     metrics_out.write_text(render_metrics_html(graph, frontpage_url), encoding="utf-8")
     algorithms_out.write_text(render_algorithms_html(graph, frontpage_url), encoding="utf-8")
-    next_out.write_text(render_next_html(graph, frontpage_url), encoding="utf-8")
-    frontpage_out.write_text(render_frontpage_html(frontpage, analysis_url), encoding="utf-8")
+    about_out.write_text(render_about_html(graph, frontpage_url, about_copy), encoding="utf-8")
+    frontpage_out.write_text(render_frontpage_html(frontpage, analysis_url, about_copy), encoding="utf-8")
     how_out.write_text(render_how_this_works_html(analysis_url), encoding="utf-8")
     return graph
 
@@ -2968,29 +3074,31 @@ def self_test() -> None:
         graph_out = Path(tmp) / "graph.html"
         metrics_out = Path(tmp) / "metrics.html"
         algorithms_out = Path(tmp) / "algorithms.html"
-        next_out = Path(tmp) / "next.html"
+        about_out = Path(tmp) / "about.html"
         frontpage_out = Path(tmp) / "frontpage.html"
         how_out = Path(tmp) / "how-this-works.html"
         graph = build(
-            db, graph_out, metrics_out, algorithms_out, next_out, frontpage_out,
+            db, graph_out, metrics_out, algorithms_out, about_out, frontpage_out,
             "https://front.example", "https://analysis.example", how_out=how_out,
         )
         graph_html = graph_out.read_text(encoding="utf-8")
         metrics_html = metrics_out.read_text(encoding="utf-8")
         algorithms_html = algorithms_out.read_text(encoding="utf-8")
-        next_html = next_out.read_text(encoding="utf-8")
+        about_html = about_out.read_text(encoding="utf-8")
         frontpage_html = frontpage_out.read_text(encoding="utf-8")
         how_html = how_out.read_text(encoding="utf-8")
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Palatino" in graph_html
-        assert 'getContext("webgl", {alpha: true' in graph_html and "gl.clearColor(0, 0, 0, 0)" in graph_html
-        assert ".canvas-wrap.sheet { border: 0;" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 0; cursor: grab; overflow: hidden; background: transparent;" in graph_html
-        assert 'overlay.fillStyle = "#fffaf0"' not in graph_html and "body { background: var(--paper); }" not in graph_html
-        assert "The Curius Follower Graph" in graph_html and "Search a person, then zoom into who follows whom." not in graph_html
+        assert 'getContext("webgl", {alpha: false' in graph_html and "gl.clearColor(1, 250 / 255, 240 / 255, 1)" in graph_html
+        assert ".canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38);" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0;" in graph_html
+        assert 'overlay.fillStyle = "#fffaf0"' in graph_html and "body { background: var(--paper); }" in graph_html
+        assert "The Curius Follower Graph" in graph_html and "Search the public follow graph" in graph_html and "about.html" in graph_html
         assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
+        assert "const activePointers = new Map()" in graph_html and "function startPinch()" in graph_html and "function updatePinch()" in graph_html
+        assert "touch-action: none;" in graph_html and "height: clamp(360px, 52vh, 460px)" in graph_html
         assert ".person:hover { outline: 0;" in graph_html and ".person:focus-visible { outline: 0;" in graph_html
         assert ".person span { display: block;" in graph_html and ".person small { display: block;" in graph_html
         assert "matches.hidden = !term" in graph_html and 'id="matches" class="matches people" aria-label="Search results" hidden' in graph_html
@@ -3001,22 +3109,22 @@ def self_test() -> None:
         assert 'reader.scrollIntoView({block: "start", behavior})' in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
-        analysis_html = graph_html + metrics_html + algorithms_html + next_html
-        assert "What is this? The Curius graph" in next_html and "Most popular saved-link domains" in next_html and "domain-chart" in next_html
-        assert "Curius next graph questions" not in next_html and "Next questions" not in analysis_html
-        assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "how-this-works.html" in frontpage_html
+        analysis_html = graph_html + metrics_html + algorithms_html + about_html
+        assert "About the Curius graph" in about_html and "Most followed people" in about_html and "Most popular saved-link domains" in about_html
+        assert about_html.count('class="bar-chart') == 2 and "In one breath" not in about_html and "questions.html" not in analysis_html
+        assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more" in frontpage_html and "about.html" in frontpage_html
         assert ".more-banner a { display: inline-flex; align-items: center; min-height: 44px; }" in frontpage_html
         assert ".front-controls { display: grid; grid-template-columns: max-content max-content;" in frontpage_html
         assert "Small ranking model" not in frontpage_html and "S<sub>link</sub>" in how_html and "How this works" in how_html
-        assert analysis_html.count('<nav class="nav') == 4
-        assert analysis_html.count('href="questions.html"') == 4 and analysis_html.count("What is this?") >= 5
+        assert analysis_html.count('<nav class="nav') == 3
+        assert analysis_html.count('href="about.html"') == 3 and analysis_html.count("About") >= 4
         assert 'href="https://front.example/index.html"' not in analysis_html
         payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
         assert payload["views"]["links:newest"][0]["id"] == 10
         assert payload["views"]["links:popular"][0]["score"] >= payload["views"]["links:popular"][-1]["score"]
         assert "<ol id=\"feed\" class=\"hn-list\"><li class=\"hn-item\">" in frontpage_html
         assert 'href="https://analysis.example/metrics.html"' in frontpage_html + how_html
-        assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html + how_html
+        assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + about_html + frontpage_html + how_html
     print("self-test passed")
 
 
@@ -3026,9 +3134,10 @@ def main() -> None:
     parser.add_argument("--graph-out", type=Path, default=DEFAULT_GRAPH_OUT, help="graph HTML output path")
     parser.add_argument("--metrics-out", type=Path, default=DEFAULT_METRICS_OUT, help="metrics HTML output path")
     parser.add_argument("--algorithms-out", type=Path, default=DEFAULT_ALGORITHMS_OUT, help="algorithms HTML output path")
-    parser.add_argument("--next-out", type=Path, default=DEFAULT_NEXT_OUT, help="next-questions HTML output path")
+    parser.add_argument("--about-out", "--next-out", dest="about_out", type=Path, default=DEFAULT_ABOUT_OUT, help="about HTML output path")
     parser.add_argument("--frontpage-out", type=Path, default=DEFAULT_FRONTPAGE_OUT, help="front page HTML output path")
     parser.add_argument("--how-out", type=Path, default=DEFAULT_HOW_OUT, help="front page how-this-works HTML output path")
+    parser.add_argument("--copy-file", type=Path, default=DEFAULT_ABOUT_COPY_FILE, help="editable about/frontpage copy JSON")
     parser.add_argument("--frontpage-url", default=os.environ.get("CURIUS_FRONTPAGE_URL", DEFAULT_FRONTPAGE_URL), help="base URL for links from analysis to frontpage")
     parser.add_argument("--analysis-url", default=os.environ.get("CURIUS_ANALYSIS_URL", DEFAULT_ANALYSIS_URL), help="base URL for links from frontpage to analysis")
     parser.add_argument("--self-test", action="store_true", help="run a tiny generated-db check")
@@ -3037,11 +3146,11 @@ def main() -> None:
         self_test()
         return
     graph = build(
-        args.db, args.graph_out, args.metrics_out, args.algorithms_out, args.next_out, args.frontpage_out,
-        args.frontpage_url, args.analysis_url, how_out=args.how_out,
+        args.db, args.graph_out, args.metrics_out, args.algorithms_out, args.about_out, args.frontpage_out,
+        args.frontpage_url, args.analysis_url, how_out=args.how_out, copy_file=args.copy_file,
     )
     counts = graph["metrics"]["counts"]
-    print(f"Wrote {args.frontpage_out}, {args.how_out}, {args.graph_out}, {args.metrics_out}, {args.algorithms_out}, and {args.next_out} ({counts['nodes']:,} people, {counts['edges']:,} follows)")
+    print(f"Wrote {args.frontpage_out}, {args.how_out}, {args.graph_out}, {args.metrics_out}, {args.algorithms_out}, and {args.about_out} ({counts['nodes']:,} people, {counts['edges']:,} follows)")
 
 
 if __name__ == "__main__":
