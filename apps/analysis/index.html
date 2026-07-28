@@ -110,7 +110,7 @@
   .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
-  .graph-subhead { max-width: 64ch; margin: 0 0 .55rem; color: var(--muted); font-size: clamp(.96rem, 1.4vw, 1.08rem); line-height: 1.34; }
+  .graph-subhead { max-width: 82ch; margin: 0 0 .55rem; color: var(--muted); font-size: clamp(.96rem, 1.4vw, 1.08rem); line-height: 1.34; }
   .graph-subhead a { color: var(--ink); }
   .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; min-height: 0; align-items: stretch; }
   .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0 .35rem; align-items: center; max-width: 940px; padding: .05rem 0; background: transparent; }
@@ -211,6 +211,10 @@
   .reader-footer a { color: var(--muted); }
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
+  @media (max-width: 1280px) {
+    .graph-hero h1 { font-size: clamp(2.1rem, 4.8vw, 3.8rem); }
+    .graph-subhead { font-size: clamp(.96rem, 1.18vw, 1.04rem); }
+  }
   @media (max-width: 920px) {
     .graph-page { display: block; min-height: 0; height: auto; padding: 14px 12px 48px; }
     .graph-hero { margin-bottom: .55rem; }
