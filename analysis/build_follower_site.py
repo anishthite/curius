@@ -38,6 +38,18 @@ DEFAULT_ABOUT_COPY_FILE = REPO_ROOT / "analysis/about_copy.json"
 DEFAULT_ANALYSIS_URL = "../analysis"
 DEFAULT_FRONTPAGE_URL = "../frontpage"
 GOLDEN_ANGLE = math.pi * (3 - math.sqrt(5))
+POSTHOG_HTML = """
+<script>
+  if (!["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)) {
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init("phc_lwrp8rJxreMnGicmxPIe8YksCzEnpjdZJKTG5Tn3Nps", {
+      api_host: "https://us.i.posthog.com",
+      defaults: "2026-05-30",
+      person_profiles: "identified_only"
+    });
+  }
+</script>
+"""
 
 DEFAULT_ABOUT_COPY = {
     "frontpage": {
@@ -279,35 +291,44 @@ __PAPER_CSS__
     .graph-subhead { font-size: clamp(.96rem, 1.18vw, 1.04rem); }
   }
   @media (max-width: 920px) {
-    .graph-page { display: block; min-height: 0; height: auto; padding: 14px 12px 48px; }
+    .graph-page { display: block; min-height: 0; height: auto; padding: 12px 12px 48px; }
     .graph-hero { margin-bottom: .55rem; }
+    .graph-hero h1 { font-size: clamp(1.9rem, 8vw, 3rem); }
+    .graph-subhead { font-size: .98rem; line-height: 1.28; }
     .graph-layout { grid-template-columns: 1fr; gap: 1rem; }
     .graph-tools { border-radius: 18px; gap: .55rem; margin: .35rem 0 .8rem; }
     .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .48rem .82rem; font-size: 1rem; }
     .min-filter { min-height: 44px; font-size: .94rem; }
     #q { max-width: none; }
-    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 1.25rem; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
+    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 1.1rem; overflow: visible; padding: .9rem .85rem 1rem; border: 1px solid rgba(216, 200, 181, .48); border-radius: 10px; background: rgba(255, 250, 240, .54); box-shadow: none; font-size: 1rem; }
     .reader .people-section { display: block; min-height: 0; }
     .reader .people-section .people { max-height: clamp(220px, 38vh, 320px); overflow: auto; }
-    .canvas-wrap { height: auto; min-height: clamp(360px, 52vh, 460px); }
-    .graph-canvas { height: clamp(360px, 52vh, 460px); min-height: 0; }
+    .canvas-wrap { height: auto; min-height: clamp(400px, 58vh, 540px); }
+    .graph-canvas { height: clamp(400px, 58vh, 540px); min-height: 0; }
+    .canvas-note { left: .5rem; right: .5rem; bottom: .5rem; padding: .36rem .5rem; font-size: .84rem; }
+    .graph-legend { gap: .18rem .55rem; }
   }
   @media (max-width: 520px) {
     .graph-page { padding-left: 14px; padding-right: 14px; }
-    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; gap: .55rem .5rem; }
+    .graph-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: .5rem; }
     #q { grid-column: 1 / -1; width: 100%; }
     .graph-tools input, .graph-tools select, .graph-tools button { min-height: 46px; padding: .46rem .66rem; }
     #q { min-height: 48px; padding: .52rem .72rem; }
-    .min-filter { min-height: 44px; gap: .38rem; min-width: 0; }
-    .min-filter span { display: block; max-width: 1.75rem; overflow: hidden; white-space: nowrap; }
-    #min-followers { width: 4.6rem; text-align: center; }
+    .min-filter { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); min-height: 44px; gap: .5rem; min-width: 0; }
+    .min-filter span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #min-followers { width: 100%; text-align: center; }
     #mode { width: 100%; min-width: 0; }
+    #fit { min-width: 62px; }
     .matches { margin-bottom: .85rem; padding: .55rem 0; }
     .matches.people { display: grid; grid-template-columns: 1fr; max-height: none; overflow: visible; }
     .matches .person { max-width: 100%; }
     .person { min-height: 3.4rem; padding: .5rem .62rem; }
+    .canvas-wrap { min-height: clamp(430px, 62vh, 560px); }
+    .graph-canvas { height: clamp(430px, 62vh, 560px); }
+    .legend-key { display: none; }
   }
 </style>
+__POSTHOG_HTML__
 </head>
 <body>
 <div class="page graph-page">
@@ -399,7 +420,7 @@ __PAPER_CSS__
     const min = Number(minFollowers.value) || 0;
     const center = selected && byId.get(selected);
     let ids;
-    if (!center || mode.value === "whole") ids = nodes.filter(n => n.in >= min).map(n => n.id);
+    if (!center || mode.value === "whole") ids = nodes.filter(n => n.in >= min || n.id === center?.id).map(n => n.id);
     else if (mode.value === "followers") ids = [center.id, ...center.followers].filter(id => id === center.id || (byId.get(id)?.in || 0) >= min);
     else if (mode.value === "following") ids = [center.id, ...center.following].filter(id => id === center.id || (byId.get(id)?.in || 0) >= min);
     else ids = [center.id, ...center.followers, ...center.following].filter(id => id === center.id || (byId.get(id)?.in || 0) >= min);
@@ -426,6 +447,15 @@ __PAPER_CSS__
     view.x = -(bbox.x[0] + bbox.x[1]) / 2;
     view.y = -(bbox.y[0] + bbox.y[1]) / 2;
     scheduleRender();
+  }
+  function focusNode(id) {
+    const n = byId.get(id);
+    if (!n) return;
+    ensureVisible();
+    view.x = -n.x;
+    view.y = -n.y;
+    view.scale = clampScale(window.matchMedia("(max-width: 920px)").matches ? Math.max(view.scale, 1.45) : Math.max(view.scale, .9));
+    refreshGraph();
   }
   function relationColor(id) {
     if (id === selected) return "#9f3f26";
@@ -484,12 +514,14 @@ __PAPER_CSS__
   }
   const edgeProgram = gl && createProgram(`
     attribute vec2 a_pos;
+    attribute vec2 a_offset;
     attribute vec4 a_color;
     uniform vec3 u_view;
     uniform vec2 u_size;
     varying vec4 v_color;
     void main() {
       vec2 screen = vec2(u_size.x * 0.5 + (a_pos.x + u_view.x) * u_view.z, u_size.y * 0.5 + (a_pos.y + u_view.y) * u_view.z);
+      screen += a_offset;
       vec2 clip = vec2(screen.x / u_size.x * 2.0 - 1.0, 1.0 - screen.y / u_size.y * 2.0);
       gl_Position = vec4(clip, 0.0, 1.0);
       v_color = a_color;
@@ -526,10 +558,12 @@ __PAPER_CSS__
     }
   `);
   const edgePositionBuffer = gl && gl.createBuffer();
+  const edgeOffsetBuffer = gl && gl.createBuffer();
   const edgeColorBuffer = gl && gl.createBuffer();
   const nodePositionBuffer = gl && gl.createBuffer();
   const nodeColorBuffer = gl && gl.createBuffer();
   const nodeSizeBuffer = gl && gl.createBuffer();
+  const EDGE_LINE_WIDTH = 1.4;
 
   function setBuffer(buffer, values) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -539,15 +573,22 @@ __PAPER_CSS__
     ensureVisible();
     if (!gl) return;
     const edgePositions = [];
+    const edgeOffsets = [];
     const edgeColors = [];
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
       const color = touches ? (bId === selected ? "#2f63b7" : "#247a4b") : "#8b7b67";
       const alpha = lowWholeGraph && !touches ? .08 : touches ? .72 : selected && mode.value !== "whole" ? .16 : .11;
-      edgePositions.push(a.x, a.y, b.x, b.y);
-      pushColor(edgeColors, color, alpha);
-      pushColor(edgeColors, color, alpha);
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const length = Math.hypot(dx, dy);
+      if (!length) continue;
+      const nx = -dy / length * EDGE_LINE_WIDTH * .5;
+      const ny = dx / length * EDGE_LINE_WIDTH * .5;
+      edgePositions.push(a.x, a.y, b.x, b.y, b.x, b.y, a.x, a.y, b.x, b.y, a.x, a.y);
+      edgeOffsets.push(nx, ny, nx, ny, -nx, -ny, nx, ny, -nx, -ny, -nx, -ny);
+      for (let i = 0; i < 6; i += 1) pushColor(edgeColors, color, alpha);
     }
     const nodePositions = [];
     const nodeColors = [];
@@ -559,6 +600,7 @@ __PAPER_CSS__
       nodeSizes.push(nodeRadius(n));
     }
     setBuffer(edgePositionBuffer, edgePositions);
+    setBuffer(edgeOffsetBuffer, edgeOffsets);
     setBuffer(edgeColorBuffer, edgeColors);
     setBuffer(nodePositionBuffer, nodePositions);
     setBuffer(nodeColorBuffer, nodeColors);
@@ -660,9 +702,9 @@ __PAPER_CSS__
     gl.useProgram(edgeProgram);
     setCommonUniforms(edgeProgram);
     bindAttribute(edgeProgram, "a_pos", edgePositionBuffer, 2);
+    bindAttribute(edgeProgram, "a_offset", edgeOffsetBuffer, 2);
     bindAttribute(edgeProgram, "a_color", edgeColorBuffer, 4);
-    gl.lineWidth(1);
-    gl.drawArrays(gl.LINES, 0, edgeVertexCount);
+    gl.drawArrays(gl.TRIANGLES, 0, edgeVertexCount);
     gl.useProgram(nodeProgram);
     setCommonUniforms(nodeProgram);
     gl.uniform1f(gl.getUniformLocation(nodeProgram, "u_dpr"), canvasSize.graphDpr);
@@ -678,7 +720,7 @@ __PAPER_CSS__
     if (a.sy > canvasSize.height + 80 && b.sy > canvasSize.height + 80) return;
     overlay.globalAlpha = alpha;
     overlay.strokeStyle = color;
-    overlay.lineWidth = Math.max(.45, width * Math.sqrt(view.scale));
+    overlay.lineWidth = Math.max(.6, width * Math.sqrt(view.scale));
     overlay.beginPath();
     overlay.moveTo(a.sx, a.sy);
     overlay.lineTo(b.sx, b.sy);
@@ -691,9 +733,9 @@ __PAPER_CSS__
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
-      if (lowWholeGraph && !touches) drawEdge2d(a, b, "#8b7b67", .08, .65);
-      else if (touches) drawEdge2d(a, b, bId === selected ? "#2f63b7" : "#247a4b", .72, 1.3);
-      else drawEdge2d(a, b, "#8b7b67", selected && mode.value !== "whole" ? .16 : .11, .75);
+      if (lowWholeGraph && !touches) drawEdge2d(a, b, "#8b7b67", .08, .85);
+      else if (touches) drawEdge2d(a, b, bId === selected ? "#2f63b7" : "#247a4b", .72, 1.65);
+      else drawEdge2d(a, b, "#8b7b67", selected && mode.value !== "whole" ? .16 : .11, 1);
     }
     const focus = selected ? byId.get(selected) : null;
     for (const n of visibleList) {
@@ -720,8 +762,9 @@ __PAPER_CSS__
       overlay.stroke();
     }
     overlay.globalAlpha = 1;
-    const labelNodes = visibleList.filter(n => n.id === selected || n.id === hover || (view.scale > .85 && n.in >= 80) || (view.scale > 1.6 && degree(n) >= 18)).slice(0, 70);
-    overlay.font = `${Math.max(13, 15 * Math.min(1.4, view.scale))}px Palatino, Georgia, serif`;
+    const mobileLabels = window.matchMedia("(max-width: 520px)").matches;
+    const labelNodes = visibleList.filter(n => n.id === selected || n.id === hover || (!mobileLabels && ((view.scale > .85 && n.in >= 80) || (view.scale > 1.6 && degree(n) >= 18))) || (mobileLabels && view.scale > 2.4 && n.in >= 180)).slice(0, mobileLabels ? 12 : 70);
+    overlay.font = `${mobileLabels ? Math.max(12, 13 * Math.min(1.18, view.scale)) : Math.max(13, 15 * Math.min(1.4, view.scale))}px Palatino, Georgia, serif`;
     overlay.textBaseline = "middle";
     for (const n of labelNodes) {
       if (n.sx < -80 || n.sy < -50 || n.sx > canvasSize.width + 80 || n.sy > canvasSize.height + 50) continue;
@@ -836,20 +879,32 @@ __PAPER_CSS__
     matches.replaceChildren(...found.map(personButton));
     resize();
   }
+  function hideMatches() {
+    matches.hidden = true;
+    matches.replaceChildren();
+    graphPage.classList.remove("has-matches");
+    resize();
+  }
+  function scrollMobileGraphIntoView() {
+    if (!window.matchMedia("(max-width: 920px)").matches) return;
+    requestAnimationFrame(() => {
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      graphStage.scrollIntoView({block: "start", behavior});
+    });
+  }
   function selectNode(id, shouldFit) {
     if (!byId.has(id)) return;
     selected = id;
     q.value = byId.get(id).slug;
+    q.blur();
+    markVisibleDirty();
     renderReader();
-    renderMatches();
-    if (mode.value !== "whole") markVisibleDirty();
-    if (mode.value === "whole") refreshGraph(); else shouldFit ? fit() : refreshGraph();
-    if (shouldFit && window.matchMedia("(max-width: 920px)").matches) {
-      requestAnimationFrame(() => {
-        const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-        reader.scrollIntoView({block: "start", behavior});
-      });
-    }
+    if (shouldFit && window.matchMedia("(max-width: 920px)").matches) hideMatches();
+    else renderMatches();
+    if (shouldFit && window.matchMedia("(max-width: 920px)").matches) focusNode(id);
+    else if (mode.value === "whole") refreshGraph();
+    else shouldFit ? fit() : refreshGraph();
+    if (shouldFit) scrollMobileGraphIntoView();
   }
   function trackPointer(ev) {
     activePointers.set(ev.pointerId, {id: ev.pointerId, x: ev.clientX, y: ev.clientY});
@@ -2854,6 +2909,7 @@ def render_graph_html(
     copy = about_copy or DEFAULT_ABOUT_COPY
     return (
         GRAPH_HTML.replace("__PAPER_CSS__", PAPER_CSS)
+        .replace("__POSTHOG_HTML__", POSTHOG_HTML)
         .replace("__FRONTPAGE_INDEX_URL__", app_url(frontpage_url))
         .replace("__GRAPH_SUBHEADER__", copy_text(copy, "graph", "subheader"))
         .replace("__GRAPH_SEE_MORE_TEXT__", copy_text(copy, "graph", "seeMoreText"))
@@ -3095,22 +3151,26 @@ def self_test() -> None:
         assert graph["metrics"]["reciprocalEdges"] == 2
         assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Palatino" in graph_html
         assert 'getContext("webgl", {alpha: false' in graph_html and "gl.clearColor(1, 250 / 255, 240 / 255, 1)" in graph_html
+        assert "const EDGE_LINE_WIDTH = 1.4" in graph_html and "gl.drawArrays(gl.TRIANGLES, 0, edgeVertexCount)" in graph_html
         assert ".canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38);" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0;" in graph_html
         assert 'overlay.fillStyle = "#fffaf0"' in graph_html and "body { background: var(--paper); }" in graph_html
         assert "The Curius Follower Graph" in graph_html and "The social network from" in graph_html and "https://curius.app" in graph_html and "about.html" in graph_html
+        assert "posthog.init" in graph_html and "phc_lwrp8rJxreMnGicmxPIe8YksCzEnpjdZJKTG5Tn3Nps" in graph_html
         assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
         assert "const activePointers = new Map()" in graph_html and "function startPinch()" in graph_html and "function updatePinch()" in graph_html
-        assert "touch-action: none;" in graph_html and "height: clamp(360px, 52vh, 460px)" in graph_html
+        assert "function focusNode(id)" in graph_html and "function hideMatches()" in graph_html and "graphStage.scrollIntoView" in graph_html
+        assert "const mobileLabels = window.matchMedia" in graph_html and "slice(0, mobileLabels ? 12 : 70)" in graph_html
+        assert "touch-action: none;" in graph_html and "height: clamp(400px, 58vh, 540px)" in graph_html and "height: clamp(430px, 62vh, 560px)" in graph_html
         assert ".person:hover { outline: 0;" in graph_html and ".person:focus-visible { outline: 0;" in graph_html
         assert ".person span { display: block;" in graph_html and ".person small { display: block;" in graph_html
         assert "matches.hidden = !term" in graph_html and 'id="matches" class="matches people" aria-label="Search results" hidden' in graph_html
         assert 'id="hide-matches"' not in graph_html and "matches-head" not in graph_html and "<h2>Search results</h2>" not in graph_html
         assert ".matches.people" in graph_html and "grid-template-columns: 1fr" in graph_html and "max-height: none; overflow: visible" in graph_html
-        assert ".graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto;" in graph_html
+        assert ".graph-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto;" in graph_html
+        assert ".min-filter { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr);" in graph_html
         assert "reader-footer" in graph_html and "twitter.com/anishthite" in graph_html and "spanner.sh" in graph_html
-        assert 'reader.scrollIntoView({block: "start", behavior})' in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         analysis_html = graph_html + metrics_html + algorithms_html + about_html

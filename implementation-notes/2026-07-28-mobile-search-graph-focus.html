@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec - Mobile Search Graph Focus</title>
+<meta name="task" content="Fix mobile search selection and improve graph readability">
+<meta name="date-started" content="2026-07-28">
+<meta name="date-updated" content="2026-07-28">
+<meta name="status" content="ready-for-review">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, mobile, search, static-site">
+<meta name="related" content="2026-07-27-mobile-graph-review-fixes.html,2026-07-28-mobile-graph-pinch-spacing.html,2026-07-28-analysis-edge-thickness.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { font-family: ui-monospace, Menlo, monospace; background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+</style>
+</head>
+<body>
+<h1>Mobile Search Graph Focus</h1>
+<p class="meta"><code>posthog-curius-graph</code> - worktree <code>/Users/anishthite/conductor/workspaces/curious-index/mbabane</code> - 2026-07-28 - status <b>ready-for-review</b> - blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Mobile search result selection centers the selected person and leaves a readable graph/readout.</div>
+  <b>Source</b><div>User report: mobile name search does not load properly and the graph feels poor.</div>
+  <b>Surface</b><div><code>apps/analysis/index.html</code> graph controls, search results, canvas, and reader.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Search uses focus-fit behavior; graph/readout spacing changes below <code>920px</code>.</div>
+  <b>Artifacts</b><div><code>output/playwright/mobile-search-graph-focus.png</code>, <code>output/playwright/mobile-search-graph-focus-full-build.png</code>.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>Algorithm</h2>
+<ol>
+  <li>After a mobile search result selects <code>id</code>, run <code>focusNode(id)</code>.</li>
+  <li>Set <code>view.x/y</code> to place the node near the graph center and set <code>view.scale</code> to a mobile focus scale.</li>
+  <li>Refresh buffers without changing <code>mode</code> or filtering semantics.</li>
+</ol>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Search</b>: collapse results after selection so the canvas does not resize under the tap.</li>
+  <li><b>Graph</b>: use a larger mobile canvas with less intrusive status chrome.</li>
+  <li><b>Labels</b>: show only selected/hover labels at normal mobile focus scale.</li>
+  <li><b>Reader</b>: draw selected details as a simple mobile sheet with larger list rows.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Add mobile search focus behavior and generated mobile CSS.</td></tr>
+  <tr><td><code>apps/analysis/index.html</code></td><td>generated</td><td>Mirror generated graph page changes.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice - Rationale</th></tr>
+  <tr><td>D-001</td><td>Center mobile search selections in the current mode. It fixes the reported load failure without surprising users by changing the view selector.</td></tr>
+  <tr><td>D-002</td><td>Hide result chips after a successful selection. The tap target has served its purpose and keeping it open steals mobile graph height.</td></tr>
+  <tr><td>D-003</td><td>Suppress most labels on phone-width focused graphs. Dense names were the main mobile readability failure after search focus worked.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected - Reason</th></tr>
+  <tr><td>T-001</td><td><code>focused whole-graph selection</code> over <code>auto-neighborhood mode</code>. The graph stays semantically unchanged while making the selected person visible.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 - Mobile means viewport widths at or below <code>920px</code>. If wrong: add a tablet-specific focus rule.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 - <span class="blast-low">low</span>. Remove <code>focusNode</code>, restore <code>selectNode</code> mobile behavior, and revert the mobile CSS block.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: generator self-test passes.</li>
+  <li>Done: full regeneration runs after copying ignored <code>data/curius.sqlite</code> from the root worktree.</li>
+  <li>Done: mobile Playwright smoke confirms search selection centers the selected node and avoids horizontal overflow after full regeneration.</li>
+</ul>
+</body>
+</html>

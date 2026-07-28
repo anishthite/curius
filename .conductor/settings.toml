@@ -1,0 +1,9 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+run_mode = "concurrent"
+
+[scripts.run.preview]
+command = "python3 -m http.server ${CONDUCTOR_PORT:-9020} --bind 127.0.0.1 --directory ."
+default = true
+icon = "globe"
