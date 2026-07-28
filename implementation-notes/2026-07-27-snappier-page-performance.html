@@ -36,10 +36,10 @@
   <b>Surface</b><div><code>apps/frontpage/index.html</code> and <code>apps/analysis/index.html</code>.</div>
   <b>Metric</b><div>Primary: p90 click/pointer event to next <code>requestAnimationFrame</code>; secondary: <code>DOMContentLoaded</code>.</div>
   <b>Baseline</b><div>Frontpage toggle p90 <code>4.5ms</code>; graph fit p90 <code>74.9ms</code>; drag p90 <code>68.1ms</code>; wheel p90 <code>65.7ms</code>.</div>
-  <b>Result</b><div>Custom WebGL renderer with panning fast path: <code>pointermove</code> p50 <code>3.5ms</code>, p95 <code>12.1ms</code>; <code>wheel</code> p50 <code>0.1ms</code>, p95 <code>12.0ms</code>; full graph smoke has <code>0</code> page errors.</div>
+  <b>Result</b><div>Compositor drag path: native mouse <code>pointermove</code> p50 <code>0.1ms</code>, p95 <code>0.2ms</code>; wheel p95 remains about one frame; full graph smoke has <code>0</code> page errors.</div>
   <b>Data</b><div><code>data/curius.sqlite</code> copied from root checkout; generated graph has <code>6,402</code> people and <code>20,745</code> follows.</div>
   <b>Schema</b><div>None.</div>
-  <b>Mobile</b><div>Custom pointer and wheel controls apply to desktop and mobile-sized graph containers.</div>
+  <b>Mobile</b><div>Desktop graph fills remaining viewport height; mobile keeps natural document flow and shorter graph height.</div>
   <b>Open Qs</b><div>0.</div>
 </div>
 
@@ -65,6 +65,8 @@
   <tr><td>D-009</td><td>Cap the graph renderer pixel ratio at <code>1x</code>. Dense dots and edges favor pan latency over retina-sharp backing buffers.</td></tr>
   <tr><td>D-010</td><td>Supersedes: D-007, D-008, D-009. Replace Sigma with a dependency-free custom WebGL renderer plus 2D overlay. It restores the old visual language while keeping GPU-backed dense primitives.</td></tr>
   <tr><td>D-011</td><td>Add a movement-only render path. Active pan and wheel render WebGL primitives only, then restore overlay labels and status after movement settles.</td></tr>
+  <tr><td>D-012</td><td>Supersedes drag portion of D-011. During mouse drag, translate the existing canvas layers with CSS and commit one exact redraw on pointer release.</td></tr>
+  <tr><td>D-013</td><td>Size the desktop graph page as viewport rows. The fixed reader fills the screen, so the canvas should consume the remaining page height instead of using a capped clamp.</td></tr>
 </table>
 
 <h2>Tradeoffs</h2>
@@ -77,6 +79,7 @@
   <tr><td>T-005</td><td><code>hideEdgesOnMove</code> over full edge redraw during camera motion. Drag/zoom responsiveness matters more than seeing all edges while the viewport is moving.</td></tr>
   <tr><td>T-006</td><td>WebGL points and lines with a 2D label/arrow overlay over all-WebGL text. Browser canvas text preserves the old serif label rendering.</td></tr>
   <tr><td>T-007</td><td>Cap WebGL backing pixels at <code>1.5x</code> while leaving overlay text at native DPR. Dense graph motion gets fewer pixels without blurring idle labels.</td></tr>
+  <tr><td>T-008</td><td>Compositor translation over per-frame WebGL redraw during mouse drag. Drag feel is prioritized while exact graph geometry is restored on release.</td></tr>
 </table>
 
 <h2>Assumptions</h2>
