@@ -45,7 +45,7 @@ DEFAULT_ABOUT_COPY = {
         "seeMoreLabel": "See more",
     },
     "graph": {
-        "subheader": "Search the public follow graph, then zoom from one reader into the neighborhoods around them.",
+        "subheader": "The social network from",
         "seeMoreText": "See more about the data",
     },
     "about": {
@@ -309,7 +309,7 @@ __PAPER_CSS__
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <p class="graph-subhead">__GRAPH_SUBHEADER__ <a href="about.html">__GRAPH_SEE_MORE_TEXT__</a>.</p>
+    <p class="graph-subhead">__GRAPH_SUBHEADER__ <a href="https://curius.app" target="_blank" rel="noreferrer">curius.app</a>, visualized. <a href="about.html">__GRAPH_SEE_MORE_TEXT__</a>.</p>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -3093,7 +3093,7 @@ def self_test() -> None:
         assert 'getContext("webgl", {alpha: false' in graph_html and "gl.clearColor(1, 250 / 255, 240 / 255, 1)" in graph_html
         assert ".canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38);" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0;" in graph_html
         assert 'overlay.fillStyle = "#fffaf0"' in graph_html and "body { background: var(--paper); }" in graph_html
-        assert "The Curius Follower Graph" in graph_html and "Search the public follow graph" in graph_html and "about.html" in graph_html
+        assert "The Curius Follower Graph" in graph_html and "The social network from" in graph_html and "https://curius.app" in graph_html and "about.html" in graph_html
         assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
