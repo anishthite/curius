@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Mobile graph review fixes</title>
+<meta name="task" content="Improve mobile usability for Curius graph and frontpage nav">
+<meta name="date-started" content="2026-07-27">
+<meta name="date-updated" content="2026-07-27">
+<meta name="status" content="ready-for-review">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, frontpage, mobile, static-site">
+<meta name="related" content="2026-07-22-graph-ui-compact-refresh.html,2026-07-27-analysis-sidebar-fit.html,2026-07-27-analysis-graph-border-reduction.html,2026-07-27-snappier-page-performance.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+  li { margin: .15rem 0; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Mobile graph review fixes</h1>
+<p class="meta"><code>snappier-page-performance</code> · worktree <code>/Users/anishthite/conductor/workspaces/curious-index/halifax</code> · 2026-07-27 · status <b>ready-for-review</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Ship phone-specific graph and frontpage navigation usability fixes from the mobile review.</div>
+  <b>Source</b><div><code>analysis/build_follower_site.py</code> static templates and generated pages.</div>
+  <b>Surface</b><div><code>apps/analysis/*.html</code>, <code>apps/frontpage/index.html</code>, <code>apps/frontpage/how-this-works.html</code>.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Controls reach <code>44px</code>, search results avoid inner clipping, graph height drops, selected profile scrolls into view.</div>
+  <b>Verification</b><div><code>--self-test</code> passes; Playwright mobile smoke passes at <code>320px</code> and <code>390px</code>.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Graph toolbar</b>: keep compact desktop controls; use <code>44px</code> minimum touch targets below <code>920px</code>.</li>
+  <li><b>Search results</b>: keep compact desktop strip; use one-column natural-height results below <code>520px</code>.</li>
+  <li><b>Graph canvas</b>: keep desktop viewport-bound height; use shorter mobile height so reader details start in the first viewport.</li>
+  <li><b>Selection</b>: scroll <code>#reader</code> into view after mobile search-result selection.</li>
+  <li><b>Navigation</b>: pad shared nav links and frontpage banner links on mobile without changing copy.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Update graph/frontpage template CSS and graph selection behavior.</td></tr>
+  <tr><td><code>apps/analysis/index.html</code></td><td>generated</td><td>Regenerate graph page with mobile layout fixes.</td></tr>
+  <tr><td><code>apps/frontpage/index.html</code></td><td>generated</td><td>Regenerate frontpage with mobile banner hit-area fixes.</td></tr>
+  <tr><td><code>apps/analysis/*.html</code></td><td>generated</td><td>Regenerate article pages with shared mobile nav hit-area fixes.</td></tr>
+  <tr><td><code>apps/frontpage/how-this-works.html</code></td><td>generated</td><td>Regenerate how page with shared mobile nav hit-area fixes.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Add this task to the implementation notes roll-up.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Use CSS breakpoints instead of changing graph data. The review found layout issues, not ranking or graph-model issues.</td></tr>
+  <tr><td>D-002</td><td>Scroll only on mobile search-result selection. Desktop has a sticky reader already visible.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>shorter mobile graph</code> over <code>default neighborhood mode</code>. It improves first-viewport access without changing graph semantics.</td></tr>
+  <tr><td>T-002</td><td><code>expanded mobile matches</code> over <code>nested scroll</code>. The page already scrolls and clipped results hide tappable rows.</td></tr>
+</table>
+
+<h2>Assumptions</h2>
+<ul>
+  <li>A-001 · Phone review targets <code>320px</code> to <code>430px</code> widths. If wrong: add a tablet-specific breakpoint.</li>
+</ul>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Revert the template CSS and <code>selectNode</code> change, then regenerate static HTML.</p>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: <code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li>Done: <code>python3 analysis/build_follower_site.py</code> regenerates static pages.</li>
+  <li>Done: mobile smoke confirms graph controls are at least <code>44px</code> tall and no horizontal overflow appears.</li>
+</ul>
+</body>
+</html>

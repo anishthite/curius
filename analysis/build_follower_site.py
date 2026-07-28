@@ -135,6 +135,7 @@ PAPER_CSS = """
   @media (max-width: 760px) {
     body { font-size: 16px; }
     .page { padding-left: 12px; padding-right: 12px; }
+    .nav a { display: inline-flex; align-items: center; min-height: 44px; }
     table { font-size: .9rem; }
   }
 """
@@ -147,63 +148,137 @@ GRAPH_HTML = """<!doctype html>
 <title>The Curius Follower Graph</title>
 <style>
 __PAPER_CSS__
-  html, body { height: 100%; overflow: hidden; }
-  .graph-page { width: min(1640px, 100%); height: 100svh; display: flex; flex-direction: column; overflow: hidden; padding: 12px clamp(8px, 1.5vw, 20px); }
-  .graph-hero { flex: 0 0 auto; text-align: left; margin: 0 0 .35rem; }
-  .graph-hero h1 { font-size: clamp(1.85rem, 4.6vw, 3.8rem); margin: 0 0 .12rem; }
+  body { background: var(--paper); }
+  .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
+  .graph-hero { text-align: left; margin: 0 0 .35rem; }
+  .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
   .graph-nav { justify-content: flex-start; margin: 0; font-size: .9rem; }
   .graph-nav a { color: var(--muted); }
-  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 310px); gap: .65rem; align-items: stretch; flex: 1 1 auto; min-height: 0; }
-  .graph-tools { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: .4rem; margin: .3rem 0 .45rem; align-items: center; max-width: 940px; padding: 0; border: 0; background: transparent; }
-  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .58rem; font-size: .9rem; background: rgba(255, 252, 245, .9); }
-  #q {
-    flex: 1 1 270px;
-    max-width: none;
-    padding-left: 2.1rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236f6254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: .72rem 50%;
-    background-size: 1rem 1rem;
-  }
-  #q::placeholder { color: var(--muted); opacity: .9; }
+  .graph-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; min-height: 0; align-items: stretch; }
+  .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0 .35rem; align-items: center; max-width: 940px; padding: .05rem 0; background: transparent; }
+  .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .62rem; border: 0; font-size: .9rem; background: rgba(255, 252, 245, .76); }
+  .graph-tools button:hover, .graph-tools input:hover, .graph-tools select:hover { background: rgba(255, 252, 245, .98); }
+  #q { flex: 1 1 320px; max-width: none; }
   .min-filter { display: flex; grid-template-columns: none; gap: .32rem; align-items: center; color: var(--muted); font-size: .85rem; }
   .min-filter span { white-space: nowrap; }
   #min-followers { width: 7ch; }
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
-  canvas { display: block; width: 100%; height: 100%; min-height: 0; border-radius: 16px; cursor: grab; }
-  canvas:active { cursor: grabbing; }
-  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.76); border: 1px solid rgba(216, 200, 181, .72); border-radius: 12px; padding: .38rem .58rem; font-size: .9rem; }
-  .reader { min-height: 0; height: 100%; overflow: auto; padding: .1rem .25rem .2rem .65rem; border-left: 1px solid var(--rule); }
+  .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
+  .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; }
+  .graph-page.has-matches .canvas-wrap { min-height: 0; }
+  .graph-page.has-matches .graph-canvas { height: 100%; }
+  .graph-canvas:active { cursor: grabbing; }
+  .graph-canvas canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 10px; transform-origin: 0 0; will-change: transform; }
+  .canvas-note { position: absolute; left: .65rem; right: .65rem; bottom: .6rem; color: var(--muted); background: rgba(255,250,240,.78); border: 0; border-radius: 8px; padding: .42rem .6rem; font-size: .9rem; box-shadow: 0 1px 8px rgba(60, 42, 20, .05); }
+  .canvas-note b { color: var(--ink); font-weight: 500; }
+  .graph-legend { display: flex; flex-wrap: wrap; gap: .28rem .7rem; align-items: center; }
+  .legend-key { display: inline-flex; gap: .28rem; align-items: center; white-space: nowrap; }
+  .legend-dot { width: .62rem; height: .62rem; border-radius: 999px; display: inline-block; box-shadow: 0 0 0 1px rgba(32, 23, 15, .12); }
+  .legend-dot.selected { background: #b74d2f; }
+  .legend-dot.follower { background: #2f63b7; }
+  .legend-dot.following { background: #247a4b; }
+  .legend-dot.mutual { background: #7047a8; }
+  .legend-dot.other { background: #786b58; opacity: .75; }
+  .reader { position: fixed; inset: 0 0 0 auto; z-index: 12; display: flex; flex-direction: column; width: var(--reader-width); height: 100vh; margin: 0; overflow: hidden; padding: 20px 18px 24px; border-left: 1px solid rgba(216, 200, 181, .72); background: rgba(255, 250, 240, .92); box-shadow: -12px 0 28px rgba(60, 42, 20, .08); font-size: .94rem; }
   .reader h2 { margin-top: 0; }
-  .counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.2rem, 1fr)); gap: .55rem; margin: .75rem 0; }
-  .count { border-top: 1px solid var(--rule); padding-top: .35rem; }
-  .count b { display: block; font-size: 1.45rem; font-weight: 500; line-height: 1.1; }
-  .count span { color: var(--muted); font-size: .9rem; }
-  .people { display: grid; gap: .35rem; max-height: 260px; overflow: auto; padding-right: .15rem; }
-  .person { width: 100%; border-radius: 12px; text-align: left; line-height: 1.2; min-height: 0; padding: .38rem .58rem; }
-  .person small { display: block; color: var(--muted); margin-top: .08rem; }
-  .reader .people { max-height: none; overflow: visible; padding-right: 0; }
-  .relationship-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .18rem; margin: 1rem 0 .55rem; padding: .18rem; border: 1px solid rgba(216, 200, 181, .82); border-radius: 999px; background: rgba(255, 250, 240, .62); }
-  .relationship-tabs button { width: 100%; min-width: 0; min-height: 38px; border: 0; border-radius: 999px; background: transparent; padding: .34rem .45rem; box-shadow: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .relationship-tabs button[aria-selected="true"] { border: 1px solid rgba(47, 99, 183, .34); background: rgba(255, 252, 245, .96); box-shadow: inset 0 0 0 1px rgba(47, 99, 183, .1); color: var(--ink); }
-  .relationship-empty { margin: .35rem 0; color: var(--muted); }
-  .matches { margin: .15rem 0 .75rem; padding: .45rem 0 .55rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: .45rem 0; }
+  .count { position: relative; padding: .28rem .32rem; border-radius: 8px; background: rgba(255, 250, 240, .52); }
+  .count b { display: block; font-size: 1.16rem; font-weight: 500; line-height: 1.05; }
+  .count span { color: var(--muted); font-size: .78rem; }
+  .info-dot {
+    display: inline-grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    min-height: 0;
+    margin-left: .18rem;
+    padding: 0;
+    border: 1px solid rgba(111, 98, 84, .5);
+    border-radius: 999px;
+    background: rgba(255, 252, 245, .92);
+    color: var(--muted);
+    font-size: .68rem;
+    font-style: italic;
+    line-height: 1;
+    vertical-align: .08rem;
+    cursor: help;
+  }
+  .info-dot:hover, .info-dot:focus-visible { background: rgba(255, 252, 245, 1); outline: 2px solid rgba(47, 99, 183, .24); outline-offset: 2px; }
+  .info-tooltip {
+    position: absolute;
+    right: 0;
+    top: calc(100% + .38rem);
+    width: min(260px, calc(100vw - 2rem));
+    padding: .5rem .58rem;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: rgba(255, 252, 245, .98);
+    box-shadow: 0 8px 22px rgba(60, 42, 20, .13);
+    color: var(--ink);
+    font-size: .82rem;
+    font-style: normal;
+    line-height: 1.28;
+    text-align: left;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity .14s ease, transform .14s ease, visibility .14s ease;
+    z-index: 4;
+  }
+  .info-dot:hover .info-tooltip, .info-dot:focus .info-tooltip { visibility: visible; opacity: 1; transform: translateY(0); }
+  .reader .people-section { position: relative; display: flex; flex: 0 1 auto; min-height: 0; flex-direction: column; margin-top: .95rem; }
+  .reader .people-section h3 { flex: 0 0 auto; }
+  .reader .people-section::after { content: ""; position: absolute; left: 0; right: .55rem; bottom: 0; height: 24px; pointer-events: none; border-radius: 0 0 8px 8px; background: linear-gradient(to bottom, rgba(255, 250, 240, 0), rgba(255, 250, 240, .96)); }
+  .reader .people-section .people { flex: 0 1 auto; min-height: 0; max-height: clamp(150px, 28vh, 290px); }
+  .people { display: grid; gap: .32rem; max-height: clamp(220px, 34vh, 360px); overflow: auto; overscroll-behavior: contain; padding: .18rem .22rem .5rem 0; border-radius: 8px; scrollbar-gutter: stable; box-shadow: inset 0 -16px 18px rgba(60, 42, 20, .055); }
+  .people::-webkit-scrollbar { width: 8px; }
+  .people::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(111, 98, 84, .34); }
+  .person { display: grid; align-content: center; gap: .12rem; width: 100%; min-height: 3.12rem; border: 0; border-radius: 8px; text-align: left; padding: .38rem .5rem; background: rgba(255, 252, 245, .62); }
+  .person:hover { outline: 0; background: rgba(255, 252, 245, .96); }
+  .person:focus-visible { outline: 0; background: rgba(255, 252, 245, .96); box-shadow: inset 0 0 0 2px rgba(47, 99, 183, .3); }
+  .person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; line-height: 1.08; }
+  .person small { display: block; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; font-size: .76rem; line-height: 1.12; }
+  .matches { max-width: min(980px, 100%); margin: .05rem 0 .55rem; padding: 0 .12rem .16rem 0; }
   .matches[hidden] { display: none; }
-  .matches h2 { font-size: 1.08rem; margin: 0 0 .35rem; }
-  .matches .people { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); max-height: 122px; overflow: auto; }
-  .profile-links { display: flex; flex-wrap: wrap; gap: .4rem .7rem; margin: .45rem 0; }
+  .matches.people { display: flex; flex-wrap: wrap; gap: .32rem; max-height: 118px; overflow: auto; box-shadow: none; }
+  .matches .person { flex: 0 1 320px; max-width: 320px; min-height: 0; padding: .46rem .62rem; }
+  .matches .person span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; line-height: 1.12; }
+  .matches .person small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
+  .profile-links { display: flex; flex-wrap: wrap; gap: .25rem .55rem; margin: .3rem 0; }
   .profile-links a { white-space: nowrap; }
+  .reader-footer { flex: 0 0 auto; margin-top: .8rem; padding-top: .8rem; color: var(--muted); border-top: 1px solid rgba(216, 200, 181, .62); font-size: .78rem; line-height: 1.3; }
+  .reader.is-empty .reader-footer { margin-top: auto; }
+  .reader-footer a { color: var(--muted); }
   .legend { display: flex; gap: .8rem; flex-wrap: wrap; color: var(--muted); margin: .4rem 0 .7rem; }
   .dot { width: .7rem; height: .7rem; display: inline-block; border-radius: 999px; margin-right: .25rem; vertical-align: -.04rem; }
   @media (max-width: 920px) {
-    .graph-page { padding-left: 8px; padding-right: 8px; }
-    .graph-hero h1 { font-size: clamp(1.75rem, 7.5vw, 2.45rem); }
-    .graph-layout { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(190px, .78fr); }
-    .graph-tools { gap: .35rem; }
+    .graph-page { display: block; min-height: 0; height: auto; padding-left: 8px; padding-right: 8px; padding-bottom: 42px; }
+    .graph-layout { grid-template-columns: 1fr; }
+    .graph-tools { border-radius: 18px; gap: .45rem; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .42rem .76rem; font-size: 1rem; }
+    .min-filter { min-height: 44px; font-size: .94rem; }
     #q { max-width: none; }
-    .reader { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem .35rem 0; }
+    .reader { display: block; position: static; width: auto; height: auto; max-height: none; margin-top: 0; overflow: visible; padding: 0; border-left: 0; background: transparent; box-shadow: none; font-size: 1rem; }
+    .reader .people-section { display: block; min-height: 0; }
+    .reader .people-section .people { max-height: clamp(220px, 38vh, 320px); overflow: auto; }
+    .canvas-wrap { height: auto; min-height: clamp(320px, 46vh, 390px); }
+    .graph-canvas { height: clamp(320px, 46vh, 390px); min-height: 0; }
+  }
+  @media (max-width: 520px) {
+    .graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto; align-items: stretch; }
+    #q { grid-column: 1 / -1; width: 100%; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 44px; padding: .4rem .62rem; }
+    #q { min-height: 48px; padding: .52rem .72rem; }
+    .min-filter { min-height: 44px; gap: .38rem; min-width: 0; }
+    .min-filter span { display: block; max-width: 1.75rem; overflow: hidden; white-space: nowrap; }
+    #min-followers { width: 4.6rem; text-align: center; }
+    #mode { width: 100%; min-width: 0; }
+    .matches { margin-bottom: .65rem; padding: .45rem 0; }
+    .matches.people { display: grid; grid-template-columns: 1fr; max-height: none; overflow: visible; }
+    .matches .person { max-width: 100%; }
+    .person { min-height: 3.18rem; padding: .42rem .58rem; }
   }
 </style>
 </head>
@@ -211,7 +286,7 @@ __PAPER_CSS__
 <div class="page graph-page">
   <header class="graph-hero">
     <h1>The Curius Follower Graph</h1>
-    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="metrics.html">Metrics</a><a href="algorithms.html">Algorithms</a><a href="questions.html">Next questions</a></nav>
+    <nav class="nav graph-nav" aria-label="Analysis pages"><a href="questions.html">Next questions</a></nav>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -219,13 +294,10 @@ __PAPER_CSS__
     <select id="mode" aria-label="View"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select>
     <button id="fit" type="button">Fit</button>
   </section>
-  <section class="matches" hidden>
-    <h2>Search results</h2>
-    <div id="matches" class="people"></div>
-  </section>
+  <div id="matches" class="matches people" aria-label="Search results" hidden></div>
   <section class="graph-layout">
     <figure class="canvas-wrap sheet">
-      <canvas id="graph" aria-label="Interactive follower graph"></canvas>
+      <div id="graph" class="graph-canvas" role="img" aria-label="Interactive follower graph"></div>
       <figcaption id="status" class="canvas-note"></figcaption>
     </figure>
     <aside id="reader" class="reader"></aside>
@@ -236,6 +308,7 @@ __PAPER_CSS__
 (() => {
   "use strict";
   const raw = JSON.parse(document.getElementById("graph-data").textContent);
+  const graphPage = document.querySelector(".graph-page");
   const nodes = raw.nodes.map(n => ({...n, followers: [], following: []}));
   const byId = new Map(nodes.map(n => [n.id, n]));
   for (const [follower, followed] of raw.edges) {
@@ -245,45 +318,54 @@ __PAPER_CSS__
     b.followers.push(follower);
   }
   nodes.sort((a, b) => (b.in + b.out) - (a.in + a.out) || b.in - a.in || a.slug.localeCompare(b.slug));
-  const edgeSet = new Set(raw.edges.map(([a, b]) => `${a}>${b}`));
-  const canvas = document.getElementById("graph");
-  const ctx = canvas.getContext("2d");
+  for (const n of nodes) {
+    n.followersSet = new Set(n.followers);
+    n.followingSet = new Set(n.following);
+  }
+  const graphStage = document.getElementById("graph");
+  const webglCanvas = document.createElement("canvas");
+  const overlayCanvas = document.createElement("canvas");
+  webglCanvas.setAttribute("aria-hidden", "true");
+  overlayCanvas.setAttribute("aria-hidden", "true");
+  overlayCanvas.style.pointerEvents = "none";
+  graphStage.append(webglCanvas, overlayCanvas);
+  const gl = webglCanvas.getContext("webgl", {alpha: false, antialias: true, powerPreference: "high-performance"});
+  const overlay = overlayCanvas.getContext("2d");
   const reader = document.getElementById("reader");
   const status = document.getElementById("status");
   const q = document.getElementById("q");
   const minFollowers = document.getElementById("min-followers");
   const mode = document.getElementById("mode");
   const matches = document.getElementById("matches");
-  const matchesSection = matches.closest(".matches");
+  const edgeRecords = raw.edges.map(([aId, bId]) => ({aId, bId, a: byId.get(aId), b: byId.get(bId)})).filter(edge => edge.a && edge.b);
   const view = {x: 0, y: 0, scale: 1};
+  const canvasSize = {width: 1, height: 1, dpr: 1, graphDpr: 1};
   let selected = nodes[0]?.id || null;
   let visibleIds = new Set(nodes.map(n => n.id));
+  let visibleList = nodes;
+  let visibleEdges = edgeRecords;
+  let visibleDirty = true;
+  let graphDirty = true;
   let pointer = null;
   let hover = null;
-  let readerTab = "followers";
+  let moving = false;
+  let settleTimer = 0;
+  let renderPending = false;
+  let hoverEvent = null;
+  let hoverPending = false;
+  let edgeAlphaMode = "";
+  let lastStatus = "";
+  let edgeVertexCount = 0;
+  let nodeVertexCount = 0;
 
   function label(n) { return n.name && n.name !== n.slug ? `${n.name} · ${n.slug}` : n.slug; }
   function profileUrl(n) { return `https://curius.app/users/${encodeURIComponent(n.slug)}`; }
   function degree(n) { return n.in + n.out; }
   function matchesText(n, term) { return `${n.name} ${n.slug}`.toLowerCase().includes(term); }
   function sortedPeople(ids) { return ids.map(id => byId.get(id)).filter(Boolean).sort((a, b) => degree(b) - degree(a) || a.slug.localeCompare(b.slug)); }
-  function resize() {
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.max(1, Math.round(rect.width * dpr));
-    canvas.height = Math.max(1, Math.round(rect.height * dpr));
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw();
-  }
-  function project(n) {
-    const rect = canvas.getBoundingClientRect();
-    return {x: rect.width / 2 + (n.x + view.x) * view.scale, y: rect.height / 2 + (n.y + view.y) * view.scale};
-  }
-  function unproject(x, y) {
-    const rect = canvas.getBoundingClientRect();
-    return {x: (x - rect.width / 2) / view.scale - view.x, y: (y - rect.height / 2) / view.scale - view.y};
-  }
-  function nodeRadius(n) { return Math.max(2.1, Math.min(12, 2.2 + Math.sqrt(Math.max(0, n.in)) * .28 + n.core * .16)); }
+  function nodeRadius(n) { return Math.max(2.5, Math.min(13, 2.55 + Math.sqrt(Math.max(0, n.in)) * .31 + n.core * .18)); }
+  function markVisibleDirty() { visibleDirty = true; graphDirty = true; }
+  function ensureVisible() { if (visibleDirty) computeVisible(); }
   function computeVisible() {
     const min = Number(minFollowers.value) || 0;
     const center = selected && byId.get(selected);
@@ -293,133 +375,331 @@ __PAPER_CSS__
     else if (mode.value === "following") ids = [center.id, ...center.following].filter(id => id === center.id || (byId.get(id)?.in || 0) >= min);
     else ids = [center.id, ...center.followers, ...center.following].filter(id => id === center.id || (byId.get(id)?.in || 0) >= min);
     visibleIds = new Set(ids);
+    visibleList = ids.map(id => byId.get(id)).filter(Boolean);
+    visibleEdges = edgeRecords.filter(edge => visibleIds.has(edge.aId) && visibleIds.has(edge.bId));
+    visibleDirty = false;
+    graphDirty = true;
   }
-  function fit() {
+  function visibleBBox() {
     computeVisible();
-    const list = [...visibleIds].map(id => byId.get(id)).filter(Boolean);
-    if (!list.length) return;
-    const rect = canvas.getBoundingClientRect();
+    if (!visibleList.length) return null;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const n of list) { minX = Math.min(minX, n.x); minY = Math.min(minY, n.y); maxX = Math.max(maxX, n.x); maxY = Math.max(maxY, n.y); }
-    const pad = 90;
-    const sx = (rect.width - 48) / Math.max(1, maxX - minX + pad);
-    const sy = (rect.height - 48) / Math.max(1, maxY - minY + pad);
+    for (const n of visibleList) { minX = Math.min(minX, n.x); minY = Math.min(minY, n.y); maxX = Math.max(maxX, n.x); maxY = Math.max(maxY, n.y); }
+    const pad = 110;
+    return {x: [minX - pad, maxX + pad], y: [minY - pad, maxY + pad]};
+  }
+  function fit(animate = true) {
+    const bbox = visibleBBox();
+    if (!bbox) return;
+    const sx = (canvasSize.width - 48) / Math.max(1, bbox.x[1] - bbox.x[0]);
+    const sy = (canvasSize.height - 48) / Math.max(1, bbox.y[1] - bbox.y[0]);
     view.scale = Math.max(.18, Math.min(3.5, Math.min(sx, sy)));
-    view.x = -(minX + maxX) / 2;
-    view.y = -(minY + maxY) / 2;
-    draw();
+    view.x = -(bbox.x[0] + bbox.x[1]) / 2;
+    view.y = -(bbox.y[0] + bbox.y[1]) / 2;
+    scheduleRender();
   }
   function relationColor(id) {
     if (id === selected) return "#b74d2f";
     const center = selected && byId.get(selected);
-    if (!center) return "#7d715f";
-    const incoming = center.followers.includes(id);
-    const outgoing = center.following.includes(id);
+    if (!center) return "#6f6454";
+    const incoming = center.followersSet.has(id);
+    const outgoing = center.followingSet.has(id);
     if (incoming && outgoing) return "#7047a8";
     if (incoming) return "#2f63b7";
     if (outgoing) return "#247a4b";
-    return "#8f806c";
+    return "#786b58";
   }
-  function drawEdge(a, b, color, alpha, width) {
-    const pa = project(a), pb = project(b);
-    if (pa.x < -80 && pb.x < -80) return;
-    const rect = canvas.getBoundingClientRect();
-    if (pa.x > rect.width + 80 && pb.x > rect.width + 80) return;
-    if (pa.y < -80 && pb.y < -80) return;
-    if (pa.y > rect.height + 80 && pb.y > rect.height + 80) return;
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = Math.max(.45, width * Math.sqrt(view.scale));
-    ctx.beginPath();
-    ctx.moveTo(pa.x, pa.y);
-    ctx.lineTo(pb.x, pb.y);
-    ctx.stroke();
+  function updateStatus() {
+    ensureVisible();
+    const suffix = selected ? ` · selected <b>${escapeHtml(byId.get(selected)?.slug || "")}</b>` : "";
+    const nextStatus = `<div class="graph-legend"><span>Showing <b>${visibleList.length.toLocaleString()}</b> people and <b>${visibleEdges.length.toLocaleString()}</b> follows${suffix}</span><span class="legend-key"><span class="legend-dot selected"></span>selected</span><span class="legend-key"><span class="legend-dot follower"></span>follows selected</span><span class="legend-key"><span class="legend-dot following"></span>selected follows</span><span class="legend-key"><span class="legend-dot mutual"></span>mutual</span><span class="legend-key"><span class="legend-dot other"></span>other</span></div>`;
+    if (nextStatus !== lastStatus) {
+      status.innerHTML = nextStatus;
+      lastStatus = nextStatus;
+    }
   }
-  function drawArrow(a, b, color) {
-    const pa = project(a), pb = project(b);
-    const dx = pb.x - pa.x, dy = pb.y - pa.y;
-    const len = Math.hypot(dx, dy);
-    if (len < 8) return;
-    const ux = dx / len, uy = dy / len;
-    const r = nodeRadius(b) * view.scale + 4;
-    const x = pb.x - ux * r, y = pb.y - uy * r;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(Math.atan2(dy, dx));
-    ctx.fillStyle = color;
-    ctx.globalAlpha = .8;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-8, -4);
-    ctx.lineTo(-8, 4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+  function refreshGraph() {
+    graphDirty = true;
+    scheduleRender();
   }
-  function draw() {
-    if (!ctx) return;
-    computeVisible();
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.fillStyle = "#fffaf0";
-    ctx.fillRect(0, 0, rect.width, rect.height);
+
+  function hexToRgb(hex) {
+    const value = Number.parseInt(hex.slice(1), 16);
+    return [(value >> 16) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255];
+  }
+  function pushColor(out, hex, alpha) {
+    const rgb = hexToRgb(hex);
+    out.push(rgb[0], rgb[1], rgb[2], alpha);
+  }
+  function currentEdgeAlphaMode() {
+    return selected && mode.value === "whole" && view.scale < .7 ? "thin-whole" : "normal";
+  }
+  function relatedToSelected(id) {
     const center = selected && byId.get(selected);
-    const focus = new Set(center ? [center.id, ...center.followers, ...center.following] : []);
-    let edgeCount = 0;
-    for (const [aId, bId] of raw.edges) {
-      if (!visibleIds.has(aId) || !visibleIds.has(bId)) continue;
-      const a = byId.get(aId), b = byId.get(bId);
-      if (!a || !b) continue;
+    return !center || id === selected || center.followersSet.has(id) || center.followingSet.has(id);
+  }
+  function compileShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader));
+    return shader;
+  }
+  function createProgram(vertexSource, fragmentSource) {
+    const program = gl.createProgram();
+    gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fragmentSource));
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
+    return program;
+  }
+  const edgeProgram = gl && createProgram(`
+    attribute vec2 a_pos;
+    attribute vec4 a_color;
+    uniform vec3 u_view;
+    uniform vec2 u_size;
+    varying vec4 v_color;
+    void main() {
+      vec2 screen = vec2(u_size.x * 0.5 + (a_pos.x + u_view.x) * u_view.z, u_size.y * 0.5 + (a_pos.y + u_view.y) * u_view.z);
+      vec2 clip = vec2(screen.x / u_size.x * 2.0 - 1.0, 1.0 - screen.y / u_size.y * 2.0);
+      gl_Position = vec4(clip, 0.0, 1.0);
+      v_color = a_color;
+    }
+  `, `
+    precision mediump float;
+    varying vec4 v_color;
+    void main() { gl_FragColor = v_color; }
+  `);
+  const nodeProgram = gl && createProgram(`
+    attribute vec2 a_pos;
+    attribute vec4 a_color;
+    attribute float a_size;
+    uniform vec3 u_view;
+    uniform vec2 u_size;
+    uniform float u_dpr;
+    varying vec4 v_color;
+    void main() {
+      vec2 screen = vec2(u_size.x * 0.5 + (a_pos.x + u_view.x) * u_view.z, u_size.y * 0.5 + (a_pos.y + u_view.y) * u_view.z);
+      vec2 clip = vec2(screen.x / u_size.x * 2.0 - 1.0, 1.0 - screen.y / u_size.y * 2.0);
+      gl_Position = vec4(clip, 0.0, 1.0);
+      gl_PointSize = max(1.7, a_size * sqrt(u_view.z)) * u_dpr;
+      v_color = a_color;
+    }
+  `, `
+    precision mediump float;
+    varying vec4 v_color;
+    void main() {
+      vec2 p = gl_PointCoord * 2.0 - 1.0;
+      float d = dot(p, p);
+      if (d > 1.0) discard;
+      float edge = smoothstep(1.0, 0.72, d);
+      gl_FragColor = vec4(v_color.rgb, v_color.a * edge);
+    }
+  `);
+  const edgePositionBuffer = gl && gl.createBuffer();
+  const edgeColorBuffer = gl && gl.createBuffer();
+  const nodePositionBuffer = gl && gl.createBuffer();
+  const nodeColorBuffer = gl && gl.createBuffer();
+  const nodeSizeBuffer = gl && gl.createBuffer();
+
+  function setBuffer(buffer, values) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(values), gl.STATIC_DRAW);
+  }
+  function rebuildGraphBuffers() {
+    ensureVisible();
+    if (!gl) return;
+    const edgePositions = [];
+    const edgeColors = [];
+    const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
+    for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
-      if (selected && mode.value === "whole" && !touches && view.scale < .7) {
-        drawEdge(a, b, "#8b7b67", .08, .65);
-      } else if (touches) {
-        drawEdge(a, b, bId === selected ? "#2f63b7" : "#247a4b", .72, 1.3);
-        drawArrow(a, b, bId === selected ? "#2f63b7" : "#247a4b");
-      } else {
-        drawEdge(a, b, "#8b7b67", selected && mode.value !== "whole" ? .16 : .11, .75);
-      }
-      edgeCount++;
+      const color = touches ? (bId === selected ? "#2f63b7" : "#247a4b") : "#8b7b67";
+      const alpha = lowWholeGraph && !touches ? .08 : touches ? .72 : selected && mode.value !== "whole" ? .16 : .11;
+      edgePositions.push(a.x, a.y, b.x, b.y);
+      pushColor(edgeColors, color, alpha);
+      pushColor(edgeColors, color, alpha);
     }
-    const list = [...visibleIds].map(id => byId.get(id)).filter(Boolean);
-    for (const n of list) {
-      const p = project(n);
-      if (p.x < -30 || p.y < -30 || p.x > rect.width + 30 || p.y > rect.height + 30) continue;
+    const nodePositions = [];
+    const nodeColors = [];
+    const nodeSizes = [];
+    for (const n of visibleList) {
+      const related = relatedToSelected(n.id);
+      nodePositions.push(n.x, n.y);
+      pushColor(nodeColors, relationColor(n.id), selected && mode.value === "whole" && !related ? .46 : .95);
+      nodeSizes.push(nodeRadius(n));
+    }
+    setBuffer(edgePositionBuffer, edgePositions);
+    setBuffer(edgeColorBuffer, edgeColors);
+    setBuffer(nodePositionBuffer, nodePositions);
+    setBuffer(nodeColorBuffer, nodeColors);
+    setBuffer(nodeSizeBuffer, nodeSizes);
+    edgeVertexCount = edgePositions.length / 2;
+    nodeVertexCount = nodePositions.length / 2;
+    edgeAlphaMode = currentEdgeAlphaMode();
+    graphDirty = false;
+  }
+  function ensureGraphBuffers() {
+    ensureVisible();
+    if (graphDirty || edgeAlphaMode !== currentEdgeAlphaMode()) rebuildGraphBuffers();
+  }
+  function resize(shouldRender = true) {
+    const rect = graphStage.getBoundingClientRect();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const graphDpr = Math.min(dpr, 1.5);
+    canvasSize.width = Math.max(1, rect.width);
+    canvasSize.height = Math.max(1, rect.height);
+    canvasSize.dpr = dpr;
+    canvasSize.graphDpr = graphDpr;
+    webglCanvas.width = Math.max(1, Math.round(canvasSize.width * graphDpr));
+    webglCanvas.height = Math.max(1, Math.round(canvasSize.height * graphDpr));
+    overlayCanvas.width = Math.max(1, Math.round(canvasSize.width * dpr));
+    overlayCanvas.height = Math.max(1, Math.round(canvasSize.height * dpr));
+    overlay.setTransform(dpr, 0, 0, dpr, 0, 0);
+    setLayerOffset(0, 0);
+    if (shouldRender) scheduleRender();
+  }
+  function setLayerOffset(dx, dy) {
+    const transform = dx || dy ? `translate3d(${dx}px, ${dy}px, 0)` : "";
+    webglCanvas.style.transform = transform;
+    overlayCanvas.style.transform = transform;
+  }
+  function project(n) {
+    return {x: canvasSize.width / 2 + (n.x + view.x) * view.scale, y: canvasSize.height / 2 + (n.y + view.y) * view.scale};
+  }
+  function unproject(x, y) {
+    return {x: (x - canvasSize.width / 2) / view.scale - view.x, y: (y - canvasSize.height / 2) / view.scale - view.y};
+  }
+  function scheduleRender() {
+    if (renderPending) return;
+    renderPending = true;
+    requestAnimationFrame(() => {
+      renderPending = false;
+      render();
+    });
+  }
+  function settleRender(delay = 80) {
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      moving = false;
+      scheduleRender();
+    }, delay);
+  }
+  function render() {
+    ensureGraphBuffers();
+    const quickMove = gl && moving;
+    if (!quickMove) {
+      for (const n of visibleList) {
+        n.sx = canvasSize.width / 2 + (n.x + view.x) * view.scale;
+        n.sy = canvasSize.height / 2 + (n.y + view.y) * view.scale;
+      }
+    }
+    if (gl) renderWebGL();
+    else renderFallback2d();
+    if (quickMove) {
+      overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    } else {
+      drawOverlay();
+      updateStatus();
+    }
+  }
+  function bindAttribute(program, name, buffer, size) {
+    const location = gl.getAttribLocation(program, name);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.enableVertexAttribArray(location);
+    gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
+  }
+  function setCommonUniforms(program) {
+    gl.uniform3f(gl.getUniformLocation(program, "u_view"), view.x, view.y, view.scale);
+    gl.uniform2f(gl.getUniformLocation(program, "u_size"), canvasSize.width, canvasSize.height);
+  }
+  function renderWebGL() {
+    gl.viewport(0, 0, webglCanvas.width, webglCanvas.height);
+    gl.clearColor(1, 250 / 255, 240 / 255, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(edgeProgram);
+    setCommonUniforms(edgeProgram);
+    bindAttribute(edgeProgram, "a_pos", edgePositionBuffer, 2);
+    bindAttribute(edgeProgram, "a_color", edgeColorBuffer, 4);
+    gl.lineWidth(1);
+    gl.drawArrays(gl.LINES, 0, edgeVertexCount);
+    gl.useProgram(nodeProgram);
+    setCommonUniforms(nodeProgram);
+    gl.uniform1f(gl.getUniformLocation(nodeProgram, "u_dpr"), canvasSize.graphDpr);
+    bindAttribute(nodeProgram, "a_pos", nodePositionBuffer, 2);
+    bindAttribute(nodeProgram, "a_color", nodeColorBuffer, 4);
+    bindAttribute(nodeProgram, "a_size", nodeSizeBuffer, 1);
+    gl.drawArrays(gl.POINTS, 0, nodeVertexCount);
+  }
+  function drawEdge2d(a, b, color, alpha, width) {
+    if (a.sx < -80 && b.sx < -80) return;
+    if (a.sx > canvasSize.width + 80 && b.sx > canvasSize.width + 80) return;
+    if (a.sy < -80 && b.sy < -80) return;
+    if (a.sy > canvasSize.height + 80 && b.sy > canvasSize.height + 80) return;
+    overlay.globalAlpha = alpha;
+    overlay.strokeStyle = color;
+    overlay.lineWidth = Math.max(.45, width * Math.sqrt(view.scale));
+    overlay.beginPath();
+    overlay.moveTo(a.sx, a.sy);
+    overlay.lineTo(b.sx, b.sy);
+    overlay.stroke();
+  }
+  function renderFallback2d() {
+    overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    overlay.fillStyle = "#fffaf0";
+    overlay.fillRect(0, 0, canvasSize.width, canvasSize.height);
+    const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
+    for (const {aId, bId, a, b} of visibleEdges) {
+      const touches = aId === selected || bId === selected;
+      if (lowWholeGraph && !touches) drawEdge2d(a, b, "#8b7b67", .08, .65);
+      else if (touches) drawEdge2d(a, b, bId === selected ? "#2f63b7" : "#247a4b", .72, 1.3);
+      else drawEdge2d(a, b, "#8b7b67", selected && mode.value !== "whole" ? .16 : .11, .75);
+    }
+    const focus = selected ? byId.get(selected) : null;
+    for (const n of visibleList) {
+      if (n.sx < -30 || n.sy < -30 || n.sx > canvasSize.width + 30 || n.sy > canvasSize.height + 30) continue;
       const r = nodeRadius(n) * Math.sqrt(view.scale);
-      const active = n.id === selected || n.id === hover;
-      const related = !selected || focus.has(n.id);
-      ctx.globalAlpha = selected && mode.value === "whole" && !related ? .34 : .9;
-      ctx.fillStyle = relationColor(n.id);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, Math.max(1.7, r), 0, Math.PI * 2);
-      ctx.fill();
-      if (active) {
-        ctx.globalAlpha = .95;
-        ctx.strokeStyle = "#20170f";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
+      overlay.globalAlpha = selected && mode.value === "whole" && focus && !relatedToSelected(n.id) ? .46 : .95;
+      overlay.fillStyle = relationColor(n.id);
+      overlay.beginPath();
+      overlay.arc(n.sx, n.sy, Math.max(1.7, r), 0, Math.PI * 2);
+      overlay.fill();
     }
-    ctx.globalAlpha = 1;
-    const labelNodes = list.filter(n => n.id === selected || n.id === hover || (view.scale > .85 && n.in >= 80) || (view.scale > 1.6 && degree(n) >= 18)).slice(0, 70);
-    ctx.font = `${Math.max(13, 15 * Math.min(1.4, view.scale))}px Palatino, Georgia, serif`;
-    ctx.textBaseline = "middle";
+    overlay.globalAlpha = 1;
+  }
+  function drawOverlay() {
+    if (gl) overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
+    for (const n of visibleList) {
+      if (n.id !== selected && n.id !== hover) continue;
+      if (n.sx < -30 || n.sy < -30 || n.sx > canvasSize.width + 30 || n.sy > canvasSize.height + 30) continue;
+      overlay.globalAlpha = .95;
+      overlay.strokeStyle = "#20170f";
+      overlay.lineWidth = 2;
+      overlay.beginPath();
+      overlay.arc(n.sx, n.sy, Math.max(1.7, nodeRadius(n) * Math.sqrt(view.scale)), 0, Math.PI * 2);
+      overlay.stroke();
+    }
+    overlay.globalAlpha = 1;
+    const labelNodes = visibleList.filter(n => n.id === selected || n.id === hover || (view.scale > .85 && n.in >= 80) || (view.scale > 1.6 && degree(n) >= 18)).slice(0, 70);
+    overlay.font = `${Math.max(13, 15 * Math.min(1.4, view.scale))}px Palatino, Georgia, serif`;
+    overlay.textBaseline = "middle";
     for (const n of labelNodes) {
-      const p = project(n);
+      if (n.sx < -80 || n.sy < -50 || n.sx > canvasSize.width + 80 || n.sy > canvasSize.height + 50) continue;
       const text = n.name || n.slug;
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "rgba(255,250,240,.9)";
-      ctx.strokeText(text, p.x + nodeRadius(n) * Math.sqrt(view.scale) + 4, p.y);
-      ctx.fillStyle = "#20170f";
-      ctx.fillText(text, p.x + nodeRadius(n) * Math.sqrt(view.scale) + 4, p.y);
+      overlay.lineWidth = 4;
+      overlay.strokeStyle = "rgba(255,250,240,.9)";
+      overlay.strokeText(text, n.sx + nodeRadius(n) * Math.sqrt(view.scale) + 4, n.sy);
+      overlay.fillStyle = "#20170f";
+      overlay.fillText(text, n.sx + nodeRadius(n) * Math.sqrt(view.scale) + 4, n.sy);
     }
-    const suffix = selected ? ` Selected: ${byId.get(selected)?.slug}.` : "";
-    status.textContent = `Showing ${list.length.toLocaleString()} people and ${edgeCount.toLocaleString()} follows. Blue shows who follows the selected person; green shows who they follow.${suffix}`;
   }
   function hitTest(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
+    const rect = graphStage.getBoundingClientRect();
     const world = unproject(clientX - rect.left, clientY - rect.top);
     let best = null, bestD = Infinity;
+    ensureVisible();
     for (const id of visibleIds) {
       const n = byId.get(id);
       if (!n) continue;
@@ -429,6 +709,7 @@ __PAPER_CSS__
     }
     return best;
   }
+
   function personButton(n) {
     const button = document.createElement("button");
     button.type = "button";
@@ -473,12 +754,21 @@ __PAPER_CSS__
     a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = label;
     row.append(a);
   }
+  function readerFooter() {
+    const footer = document.createElement("p");
+    footer.className = "reader-footer";
+    footer.innerHTML = `built by <a href="https://twitter.com/anishthite" target="_blank" rel="noopener noreferrer">anish</a> with <a href="https://spanner.sh" target="_blank" rel="noopener noreferrer">spanner</a>`;
+    return footer;
+  }
   function renderReader() {
     const n = selected && byId.get(selected);
-    if (!n) { reader.textContent = "Select a dot to read it."; return; }
+    reader.classList.toggle("is-empty", !n);
+    if (!n) {
+      reader.replaceChildren(document.createTextNode("Select a dot to read it."), readerFooter());
+      return;
+    }
     const followers = sortedPeople(n.followers);
     const following = sortedPeople(n.following);
-    const mutual = followers.filter(p => edgeSet.has(`${n.id}>${p.id}`));
     reader.innerHTML = "";
     const title = document.createElement("h2"); title.textContent = n.name || n.slug;
     const links = document.createElement("p"); links.className = "profile-links";
@@ -487,50 +777,26 @@ __PAPER_CSS__
     appendProfileLink(links, "GitHub", githubUrl(n.github));
     appendProfileLink(links, "Website", safeExternalUrl(n.website));
     const counts = document.createElement("div"); counts.className = "counts";
-    counts.innerHTML = `<div class="count"><b>${n.in.toLocaleString()}</b><span>followers</span></div><div class="count"><b>${n.out.toLocaleString()}</b><span>following</span></div><div class="count"><b>${n.core}</b><span>core</span></div>`;
-    const rank = document.createElement("p");
-    rank.textContent = `PageRank share ${(n.rank * 100).toFixed(2)}%. ${mutual.length.toLocaleString()} of these relationships are mutual in the stored graph.`;
-    reader.append(title, links, counts, rank, relationshipSection(followers, following));
+    counts.innerHTML = `<div class="count"><b>${n.in.toLocaleString()}</b><span>followers</span></div><div class="count"><b>${n.out.toLocaleString()}</b><span>following</span></div><div class="count"><b>${n.core}</b><span>core score <button class="info-dot" type="button" aria-label="Core score explanation" aria-describedby="core-score-tip">i<span id="core-score-tip" class="info-tooltip" role="tooltip">Core score is the k-core number: the deepest dense shell this person remains in after repeatedly removing people with fewer than k connections. Follows are treated as undirected here.</span></button></span></div>`;
+    reader.append(title, links, counts, peopleSection("Followers", followers), peopleSection("Following", following), readerFooter());
   }
-  function relationshipSection(followers, following) {
+  function peopleSection(title, people) {
     const section = document.createElement("section");
-    const tabs = document.createElement("div");
-    tabs.className = "relationship-tabs";
-    tabs.setAttribute("role", "tablist");
-    tabs.setAttribute("aria-label", "Selected person's relationships");
-    tabs.append(relationshipTab("followers", "Followers", followers.length), relationshipTab("following", "Following", following.length));
-    const people = readerTab === "following" ? following : followers;
+    section.className = "people-section";
+    const h = document.createElement("h3"); h.textContent = `${title} (${people.length.toLocaleString()})`;
     const list = document.createElement("div"); list.className = "people";
     people.slice(0, 42).forEach(p => list.append(personButton(p)));
-    section.append(tabs);
-    if (people.length) section.append(list);
-    else {
-      const empty = document.createElement("p");
-      empty.className = "relationship-empty";
-      empty.textContent = `No observed ${readerTab}.`;
-      section.append(empty);
-    }
+    section.append(h, list);
     return section;
-  }
-  function relationshipTab(key, label, count) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.setAttribute("role", "tab");
-    button.setAttribute("aria-selected", String(readerTab === key));
-    button.textContent = `${label} (${count.toLocaleString()})`;
-    button.addEventListener("click", () => {
-      if (readerTab === key) return;
-      readerTab = key;
-      renderReader();
-    });
-    return button;
   }
   function renderMatches() {
     const term = q.value.trim().toLowerCase();
-    matchesSection.hidden = !term;
-    if (!term) { matches.replaceChildren(); return; }
+    matches.hidden = !term;
+    graphPage.classList.toggle("has-matches", Boolean(term));
+    if (!term) { matches.replaceChildren(); resize(); return; }
     const found = nodes.filter(n => matchesText(n, term)).slice(0, 18);
     matches.replaceChildren(...found.map(personButton));
+    resize();
   }
   function selectNode(id, shouldFit) {
     if (!byId.has(id)) return;
@@ -538,41 +804,84 @@ __PAPER_CSS__
     q.value = byId.get(id).slug;
     renderReader();
     renderMatches();
-    if (mode.value === "whole") draw(); else shouldFit ? fit() : draw();
+    if (mode.value !== "whole") markVisibleDirty();
+    if (mode.value === "whole") refreshGraph(); else shouldFit ? fit() : refreshGraph();
+    if (shouldFit && window.matchMedia("(max-width: 920px)").matches) {
+      requestAnimationFrame(() => {
+        const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+        reader.scrollIntoView({block: "start", behavior});
+      });
+    }
   }
-  canvas.addEventListener("pointerdown", ev => {
-    canvas.setPointerCapture(ev.pointerId);
+  graphStage.addEventListener("pointerdown", ev => {
+    graphStage.setPointerCapture(ev.pointerId);
+    clearTimeout(settleTimer);
     const hit = hitTest(ev.clientX, ev.clientY);
-    pointer = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, moved: false, hit: hit?.id || null};
+    pointer = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, startX: ev.clientX, startY: ev.clientY, startViewX: view.x, startViewY: view.y, dx: 0, dy: 0, moved: false, hit: hit?.id || null};
+    hover = null;
   });
-  canvas.addEventListener("pointermove", ev => {
+  function scheduleHover(ev) {
+    hoverEvent = {clientX: ev.clientX, clientY: ev.clientY};
+    if (hoverPending) return;
+    hoverPending = true;
+    requestAnimationFrame(() => {
+      hoverPending = false;
+      if (!hoverEvent) return;
+      const hit = hitTest(hoverEvent.clientX, hoverEvent.clientY);
+      const nextHover = hit?.id || null;
+      if (nextHover !== hover) {
+        hover = nextHover;
+        scheduleRender();
+      }
+    });
+  }
+  graphStage.addEventListener("pointermove", ev => {
     if (pointer && pointer.id === ev.pointerId) {
-      const dx = ev.clientX - pointer.x, dy = ev.clientY - pointer.y;
-      if (Math.hypot(dx, dy) > 2) pointer.moved = true;
-      view.x += dx / view.scale; view.y += dy / view.scale;
-      pointer.x = ev.clientX; pointer.y = ev.clientY;
-      draw();
+      pointer.dx = ev.clientX - pointer.startX;
+      pointer.dy = ev.clientY - pointer.startY;
+      if (Math.hypot(pointer.dx, pointer.dy) > 2) pointer.moved = true;
+      pointer.x = ev.clientX;
+      pointer.y = ev.clientY;
+      if (pointer.moved) {
+        moving = true;
+        setLayerOffset(pointer.dx, pointer.dy);
+      }
       return;
     }
-    const hit = hitTest(ev.clientX, ev.clientY);
-    if ((hit?.id || null) !== hover) { hover = hit?.id || null; draw(); }
+    scheduleHover(ev);
   });
-  canvas.addEventListener("pointerup", ev => {
+  graphStage.addEventListener("pointerup", ev => {
     if (!pointer) return;
-    const hit = hitTest(ev.clientX, ev.clientY);
-    if (!pointer.moved && hit) selectNode(hit.id, false);
+    if (pointer.moved) {
+      view.x = pointer.startViewX + pointer.dx / view.scale;
+      view.y = pointer.startViewY + pointer.dy / view.scale;
+      setLayerOffset(0, 0);
+      moving = false;
+      render();
+    } else {
+      const hit = hitTest(ev.clientX, ev.clientY);
+      if (hit) selectNode(hit.id, false);
+    }
     pointer = null;
   });
-  canvas.addEventListener("wheel", ev => {
+  graphStage.addEventListener("pointercancel", () => {
+    pointer = null;
+    moving = false;
+    setLayerOffset(0, 0);
+    scheduleRender();
+  });
+  graphStage.addEventListener("wheel", ev => {
     ev.preventDefault();
-    const rect = canvas.getBoundingClientRect();
+    moving = true;
+    const rect = graphStage.getBoundingClientRect();
     const before = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     const factor = Math.exp(-ev.deltaY * .0012);
     view.scale = Math.max(.12, Math.min(8, view.scale * factor));
     const after = unproject(ev.clientX - rect.left, ev.clientY - rect.top);
     view.x += after.x - before.x;
     view.y += after.y - before.y;
-    draw();
+    scheduleRender();
+    settleRender(90);
   }, {passive: false});
   q.addEventListener("input", renderMatches);
   q.addEventListener("keydown", ev => {
@@ -581,14 +890,14 @@ __PAPER_CSS__
     const hit = nodes.find(n => matchesText(n, term));
     if (hit) selectNode(hit.id, true);
   });
-  minFollowers.addEventListener("input", () => { mode.value === "whole" ? draw() : fit(); renderMatches(); });
-  mode.addEventListener("change", fit);
+  minFollowers.addEventListener("input", () => { markVisibleDirty(); mode.value === "whole" ? refreshGraph() : fit(); renderMatches(); });
+  mode.addEventListener("change", () => { markVisibleDirty(); fit(); });
   document.getElementById("fit").addEventListener("click", fit);
   window.addEventListener("resize", resize);
   renderReader();
   renderMatches();
-  resize();
-  fit();
+  resize(false);
+  fit(false);
 })();
 </script>
 </body>
@@ -636,7 +945,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="index.html">Explore the graph</a><a href="algorithms.html">Go deeper on algorithms</a><a href="questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="questions.html">Next questions</a></nav>
   <h1>How to read this follower graph</h1>
   <div class="article">
     <main>
@@ -907,7 +1216,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="index.html">Explore the graph</a><a href="metrics.html">Read the first metrics page</a><a href="questions.html">Next questions</a></nav>
+  <nav class="nav"><a href="questions.html">Next questions</a></nav>
   <h1>More graph algorithms for this follower graph</h1>
   <div class="article">
     <main>
@@ -1140,7 +1449,7 @@ __PAPER_CSS__
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="__FRONTPAGE_INDEX_URL__">Curius front page</a><a href="index.html">Explore the graph</a><a href="metrics.html">Read metrics</a><a href="algorithms.html">Read algorithms</a></nav>
+  <nav class="nav"><a href="questions.html">Next questions</a></nav>
   <h1>Four next questions for the follower graph</h1>
   <div class="article">
     <main>
@@ -1244,6 +1553,13 @@ __PAPER_CSS__
   @media (max-width: 860px) {
     .hn-item { grid-template-columns: 1.85rem minmax(0, 1fr); gap: .45rem; }
   }
+  @media (max-width: 520px) {
+    .more-banner { align-items: center; border-radius: 14px; padding: .26rem .58rem; }
+    .more-banner > span:first-child { flex-basis: 100%; text-align: center; }
+    .more-banner a { display: inline-flex; align-items: center; min-height: 44px; }
+    .front-controls { display: grid; grid-template-columns: max-content max-content; align-items: center; gap: .55rem; }
+    .front-controls span[aria-hidden="true"] { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -1261,8 +1577,8 @@ __PAPER_CSS__
   </section>
 
   <main>
-    <section id="feed-head" class="feed-head" aria-live="polite"></section>
-    <ol id="feed" class="hn-list"></ol>
+    <section id="feed-head" class="feed-head" aria-live="polite">__FRONTPAGE_HEAD_HTML__</section>
+    <ol id="feed" class="hn-list">__FRONTPAGE_FEED_HTML__</ol>
   </main>
 </div>
 <script id="frontpage-data" type="application/json">__FRONTPAGE_JSON__</script>
@@ -1273,7 +1589,11 @@ __PAPER_CSS__
   const generatedAt = Date.parse(data.generatedAt) || Date.now();
   const feed = document.getElementById("feed");
   const feedHead = document.getElementById("feed-head");
+  const kindButtons = document.querySelectorAll("[data-kind]");
+  const sortButtons = document.querySelectorAll("[data-sort]");
   const state = {kind: "links", sort: "popular"};
+  const views = data.views || buildViews(data);
+  let currentKey = `${state.kind}:${state.sort}`;
 
   function text(tag, className, value) {
     const node = document.createElement(tag);
@@ -1292,18 +1612,19 @@ __PAPER_CSS__
     }
     return "just now";
   }
-  function score(item) {
-    if (state.kind === "links") return 3 * item.savers + 5 * item.highlighters + item.highlights;
+  function score(kind, item) {
+    if (Number.isFinite(item.score)) return item.score;
+    if (kind === "links") return 3 * item.savers + 5 * item.highlighters + item.highlights;
     return 4 * item.readers + item.repeats;
   }
-  function sortedItems() {
-    const items = [...(data[state.kind] || [])];
-    if (state.sort === "newest") {
-      items.sort((a, b) => (Date.parse(b.createdAt || "") || 0) - (Date.parse(a.createdAt || "") || 0) || score(b) - score(a));
-    } else {
-      items.sort((a, b) => score(b) - score(a) || (Date.parse(b.createdAt || "") || 0) - (Date.parse(a.createdAt || "") || 0));
+  function buildViews(source) {
+    const result = {};
+    for (const kind of ["links", "highlights"]) {
+      const rows = (source[kind] || []).map(item => ({...item, score: score(kind, item), createdAtMs: Date.parse(item.createdAt || "") || 0}));
+      result[`${kind}:popular`] = rows.slice().sort((a, b) => b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50);
+      result[`${kind}:newest`] = rows.slice().sort((a, b) => b.createdAtMs - a.createdAtMs || b.score - a.score).slice(0, 50);
     }
-    return items.slice(0, 50);
+    return result;
   }
   function renderHead(items) {
     feedHead.replaceChildren();
@@ -1318,7 +1639,7 @@ __PAPER_CSS__
     const a = text("a", "", item.title || item.url);
     a.href = item.url; a.target = "_blank"; a.rel = "noreferrer";
     title.append(a, text("span", "domain", `(${item.domain})`));
-    body.append(title, text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.savers, "saver")} · ${plural(item.highlighters, "reader")} marked it · ${plural(item.highlights, "highlight")} · ${age(item.createdAt)}`));
+    body.append(title, text("div", "subtext", `${Math.round(score("links", item)).toLocaleString()} points · ${plural(item.savers, "saver")} · ${plural(item.highlighters, "reader")} marked it · ${plural(item.highlights, "highlight")} · ${age(item.createdAt)}`));
     if (item.snippet) body.append(text("p", "snippet", item.snippet));
   }
   function renderHighlight(item, body) {
@@ -1328,34 +1649,37 @@ __PAPER_CSS__
     a.href = item.url; a.target = "_blank"; a.rel = "noreferrer";
     title.append(a, text("span", "domain", `(${item.domain})`));
     const user = item.user ? ` · latest by ${item.user}` : "";
-    body.append(title, text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.readers, "reader")} · ${plural(item.repeats, "repeat")} · ${age(item.createdAt)}${user}`));
+    body.append(title, text("div", "subtext", `${Math.round(score("highlights", item)).toLocaleString()} points · ${plural(item.readers, "reader")} · ${plural(item.repeats, "repeat")} · ${age(item.createdAt)}${user}`));
     if (item.context) body.append(text("p", "snippet", item.context));
   }
   function renderFeed(items) {
-    feed.replaceChildren();
     if (!items.length) {
-      feed.append(text("li", "empty", "No rows in this generated sample."));
+      feed.replaceChildren(text("li", "empty", "No rows in this generated sample."));
       return;
     }
+    const fragment = document.createDocumentFragment();
     for (const item of items) {
       const li = text("li", "hn-item");
       const body = text("div", "");
       if (state.kind === "links") renderLink(item, body); else renderHighlight(item, body);
       li.append(body);
-      feed.append(li);
+      fragment.append(li);
     }
+    feed.replaceChildren(fragment);
   }
   function render() {
-    document.querySelectorAll("[data-kind]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.kind === state.kind)));
-    document.querySelectorAll("[data-sort]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.sort === state.sort)));
-    const items = sortedItems();
+    kindButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.kind === state.kind)));
+    sortButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.sort === state.sort)));
+    const key = `${state.kind}:${state.sort}`;
+    if (key === currentKey) return;
+    currentKey = key;
+    const items = views[key] || [];
     renderHead(items);
     renderFeed(items);
   }
 
-  document.querySelectorAll("[data-kind]").forEach(button => button.addEventListener("click", () => { state.kind = button.dataset.kind; render(); }));
-  document.querySelectorAll("[data-sort]").forEach(button => button.addEventListener("click", () => { state.sort = button.dataset.sort; render(); }));
-  render();
+  kindButtons.forEach(button => button.addEventListener("click", () => { state.kind = button.dataset.kind; render(); }));
+  sortButtons.forEach(button => button.addEventListener("click", () => { state.sort = button.dataset.sort; render(); }));
 })();
 </script>
 </body>
@@ -1471,6 +1795,103 @@ def context_text(left: Any, right: Any) -> str:
     return ""
 
 
+def parse_datetime(value: Any) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def frontpage_score(kind: str, item: dict[str, Any]) -> int:
+    if isinstance(item.get("score"), int):
+        return item["score"]
+    if kind == "links":
+        return 3 * int(item.get("savers") or 0) + 5 * int(item.get("highlighters") or 0) + int(item.get("highlights") or 0)
+    return 4 * int(item.get("readers") or 0) + int(item.get("repeats") or 0)
+
+
+def frontpage_views(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    views: dict[str, list[dict[str, Any]]] = {}
+    for kind in ("links", "highlights"):
+        rows = []
+        for item in payload.get(kind, []):
+            row = dict(item)
+            row["score"] = frontpage_score(kind, row)
+            created = parse_datetime(row.get("createdAt"))
+            row["createdAtMs"] = int(created.timestamp() * 1000) if created else 0
+            rows.append(row)
+        views[f"{kind}:popular"] = sorted(rows, key=lambda item: (item["score"], item["createdAtMs"]), reverse=True)[:50]
+        views[f"{kind}:newest"] = sorted(rows, key=lambda item: (item["createdAtMs"], item["score"]), reverse=True)[:50]
+    return views
+
+
+def plural(value: int, word: str) -> str:
+    return f"{value:,} {word}{'' if value == 1 else 's'}"
+
+
+def frontpage_age(iso: Any, generated_at: Any) -> str:
+    started = parse_datetime(iso)
+    generated = parse_datetime(generated_at) or datetime.now(timezone.utc)
+    if not started:
+        return "undated"
+    seconds = max(0, int((generated - started).total_seconds()))
+    for size, label in ((31536000, "year"), (2592000, "month"), (604800, "week"), (86400, "day"), (3600, "hour"), (60, "minute")):
+        if seconds >= size:
+            count = seconds // size
+            return f"{count} {label}{'' if count == 1 else 's'} ago"
+    return "just now"
+
+
+def render_frontpage_head(kind: str, sort: str, count: int) -> str:
+    title = f"{'Popular' if sort == 'popular' else 'Newest'} {kind}"
+    if sort == "popular":
+        note = f"Sorted by score. {count:,} rows are shown from the generated sample."
+    else:
+        note = "Sorted by latest save or highlight time. Score remains visible, but it does not move the row."
+    return f"<h2>{html.escape(title)}</h2><p class=\"quiet\">{html.escape(note)}</p>"
+
+
+def render_frontpage_row(kind: str, item: dict[str, Any], generated_at: Any) -> str:
+    domain = html.escape(str(item.get("domain") or "link"))
+    url = html.escape(str(item.get("url") or "#"), quote=True)
+    title = html.escape(str(item.get("title") or item.get("url") or "Untitled"))
+    age = html.escape(frontpage_age(item.get("createdAt"), generated_at))
+    score = f"{frontpage_score(kind, item):,}"
+    if kind == "links":
+        subtext = (
+            f"{score} points · {plural(int(item.get('savers') or 0), 'saver')} · "
+            f"{plural(int(item.get('highlighters') or 0), 'reader')} marked it · "
+            f"{plural(int(item.get('highlights') or 0), 'highlight')} · {age}"
+        )
+        snippet = html.escape(str(item.get("snippet") or ""))
+        snippet_html = f"<p class=\"snippet\">{snippet}</p>" if snippet else ""
+        body = (
+            f"<div class=\"story-title\"><a href=\"{url}\" target=\"_blank\" rel=\"noreferrer\">{title}</a>"
+            f"<span class=\"domain\">({domain})</span></div><div class=\"subtext\">{html.escape(subtext)}</div>{snippet_html}"
+        )
+    else:
+        quote = html.escape(str(item.get("quote") or ""))
+        user = f" · latest by {item['user']}" if item.get("user") else ""
+        subtext = f"{score} points · {plural(int(item.get('readers') or 0), 'reader')} · {plural(int(item.get('repeats') or 0), 'repeat')} · {age}{user}"
+        context = html.escape(str(item.get("context") or ""))
+        context_html = f"<p class=\"snippet\">{context}</p>" if context else ""
+        body = (
+            f"<blockquote class=\"quote\">{quote}</blockquote><div class=\"story-title\">"
+            f"<a href=\"{url}\" target=\"_blank\" rel=\"noreferrer\">{title}</a><span class=\"domain\">({domain})</span></div>"
+            f"<div class=\"subtext\">{html.escape(subtext)}</div>{context_html}"
+        )
+    return f"<li class=\"hn-item\"><div>{body}</div></li>"
+
+
+def render_frontpage_feed(kind: str, rows: list[dict[str, Any]], generated_at: Any) -> str:
+    if not rows:
+        return "<li class=\"empty\">No rows in this generated sample.</li>"
+    return "".join(render_frontpage_row(kind, item, generated_at) for item in rows)
+
+
 def load_frontpage(db_path: Path, limit: int = 160) -> dict[str, Any]:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -1556,6 +1977,7 @@ def load_frontpage_links(conn: sqlite3.Connection, limit: int) -> list[dict[str,
                 "savers": int(row["savers"]),
                 "highlights": int(row["highlights"]),
                 "highlighters": int(row["highlighters"]),
+                "score": int(row["score"]),
             })
     return list(rows.values())
 
@@ -1578,7 +2000,7 @@ def load_frontpage_highlights(conn: sqlite3.Connection, limit: int) -> list[dict
             WHERE length(quote) BETWEEN 8 AND 700
             GROUP BY link_id, quote
         )
-        SELECT p.highlight_id, g.link_id, g.quote, g.repeats, g.readers, g.first_at, g.created_at,
+        SELECT p.highlight_id, g.link_id, g.quote, g.repeats, g.readers, g.score, g.first_at, g.created_at,
                p.left_context, p.right_context, l.title, l.url, u.user_link
         FROM grouped g
         JOIN clean p ON p.highlight_id = (
@@ -1594,7 +2016,7 @@ def load_frontpage_highlights(conn: sqlite3.Connection, limit: int) -> list[dict
     """
     newest = f"""
         {clean}
-        SELECT c.highlight_id, c.link_id, c.quote, 1 AS repeats, 1 AS readers,
+        SELECT c.highlight_id, c.link_id, c.quote, 1 AS repeats, 1 AS readers, 5 AS score,
                c.created_at AS first_at, c.created_at, c.left_context, c.right_context,
                l.title, l.url, u.user_link
         FROM clean c
@@ -1622,12 +2044,14 @@ def load_frontpage_highlights(conn: sqlite3.Connection, limit: int) -> list[dict
                     "firstAt": row["first_at"] or "",
                     "readers": int(row["readers"]),
                     "repeats": int(row["repeats"]),
+                    "score": int(row["score"]),
                     "user": row["user_link"] or "",
                     "context": context_text(row["left_context"], row["right_context"]),
                 }
                 continue
             item["readers"] = max(item["readers"], int(row["readers"]))
             item["repeats"] = max(item["repeats"], int(row["repeats"]))
+            item["score"] = max(item["score"], int(row["score"]))
             if created > item["createdAt"]:
                 item["createdAt"] = created
                 item["user"] = row["user_link"] or ""
@@ -2336,13 +2760,22 @@ def render_how_this_works_html(analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
 
 
 def render_frontpage_html(payload: dict[str, Any], analysis_url: str = DEFAULT_ANALYSIS_URL) -> str:
+    views = frontpage_views(payload)
+    default_rows = views["links:popular"]
+    script_payload = {
+        "generatedAt": payload["generatedAt"],
+        "source": payload["source"],
+        "views": views,
+    }
     replacements = {
         "__PAPER_CSS__": PAPER_CSS,
         "__ANALYSIS_INDEX_URL__": app_url(analysis_url),
         "__ANALYSIS_METRICS_URL__": app_url(analysis_url, "metrics.html"),
         "__ANALYSIS_ALGORITHMS_URL__": app_url(analysis_url, "algorithms.html"),
         "__ANALYSIS_QUESTIONS_URL__": app_url(analysis_url, "questions.html"),
-        "__FRONTPAGE_JSON__": json_script(payload),
+        "__FRONTPAGE_HEAD_HTML__": render_frontpage_head("links", "popular", len(default_rows)),
+        "__FRONTPAGE_FEED_HTML__": render_frontpage_feed("links", default_rows, payload["generatedAt"]),
+        "__FRONTPAGE_JSON__": json_script(script_payload),
     }
     out = FRONTPAGE_HTML
     for old, new in replacements.items():
@@ -2544,21 +2977,34 @@ def self_test() -> None:
         how_html = how_out.read_text(encoding="utf-8")
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
-        assert "graph-data" in graph_html and "canvas" in graph_html and "Palatino" in graph_html
+        assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Palatino" in graph_html
         assert "The Curius Follower Graph" in graph_html and "Search a person, then zoom into who follows whom." not in graph_html
-        assert ".graph-hero {" in graph_html and "text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
-        assert "height: 100svh" in graph_html and "overflow: hidden" in graph_html and "background-image: url" in graph_html
+        assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
-        assert "matchesSection.hidden = !term" in graph_html and 'class="matches" hidden' in graph_html
+        assert ".person:hover { outline: 0;" in graph_html and ".person:focus-visible { outline: 0;" in graph_html
+        assert ".person span { display: block;" in graph_html and ".person small { display: block;" in graph_html
+        assert "matches.hidden = !term" in graph_html and 'id="matches" class="matches people" aria-label="Search results" hidden' in graph_html
+        assert 'id="hide-matches"' not in graph_html and "matches-head" not in graph_html and "<h2>Search results</h2>" not in graph_html
+        assert ".matches.people" in graph_html and "grid-template-columns: 1fr" in graph_html and "max-height: none; overflow: visible" in graph_html
+        assert ".graph-tools { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto;" in graph_html
+        assert "reader-footer" in graph_html and "twitter.com/anishthite" in graph_html and "spanner.sh" in graph_html
+        assert 'reader.scrollIntoView({block: "start", behavior})' in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
         assert "Curius next graph questions" in next_html and "Who bridges separate islands?" in next_html
         assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more Curius things" in frontpage_html and "how-this-works.html" in frontpage_html
+        assert ".more-banner a { display: inline-flex; align-items: center; min-height: 44px; }" in frontpage_html
+        assert ".front-controls { display: grid; grid-template-columns: max-content max-content;" in frontpage_html
         assert "Small ranking model" not in frontpage_html and "S<sub>link</sub>" in how_html and "How this works" in how_html
-        assert 'href="https://front.example/index.html"' in graph_html + metrics_html + algorithms_html + next_html
+        analysis_html = graph_html + metrics_html + algorithms_html + next_html
+        assert analysis_html.count('<nav class="nav') == 4
+        assert analysis_html.count('href="questions.html"') == 4
+        assert 'href="https://front.example/index.html"' not in analysis_html
         payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
-        assert sorted(payload["links"], key=lambda item: item["createdAt"], reverse=True)[0]["id"] == 10
+        assert payload["views"]["links:newest"][0]["id"] == 10
+        assert payload["views"]["links:popular"][0]["score"] >= payload["views"]["links:popular"][-1]["score"]
+        assert "<ol id=\"feed\" class=\"hn-list\"><li class=\"hn-item\">" in frontpage_html
         assert 'href="https://analysis.example/metrics.html"' in frontpage_html + how_html
         assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + next_html + frontpage_html + how_html
     print("self-test passed")

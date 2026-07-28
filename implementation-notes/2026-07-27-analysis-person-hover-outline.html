@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Analysis Person Hover Outline</title>
+<meta name="task" content="Remove the protruding hover outline from analysis graph person rows">
+<meta name="date-started" content="2026-07-27">
+<meta name="date-updated" content="2026-07-27">
+<meta name="status" content="ready-for-review">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, ui, static-site, focus">
+<meta name="related" content="2026-07-27-analysis-graph-border-reduction.html,2026-07-22-graph-ui-compact-refresh.html">
+<style>
+  body { font: 14px/1.45 -apple-system, system-ui, sans-serif; max-width: 880px; margin: 1.5rem auto; padding: 0 1rem; color: #111; }
+  h1 { font-size: 20px; margin: 0 0 .25rem; }
+  h2 { font-size: 15px; margin: 1.4rem 0 .4rem; border-bottom: 1px solid #ddd; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  code { font-family: ui-monospace, Menlo, monospace; background: #f1f1f1; padding: 1px 4px; border-radius: 3px; font-size: 12.5px; }
+  .blast-low { color: #2a7a2a; }
+  .meta { color: #555; font-size: 12.5px; margin-bottom: .8rem; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 2px 14px; font-size: 13px; margin: .4rem 0 1rem; }
+  .kv b { color: #444; font-weight: 600; }
+  ul, ol { margin: .3rem 0 .8rem 1.2rem; padding: 0; }
+</style>
+</head>
+<body>
+<h1>Analysis Person Hover Outline</h1>
+<p class="meta"><code>snappier-page-performance</code> · worktree <code>/Users/anishthite/conductor/workspaces/curious-index/halifax</code> · 2026-07-27 · status <b>ready-for-review</b> · blast <span class="blast-low">low</span></p>
+
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Remove the protruding hover outline from <code>.person</code> rows in <code>apps/analysis/index.html</code>.</div>
+  <b>Source</b><div><code>analysis/build_follower_site.py</code> graph template CSS.</div>
+  <b>Surface</b><div>Follower and following list row hover/focus state.</div>
+  <b>Verification</b><div>Browser smoke passes; generator self-test has an existing frontpage URL assertion failure.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Same row state applies below <code>920px</code>.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+
+<h2>UI layout</h2>
+<ol>
+  <li><b>Person row</b>: hover changes fill without drawing the global button outline.</li>
+  <li><b>Keyboard focus</b>: <code>:focus-visible</code> uses an inset ring within the existing rounded row.</li>
+</ol>
+
+<h2>Files</h2>
+<table>
+  <tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+  <tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Override <code>.person</code> hover and focus-visible outlines in the graph CSS.</td></tr>
+  <tr><td><code>apps/analysis/index.html</code></td><td>generated</td><td>Regenerate the graph page with quiet person row hover state.</td></tr>
+  <tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+
+<h2>Decisions</h2>
+<table>
+  <tr><th>ID</th><th>Choice · Rationale</th></tr>
+  <tr><td>D-001</td><td>Override <code>.person</code> only. Other buttons keep the global hover affordance.</td></tr>
+  <tr><td>D-002</td><td>Use an inset <code>box-shadow</code> for keyboard focus. It preserves accessibility without expanding outside the row.</td></tr>
+</table>
+
+<h2>Tradeoffs</h2>
+<table>
+  <tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+  <tr><td>T-001</td><td><code>.person:hover</code> override over changing <code>button:hover</code>. The screenshot issue is limited to list rows.</td></tr>
+</table>
+
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Revert the <code>.person</code> CSS block in <code>analysis/build_follower_site.py</code> and regenerate <code>apps/analysis/index.html</code>.</p>
+
+<h2>Followups</h2>
+<ul>
+  <li>L-001 · Fix the existing <code>analysis/build_follower_site.py --self-test</code> expectation for <code>href="https://front.example/index.html"</code>.</li>
+</ul>
+
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: generator emits <code>.person:hover { outline: 0; }</code>.</li>
+  <li>Blocked: <code>analysis/build_follower_site.py --self-test</code> fails on an existing frontpage URL assertion before the row CSS assertion.</li>
+  <li>Done: browser smoke confirms hovered person rows do not draw the protruding outline.</li>
+</ul>
+</body>
+</html>
