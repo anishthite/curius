@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec — Graph empty selection</title>
+<meta name="task" content="Start analyzer graph without a selected person">
+<meta name="date-started" content="2026-07-29">
+<meta name="date-updated" content="2026-07-29">
+<meta name="status" content="ready-for-review">
+<meta name="blast-radius" content="low">
+<meta name="tags" content="curius, graph, ui, analyzer, static-site">
+<meta name="related" content="2026-07-28-mobile-node-tap-graph-retention.html,2026-07-28-mobile-search-graph-focus.html,2026-07-27-analysis-graph-border-reduction.html">
+<style>
+body{font:14px/1.45 -apple-system,system-ui,sans-serif;max-width:880px;margin:1.5rem auto;padding:0 1rem;color:#111}h1{font-size:20px;margin:0 0 .25rem}h2{font-size:15px;margin:1.4rem 0 .4rem;border-bottom:1px solid #ddd;padding-bottom:.2rem}table{border-collapse:collapse;width:100%;margin:.4rem 0 .8rem}th,td{border:1px solid #ddd;padding:4px 8px;text-align:left;vertical-align:top}th{background:#f6f6f6;font-weight:600}code{background:#f1f1f1;padding:1px 4px;border-radius:3px;font-size:12.5px}.blast-low{color:#2a7a2a}.meta{color:#555;font-size:12.5px;margin-bottom:.8rem}.kv{display:grid;grid-template-columns:140px 1fr;gap:2px 14px;font-size:13px;margin:.4rem 0 1rem}.kv b{color:#444;font-weight:600}ul,ol{margin:.3rem 0 .8rem 1.2rem;padding:0}
+</style>
+</head>
+<body>
+<h1>Graph empty selection</h1>
+<p class="meta"><code>main</code> · worktree <code>/Users/anishthite/workspace/curious-index</code> · 2026-07-29 · status <b>ready-for-review</b> · blast <span class="blast-low">low</span></p>
+<h2>Summary</h2>
+<div class="kv">
+  <b>Goal</b><div>Open <code>apps/analysis/index.html</code> with no selected person and no sidebar.</div>
+  <b>Surface</b><div><code>analysis/build_follower_site.py</code> graph template and generated graph page.</div>
+  <b>Schema</b><div>None.</div>
+  <b>Mobile</b><div>Clear sits in the controls before the graph, while the reader clear remains available below the graph.</div>
+  <b>Open Qs</b><div>0.</div>
+</div>
+<h2>UI layout</h2>
+<ol>
+  <li><b>Initial graph</b>: show all nodes with neutral coloring and hide <code>#reader</code>.</li>
+  <li><b>Selected graph</b>: show <code>#reader</code>, reserve desktop reader width, and reveal small clear controls.</li>
+  <li><b>Cleared graph</b>: reset selection, search text, matches, and scope to <code>whole</code>.</li>
+  <li><b>Graph frame</b>: remove the canvas border and desktop bottom padding.</li>
+</ol>
+<h2>Files</h2>
+<table>
+<tr><th>Path</th><th>Kind</th><th>Delta</th></tr>
+<tr><td><code>analysis/build_follower_site.py</code></td><td>touch</td><td>Update graph template CSS, initial selection, reader rendering, clear action, and self-test assertions.</td></tr>
+<tr><td><code>apps/analysis/index.html</code></td><td>generated</td><td>Regenerate graph page with empty-selection behavior.</td></tr>
+<tr><td><code>implementation-notes/INDEX.html</code></td><td>touch</td><td>Register this task.</td></tr>
+</table>
+<h2>Decisions</h2>
+<table>
+<tr><th>ID</th><th>Choice · Rationale</th></tr>
+<tr><td>D-001</td><td>Use <code>selected = null</code> at load. The graph already handles whole-graph visibility without a center node.</td></tr>
+<tr><td>D-002</td><td>Hide <code>#reader</code> with <code>hidden</code>. Empty instructional sidebar is the clutter the request removes.</td></tr>
+<tr><td>D-003</td><td>Use <code>.has-selection</code> only after selection. Desktop keeps room for the fixed reader only when it exists.</td></tr>
+</table>
+<h2>Tradeoffs</h2>
+<table>
+<tr><th>ID</th><th>Picked over Rejected · Reason</th></tr>
+<tr><td>T-001</td><td><code>button.clear-person</code> over <code>a href</code>. It performs an in-page action and keeps keyboard behavior native.</td></tr>
+</table>
+<h2>Reversibility</h2>
+<p>R-001 · <span class="blast-low">low</span>. Revert the graph template changes and regenerated <code>apps/analysis/index.html</code>.</p>
+<h2>Definition of done</h2>
+<ul>
+  <li>Done: <code>python3 analysis/build_follower_site.py --self-test</code> passes.</li>
+  <li>Done: generated graph contains <code>let selected = null;</code>, hidden reader markup, and <code>clearSelection</code>.</li>
+</ul>
+</body>
+</html>

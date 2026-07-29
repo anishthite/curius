@@ -182,7 +182,8 @@ GRAPH_HTML = """<!doctype html>
 <style>
 __PAPER_CSS__
   body { background: var(--paper); }
-  .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px calc(var(--reader-width) + clamp(20px, 2vw, 34px)) 12px clamp(8px, 1.5vw, 20px); }
+  .graph-page { --reader-width: clamp(310px, 23vw, 380px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); width: min(1640px, 100%); min-height: 100vh; height: 100vh; padding: 12px clamp(8px, 1.5vw, 20px) 0; }
+  .graph-page.has-selection { padding-right: calc(var(--reader-width) + clamp(20px, 2vw, 34px)); }
   .graph-hero { text-align: left; margin: 0 0 .35rem; }
   .graph-hero h1 { font-size: clamp(2.1rem, 5.6vw, 4.45rem); margin: .08rem 0 .12rem; }
   .graph-subhead { max-width: 82ch; margin: 0 0 .55rem; color: var(--muted); font-size: clamp(.96rem, 1.4vw, 1.08rem); line-height: 1.34; }
@@ -191,6 +192,8 @@ __PAPER_CSS__
   .graph-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin: .25rem 0 .35rem; align-items: center; max-width: 940px; padding: .05rem 0; background: transparent; }
   .graph-tools input, .graph-tools select, .graph-tools button { min-height: 34px; padding: .24rem .62rem; border: 0; font-size: .9rem; background: rgba(255, 252, 245, .76); }
   .graph-tools button:hover, .graph-tools input:hover, .graph-tools select:hover { background: rgba(255, 252, 245, .98); }
+  .graph-tools .clear-person, .reader .clear-person { min-height: 0; border: 0; padding: 0 .1rem; background: transparent; color: var(--muted); font-size: .78rem; text-decoration: underline; text-underline-offset: .16em; }
+  .graph-tools .clear-person:hover, .graph-tools .clear-person:focus-visible, .reader .clear-person:hover, .reader .clear-person:focus-visible { color: var(--blue); background: transparent; }
   #q { flex: 1 1 320px; max-width: none; }
   .min-filter { display: flex; grid-template-columns: none; gap: .32rem; align-items: center; color: var(--muted); font-size: .85rem; }
   .min-filter span { white-space: nowrap; }
@@ -198,7 +201,7 @@ __PAPER_CSS__
   #mode { width: 10.2rem; }
   #fit { width: auto; min-width: 58px; }
   .canvas-wrap { position: relative; height: 100%; min-height: 0; margin: 0; overflow: hidden; touch-action: none; }
-  .canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38); border-radius: 10px; box-shadow: none; background: rgba(255, 250, 240, .16); }
+  .canvas-wrap.sheet { border: 0; border-radius: 10px 10px 0 0; box-shadow: none; background: rgba(255, 250, 240, .16); }
   .graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0; touch-action: none; }
   .graph-page.has-matches .canvas-wrap { min-height: 0; }
   .graph-page.has-matches .graph-canvas { height: 100%; }
@@ -214,7 +217,9 @@ __PAPER_CSS__
   .legend-dot.following { background: #1c653d; }
   .legend-dot.mutual { background: #5e398f; }
   .legend-dot.other { background: #5f5140; opacity: .85; }
-  .reader { position: fixed; inset: 0 0 0 auto; z-index: 12; display: flex; flex-direction: column; width: var(--reader-width); height: 100vh; margin: 0; overflow: hidden; padding: 20px 18px 24px; border-left: 1px solid rgba(216, 200, 181, .72); background: rgba(255, 250, 240, .92); box-shadow: -12px 0 28px rgba(60, 42, 20, .08); font-size: .94rem; }
+  .reader { position: fixed; inset: 0 0 0 auto; z-index: 12; display: flex; flex-direction: column; width: var(--reader-width); height: 100vh; margin: 0; overflow: hidden; padding: 20px 18px 24px; border-left: 0; background: rgba(255, 250, 240, .92); box-shadow: -12px 0 28px rgba(60, 42, 20, .08); font-size: .94rem; }
+  .reader[hidden] { display: none; }
+  .reader-head { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
   .reader h2 { margin-top: 0; }
   .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; margin: .45rem 0; }
   .count { position: relative; padding: .28rem .32rem; border-radius: 8px; background: rgba(255, 250, 240, .52); }
@@ -291,7 +296,7 @@ __PAPER_CSS__
     .graph-subhead { font-size: clamp(.96rem, 1.18vw, 1.04rem); }
   }
   @media (max-width: 920px) {
-    .graph-page { display: block; min-height: 0; height: auto; padding: 12px 12px 48px; }
+    .graph-page, .graph-page.has-selection { display: block; min-height: 0; height: auto; padding: 12px 12px 48px; }
     .graph-hero { margin-bottom: .55rem; }
     .graph-hero h1 { font-size: clamp(1.9rem, 8vw, 3rem); }
     .graph-subhead { font-size: .98rem; line-height: 1.28; }
@@ -338,6 +343,7 @@ __POSTHOG_HTML__
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
+    <button id="clear-selection" class="clear-person" type="button" hidden>Clear</button>
     <label class="min-filter"><span>Min followers</span><input id="min-followers" type="number" min="0" step="1" value="0" aria-label="Minimum followers" title="Minimum followers"></label>
     <select id="mode" aria-label="View"><option value="whole">whole graph</option><option value="ego">neighborhood</option><option value="followers">followers</option><option value="following">following</option></select>
     <button id="fit" type="button">Fit</button>
@@ -348,7 +354,7 @@ __POSTHOG_HTML__
       <div id="graph" class="graph-canvas" role="img" aria-label="Interactive follower graph"></div>
       <figcaption id="status" class="canvas-note"></figcaption>
     </figure>
-    <aside id="reader" class="reader"></aside>
+    <aside id="reader" class="reader" hidden></aside>
   </section>
 </div>
 <script id="graph-data" type="application/json">__GRAPH_JSON__</script>
@@ -382,13 +388,14 @@ __POSTHOG_HTML__
   const reader = document.getElementById("reader");
   const status = document.getElementById("status");
   const q = document.getElementById("q");
+  const clearButton = document.getElementById("clear-selection");
   const minFollowers = document.getElementById("min-followers");
   const mode = document.getElementById("mode");
   const matches = document.getElementById("matches");
   const edgeRecords = raw.edges.map(([aId, bId]) => ({aId, bId, a: byId.get(aId), b: byId.get(bId)})).filter(edge => edge.a && edge.b);
   const view = {x: 0, y: 0, scale: 1};
   const canvasSize = {width: 1, height: 1, dpr: 1, graphDpr: 1};
-  let selected = nodes[0]?.id || null;
+  let selected = null;
   let visibleIds = new Set(nodes.map(n => n.id));
   let visibleList = nodes;
   let visibleEdges = edgeRecords;
@@ -470,8 +477,11 @@ __POSTHOG_HTML__
   }
   function updateStatus() {
     ensureVisible();
-    const suffix = selected ? ` · selected <b>${escapeHtml(byId.get(selected)?.slug || "")}</b>` : "";
-    const nextStatus = `<div class="graph-legend"><span>Showing <b>${visibleList.length.toLocaleString()}</b> people and <b>${visibleEdges.length.toLocaleString()}</b> follows${suffix}</span><span class="legend-key"><span class="legend-dot selected"></span>selected</span><span class="legend-key"><span class="legend-dot follower"></span>follows selected</span><span class="legend-key"><span class="legend-dot following"></span>selected follows</span><span class="legend-key"><span class="legend-dot mutual"></span>mutual</span><span class="legend-key"><span class="legend-dot other"></span>other</span></div>`;
+    const summary = `Showing <b>${visibleList.length.toLocaleString()}</b> people and <b>${visibleEdges.length.toLocaleString()}</b> follows`;
+    const selectedNode = selected && byId.get(selected);
+    const nextStatus = selectedNode
+      ? `<div class="graph-legend"><span>${summary} · selected <b>${escapeHtml(selectedNode.slug)}</b></span><span class="legend-key"><span class="legend-dot selected"></span>selected</span><span class="legend-key"><span class="legend-dot follower"></span>follows selected</span><span class="legend-key"><span class="legend-dot following"></span>selected follows</span><span class="legend-key"><span class="legend-dot mutual"></span>mutual</span><span class="legend-key"><span class="legend-dot other"></span>other</span></div>`
+      : `<div class="graph-legend"><span>${summary}. Search or click a dot to select a person.</span></div>`;
     if (nextStatus !== lastStatus) {
       status.innerHTML = nextStatus;
       lastStatus = nextStatus;
@@ -844,14 +854,21 @@ __POSTHOG_HTML__
   function renderReader() {
     const n = selected && byId.get(selected);
     reader.classList.toggle("is-empty", !n);
+    graphPage.classList.toggle("has-selection", Boolean(n));
+    clearButton.hidden = !n;
     if (!n) {
-      reader.replaceChildren(document.createTextNode("Select a dot to read it."), readerFooter());
+      reader.hidden = true;
+      reader.replaceChildren();
       return;
     }
+    reader.hidden = false;
     const followers = sortedPeople(n.followers);
     const following = sortedPeople(n.following);
     reader.innerHTML = "";
+    const header = document.createElement("div"); header.className = "reader-head";
     const title = document.createElement("h2"); title.textContent = n.name || n.slug;
+    const clear = document.createElement("button"); clear.type = "button"; clear.className = "clear-person"; clear.textContent = "Clear"; clear.addEventListener("click", clearSelection);
+    header.append(title, clear);
     const links = document.createElement("p"); links.className = "profile-links";
     appendProfileLink(links, "Curius", profileUrl(n));
     appendProfileLink(links, "Twitter", twitterUrl(n.twitter));
@@ -859,7 +876,7 @@ __POSTHOG_HTML__
     appendProfileLink(links, "Website", safeExternalUrl(n.website));
     const counts = document.createElement("div"); counts.className = "counts";
     counts.innerHTML = `<div class="count"><b>${n.in.toLocaleString()}</b><span>followers</span></div><div class="count"><b>${n.out.toLocaleString()}</b><span>following</span></div><div class="count"><b>${n.core}</b><span>core score <button class="info-dot" type="button" aria-label="Core score explanation" aria-describedby="core-score-tip">i<span id="core-score-tip" class="info-tooltip" role="tooltip">Core score is the k-core number: the deepest dense shell this person remains in after repeatedly removing people with fewer than k connections. Follows are treated as undirected here.</span></button></span></div>`;
-    reader.append(title, links, counts, peopleSection("Followers", followers), peopleSection("Following", following), readerFooter());
+    reader.append(header, links, counts, peopleSection("Followers", followers), peopleSection("Following", following), readerFooter());
   }
   function peopleSection(title, people) {
     const section = document.createElement("section");
@@ -891,6 +908,16 @@ __POSTHOG_HTML__
       const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
       graphStage.scrollIntoView({block: "start", behavior});
     });
+  }
+  function clearSelection() {
+    if (!selected && !q.value) return;
+    selected = null;
+    q.value = "";
+    mode.value = "whole";
+    markVisibleDirty();
+    renderReader();
+    hideMatches();
+    fit(false);
   }
   function selectNode(id, shouldFit) {
     if (!byId.has(id)) return;
@@ -1046,7 +1073,11 @@ __POSTHOG_HTML__
     scheduleRender();
     settleRender(90);
   }, {passive: false});
-  q.addEventListener("input", renderMatches);
+  clearButton.addEventListener("click", clearSelection);
+  q.addEventListener("input", () => {
+    if (!q.value.trim() && selected) { clearSelection(); return; }
+    renderMatches();
+  });
   q.addEventListener("keydown", ev => {
     if (ev.key !== "Enter") return;
     const term = q.value.trim().toLowerCase();
@@ -3153,7 +3184,7 @@ def self_test() -> None:
         assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Palatino" in graph_html
         assert 'getContext("webgl", {alpha: false' in graph_html and "gl.clearColor(1, 250 / 255, 240 / 255, 1)" in graph_html
         assert "const EDGE_LINE_WIDTH = 1.4" in graph_html and "gl.drawArrays(gl.TRIANGLES, 0, edgeVertexCount)" in graph_html
-        assert ".canvas-wrap.sheet { border: 1px solid rgba(216, 200, 181, .38);" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0;" in graph_html
+        assert ".canvas-wrap.sheet { border: 0;" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0;" in graph_html
         assert 'overlay.fillStyle = "#fffaf0"' in graph_html and "body { background: var(--paper); }" in graph_html
         assert "The Curius Follower Graph" in graph_html and "The social network from" in graph_html and "https://curius.app" in graph_html and "about.html" in graph_html
         assert "posthog.init" in graph_html and "phc_lwrp8rJxreMnGicmxPIe8YksCzEnpjdZJKTG5Tn3Nps" in graph_html
@@ -3172,6 +3203,7 @@ def self_test() -> None:
         assert ".matches.people" in graph_html and "grid-template-columns: 1fr" in graph_html and "max-height: none; overflow: visible" in graph_html
         assert ".graph-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto;" in graph_html
         assert ".min-filter { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr);" in graph_html
+        assert 'id="reader" class="reader" hidden' in graph_html and "let selected = null;" in graph_html and "function clearSelection()" in graph_html and 'id="clear-selection"' in graph_html
         assert "reader-footer" in graph_html and "twitter.com/anishthite" in graph_html and "spanner.sh" in graph_html
         assert "metrics-data" in metrics_html and "PageRank" in metrics_html and "Glossary" in metrics_html
         assert "algorithms-data" in algorithms_html and "Graph workbench" in algorithms_html and "HITS" in algorithms_html
