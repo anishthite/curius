@@ -21,17 +21,16 @@ async function rewriteLegacyLinks(directory) {
     const output = source
       // The checked-in snapshot may have been generated for the retired Pages
       // projects. Normalize it while staging every Worker deployment.
-      .replaceAll("https://curius-analysis.pages.dev", "/analysis")
-      .replaceAll("https://curius.thite.site", "")
-      .replaceAll('href="../frontpage/index.html"', 'href="/index.html"');
+      .replaceAll("https://curius-analysis.pages.dev", "https://curius-graph.thite.site")
+      .replaceAll("https://curius.thite.site", "https://curius-links.thite.site");
     if (output !== source) await writeFile(path, output, "utf8");
   }
 }
 
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
-await cp(frontpage, dist, { recursive: true });
+await cp(frontpage, join(dist, "frontpage"), { recursive: true });
 await cp(analysis, join(dist, "analysis"), { recursive: true });
 await rewriteLegacyLinks(dist);
 
-console.log("Built dist/ for the Curius Worker (/ and /analysis/).");
+console.log("Built Worker assets for the frontpage and graph sites.");

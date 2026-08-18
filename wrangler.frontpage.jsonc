@@ -1,13 +1,13 @@
 {
   "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
-  "name": "curius-site",
+  "name": "curius-frontpage-worker",
   "compatibility_date": "2026-08-18",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist/frontpage"
   },
   "routes": [
     {
-      "pattern": "curius.thite.site",
+      "pattern": "curius-links.thite.site",
       "custom_domain": true
     }
   ]

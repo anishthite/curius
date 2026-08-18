@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+  "name": "curius-analysis-worker",
+  "compatibility_date": "2026-08-18",
+  "assets": {
+    "directory": "./dist/analysis"
+  },
+  "routes": [
+    {
+      "pattern": "curius-graph.thite.site",
+      "custom_domain": true
+    }
+  ]
+}

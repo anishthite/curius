@@ -71,32 +71,34 @@ python3 analysis/build_follower_site.py --self-test
 
 ## Deploy
 
-The site is a single [Cloudflare Worker static-assets deployment](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/), not a GitHub Action or a Cloudflare Pages project. It serves:
+The sites are two [Cloudflare Worker static-assets deployments](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/), not GitHub Actions or Cloudflare Pages projects. They preserve the current public URLs:
 
-- `/` — Curius Front Page
-- `/analysis/` — follower-graph app
+- `https://curius-links.thite.site` — Curius Front Page
+- `https://curius-graph.thite.site` — follower-graph app
 
-`wrangler.jsonc` attaches the Worker to `curius.thite.site`. It has no application handler and no per-request computation: Cloudflare serves the staged static assets directly.
+`wrangler.frontpage.jsonc` and `wrangler.analysis.jsonc` each attach a Worker to one hostname. Neither has an application handler or per-request computation: Cloudflare serves the staged static assets directly.
 
 One-time migration:
 
-1. In Cloudflare, remove `curius.thite.site` from the existing Pages project. A Worker custom domain cannot be created while that Pages CNAME exists.
-2. Disconnect or delete the two old Pages projects so Git pushes no longer trigger Pages builds. Keep the GitHub repository itself connected: the replacement CI/CD integration is Cloudflare Workers Builds.
-3. Authenticate Wrangler locally with `npx wrangler@4 login`, then deploy with `npm run deploy:worker`. For CI-free non-interactive use, set `CLOUDFLARE_API_TOKEN` in the shell instead.
-4. In the Cloudflare dashboard, open the `curius-site` Worker and go to **Settings → Builds → Connect**. Connect this repository, select `main` as the production branch, and use:
+1. In Cloudflare, remove `curius-links.thite.site` from the `curius-frontpage` Pages project and `curius-graph.thite.site` from the `curius-analysis` Pages project. A Worker custom domain cannot be created while the Pages CNAME exists.
+2. Deploy both Workers with `npm run deploy:workers`.
+3. Disconnect or delete the two old Pages projects so Git pushes no longer trigger Pages builds. Keep the GitHub repository itself connected: the replacement CI/CD integration is Cloudflare Workers Builds.
+4. In the Cloudflare dashboard, connect this repository to both `curius-frontpage-worker` and `curius-analysis-worker` under **Settings → Builds → Connect**. Select `main` as the production branch. Each Worker uses the following settings:
 
    | Setting | Value |
    | --- | --- |
    | Root directory | `/` |
    | Build command | `npm run build:worker` |
-   | Deploy command | `npx wrangler deploy` |
+   | Frontpage deploy command | `npx wrangler deploy --config wrangler.frontpage.jsonc` |
+   | Graph deploy command | `npx wrangler deploy --config wrangler.analysis.jsonc` |
 
    Cloudflare will then build and deploy every push to `main`; enable non-production branch builds there when preview deployments are wanted. This uses Cloudflare's native build system, not GitHub Actions.
 
-Preview the exact Worker asset layout before deploying:
+Preview either Worker before deploying:
 
 ```sh
-npm run dev:worker
+npm run dev:frontpage
+npm run dev:analysis
 ```
 
 Refresh data locally whenever a new snapshot is wanted. This intentionally replaces the former twice-daily GitHub Actions job; Cloudflare Workers cannot run the repository's Python crawler or retain its local SQLite file. Commit and push the newly generated `apps/` files after refreshing; Cloudflare Workers Builds will publish that pushed snapshot automatically.
@@ -117,7 +119,7 @@ git commit -m "Update Curius static apps"
 git push
 ```
 
-`npm run deploy:worker` remains useful for a direct local hotfix. The generator now defaults to `/` and `/analysis`, so no deploy-time URL variables or GitHub secrets are needed. `dist/` is an ignored, reproducible staging directory created by `npm run build:worker`.
+`npm run deploy:workers` remains useful for a direct local hotfix. The generator now defaults to the two public hostnames, so no deploy-time URL variables or GitHub secrets are needed. `dist/` is an ignored, reproducible staging directory created by `npm run build:worker`.
 
 ## Tiny local QA experiment
 
