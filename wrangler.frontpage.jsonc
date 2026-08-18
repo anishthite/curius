@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+  "name": "curius-frontpage-worker",
+  "compatibility_date": "2026-08-18",
+  "assets": {
+    "directory": "./dist/frontpage"
+  },
+  "routes": [
+    {
+      "pattern": "curius-links.thite.site/*",
+      "zone_id": "6ee4a6ddba37182364c094e1b1dac8f0"
+    }
+  ]
+}

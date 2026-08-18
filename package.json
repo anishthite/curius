@@ -1,0 +1,12 @@
+{
+  "name": "curius",
+  "private": true,
+  "scripts": {
+    "build:worker": "node scripts/build-worker-assets.mjs",
+    "dev:frontpage": "npm run build:worker && npx --yes wrangler@4 dev --local --config wrangler.frontpage.jsonc",
+    "dev:analysis": "npm run build:worker && npx --yes wrangler@4 dev --local --config wrangler.analysis.jsonc",
+    "deploy:frontpage": "npm run build:worker && npx --yes wrangler@4 deploy --config wrangler.frontpage.jsonc",
+    "deploy:analysis": "npm run build:worker && npx --yes wrangler@4 deploy --config wrangler.analysis.jsonc",
+    "deploy:workers": "npm run build:worker && npx --yes wrangler@4 deploy --config wrangler.frontpage.jsonc && npx --yes wrangler@4 deploy --config wrangler.analysis.jsonc"
+  }
+}
