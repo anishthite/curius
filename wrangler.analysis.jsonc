@@ -7,8 +7,8 @@
   },
   "routes": [
     {
-      "pattern": "curius-graph.thite.site",
-      "custom_domain": true
+      "pattern": "curius-graph.thite.site/*",
+      "zone_id": "6ee4a6ddba37182364c094e1b1dac8f0"
     }
   ]
 }

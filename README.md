@@ -76,14 +76,12 @@ The sites are two [Cloudflare Worker static-assets deployments](https://develope
 - `https://curius-links.thite.site` — Curius Front Page
 - `https://curius-graph.thite.site` — follower-graph app
 
-`wrangler.frontpage.jsonc` and `wrangler.analysis.jsonc` each attach a Worker to one hostname. Neither has an application handler or per-request computation: Cloudflare serves the staged static assets directly.
+`wrangler.frontpage.jsonc` and `wrangler.analysis.jsonc` each attach a Worker route to one hostname. Neither has an application handler or per-request computation: Cloudflare serves the staged static assets directly. The routes sit in front of the existing Pages-created DNS records, so the migration does not need a DNS-record transfer.
 
 One-time migration:
 
-1. In Cloudflare, remove `curius-links.thite.site` from the `curius-frontpage` Pages project and `curius-graph.thite.site` from the `curius-analysis` Pages project. A Worker custom domain cannot be created while the Pages CNAME exists.
-2. Deploy both Workers with `npm run deploy:workers`.
-3. Disconnect or delete the two old Pages projects so Git pushes no longer trigger Pages builds. Keep the GitHub repository itself connected: the replacement CI/CD integration is Cloudflare Workers Builds.
-4. In the Cloudflare dashboard, connect this repository to both `curius-frontpage-worker` and `curius-analysis-worker` under **Settings → Builds → Connect**. Select `main` as the production branch. Each Worker uses the following settings:
+1. Deploy both Workers with `npm run deploy:workers`. The Worker routes preserve the Pages DNS records and existing URLs.
+2. In the Cloudflare dashboard, connect this repository to both `curius-frontpage-worker` and `curius-analysis-worker` under **Settings → Builds → Connect**. Select `main` as the production branch. Each Worker uses the following settings:
 
    | Setting | Value |
    | --- | --- |
@@ -93,6 +91,8 @@ One-time migration:
    | Graph deploy command | `npx wrangler deploy --config wrangler.analysis.jsonc` |
 
    Cloudflare will then build and deploy every push to `main`; enable non-production branch builds there when preview deployments are wanted. This uses Cloudflare's native build system, not GitHub Actions.
+
+3. After Workers Builds is working, disconnect the legacy Pages Git integrations to stop duplicate Pages builds. Keep their DNS records in place while using Worker routes; removing the Pages projects entirely requires replacing those DNS records with Worker-owned records.
 
 Preview either Worker before deploying:
 
