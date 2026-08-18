@@ -17,3 +17,7 @@ output/
 
 # Scratch.
 artifacts/
+
+# Generated Cloudflare Workers static-assets bundle.
+dist/
+.wrangler/

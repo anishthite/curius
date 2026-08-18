@@ -1,0 +1,9 @@
+{
+  "name": "curius",
+  "private": true,
+  "scripts": {
+    "build:worker": "node scripts/build-worker-assets.mjs",
+    "dev:worker": "npm run build:worker && npx --yes wrangler@4 dev --local",
+    "deploy:worker": "npm run build:worker && npx --yes wrangler@4 deploy"
+  }
+}

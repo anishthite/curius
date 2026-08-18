@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+  "name": "curius-site",
+  "compatibility_date": "2026-08-18",
+  "assets": {
+    "directory": "./dist"
+  },
+  "routes": [
+    {
+      "pattern": "curius.thite.site",
+      "custom_domain": true
+    }
+  ]
+}

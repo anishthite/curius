@@ -35,8 +35,11 @@ DEFAULT_ABOUT_OUT = DEFAULT_ANALYSIS_APP / "about.html"
 DEFAULT_FRONTPAGE_OUT = DEFAULT_FRONTPAGE_APP / "index.html"
 DEFAULT_HOW_OUT = DEFAULT_FRONTPAGE_APP / "how-this-works.html"
 DEFAULT_ABOUT_COPY_FILE = REPO_ROOT / "analysis/about_copy.json"
-DEFAULT_ANALYSIS_URL = "../analysis"
-DEFAULT_FRONTPAGE_URL = "../frontpage"
+# The deployed Worker serves the frontpage at / and the graph at /analysis/.
+# Keep these same-origin defaults so generated links work on workers.dev, the
+# custom domain, and the local Worker preview.
+DEFAULT_ANALYSIS_URL = "/analysis"
+DEFAULT_FRONTPAGE_URL = "/"
 GOLDEN_ANGLE = math.pi * (3 - math.sqrt(5))
 POSTHOG_HTML = """
 <script>
