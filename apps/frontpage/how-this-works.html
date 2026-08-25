@@ -4,133 +4,63 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="How Curius Links orders public saves and highlights.">
-<meta name="theme-color" content="#f7f0e4">
+<meta name="theme-color" content="#ffffff">
 <title>About Curius Links</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Lora:wght@400;500;600&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-
   :root {
     color-scheme: light;
-    --paper: #f7f0e4;
-    --sheet: #fffaf0;
-    --ink: #20170f;
-    --muted: #6f6254;
-    --rule: #d8c8b5;
-    --soft: #eadfce;
-    --red: #b74d2f;
-    --blue: #2f63b7;
-    --green: #247a4b;
-    --violet: #7047a8;
+    --ink: #161616;
+    --muted: #8b8b8b;
+    --rule: #ededed;
+    --soft: #fafafa;
+    --highlight: #ffdf00;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    background:
-      radial-gradient(circle at 18% 12%, rgba(255,255,255,.58), transparent 28rem),
-      linear-gradient(90deg, rgba(88,54,20,.025) 1px, transparent 1px),
-      var(--paper);
-    background-size: auto, 18px 18px, auto;
+    background: #fff;
     color: var(--ink);
-    font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-    font-size: 18px;
-    line-height: 1.5;
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
   }
-  a { color: var(--blue); text-decoration-thickness: .08em; text-underline-offset: .16em; }
-  button, input, select { font: inherit; color: inherit; }
-  code, pre { font-family: inherit; }
-  .page { width: min(1180px, 100%); margin: 0 auto; padding: 26px clamp(14px, 3vw, 34px) 42px; }
-  h1, h2, h3 { font-weight: 500; line-height: 1.1; letter-spacing: -.02em; }
-  h1 { font-size: clamp(2rem, 7vw, 4.7rem); margin: 0 0 .35em; }
-  h2 { font-size: clamp(1.45rem, 4vw, 2.4rem); margin: 2rem 0 .55rem; }
-  h3 { font-size: 1.22rem; margin: 1.2rem 0 .35rem; }
-  p { margin: .55rem 0; max-width: 72ch; }
-  .quiet { color: var(--muted); }
-  .nav { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin: 0 0 1.1rem; }
-  .nav a { color: var(--ink); }
-  .sheet {
-    background: rgba(255, 250, 240, .82);
-    border: 1px solid var(--rule);
-    border-radius: 18px;
-    box-shadow: 0 1px 0 rgba(60, 42, 20, .05);
-  }
-  .controls { display: grid; gap: .7rem; }
-  label { display: grid; gap: .25rem; color: var(--muted); }
-  input, select, button {
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    background: rgba(255, 252, 245, .96);
-    min-height: 44px;
-    padding: .48rem .78rem;
-  }
-  button { cursor: pointer; }
-  button:hover, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid rgba(47, 99, 183, .28); outline-offset: 2px; }
-  table { border-collapse: collapse; width: 100%; margin: .8rem 0 1.2rem; font-size: .95rem; }
-  th, td { border-bottom: 1px solid var(--rule); padding: .45rem .35rem; text-align: left; vertical-align: top; }
-  th { font-weight: 500; color: var(--muted); }
-  .math {
-    display: block;
-    width: fit-content;
-    max-width: 100%;
-    overflow-x: auto;
-    margin: .9rem 0;
-    padding: .7rem .85rem;
-    border-left: 3px solid var(--rule);
-    background: rgba(255, 252, 245, .78);
-    font-size: clamp(1.08rem, 3vw, 1.35rem);
-    white-space: nowrap;
-  }
-  .frac { display: inline-grid; grid-template-rows: auto auto; vertical-align: middle; text-align: center; line-height: 1.05; }
-  .frac > span:first-child { border-bottom: 1px solid currentColor; padding: 0 .14em .05em; }
-  .frac > span:last-child { padding: .06em .14em 0; }
-  .term, .glossary button {
-    border-radius: .25rem;
-    cursor: pointer;
-    padding: 0 .08em;
-  }
-  .term:hover, .term:focus-visible, .glossary button:hover, .glossary button:focus-visible { background: rgba(47, 99, 183, .12); outline: none; }
-  .cite { white-space: nowrap; }
-  .definition-card {
-    position: fixed;
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%);
-    width: min(620px, calc(100vw - 22px));
-    padding: .85rem 1rem;
-    z-index: 20;
-    display: none;
-  }
-  .definition-card[open] { display: block; }
-  .definition-card button { float: right; min-height: 34px; padding: .2rem .65rem; }
-  @media (max-width: 760px) {
-    body { font-size: 16px; }
-    .page { padding-left: 12px; padding-right: 12px; }
-    .nav a { display: inline-flex; align-items: center; min-height: 44px; }
-    table { font-size: .9rem; }
-  }
-
-  .page { width: min(760px, 100%); }
-  .topbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
-  .back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .94rem; text-decoration: none; }
-  .back-link:hover, .back-link:focus-visible { text-decoration: underline; text-underline-offset: .16em; }
-  .graph-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: .86rem; }
-  .article { padding: clamp(1.6rem, 5vw, 3.4rem) 0 2rem; }
-  .eyebrow { margin: 0 0 .5rem; color: var(--muted); font-size: .84rem; letter-spacing: .09em; text-transform: uppercase; }
-  .article h1 { margin-bottom: .55rem; font-size: clamp(2.35rem, 7vw, 4.2rem); }
-  .lede { max-width: 39ch; margin: 0; font-size: clamp(1.12rem, 2.4vw, 1.42rem); line-height: 1.42; }
-  .article section { margin-top: clamp(2rem, 5vw, 3.3rem); }
-  .article h2 { margin: 0 0 .55rem; font-size: clamp(1.45rem, 4vw, 2rem); }
-  .article p + p { margin-top: .9rem; }
-  .formula-card { margin: 1.1rem 0 0; padding: clamp(1rem, 3vw, 1.35rem); }
-  .formula-card h3 { margin: 0; font-size: 1rem; }
-  .formula-card .math { margin: .65rem 0; }
-  .detail-list { list-style: none; padding: 0; margin: 1rem 0 0; border-top: 1px solid var(--rule); }
-  .detail-list li { padding: .72rem 0; border-bottom: 1px solid var(--rule); }
-  .detail-list strong { display: inline-block; min-width: 7.5rem; font-weight: 600; }
-  .source-note { color: var(--muted); font-size: .94rem; }
+  a { color: inherit; }
+  code { font-family: "IBM Plex Mono", monospace; font-size: .88em; }
+  .page { width: min(760px, 100%); margin: 0 auto; padding: 17px clamp(18px, 4vw, 32px) 64px; }
+  .topbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .back-link { display: inline-flex; align-items: center; min-height: 32px; color: var(--ink); font-size: 18px; font-weight: 600; letter-spacing: -.025em; text-decoration: none; }
+  .graph-link { display: inline-flex; align-items: center; min-height: 32px; color: #777; font-size: 14px; text-decoration: none; }
+  .back-link:hover, .graph-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
+  .back-link:focus-visible, .graph-link:focus-visible { outline: 2px solid rgba(0, 0, 0, .42); outline-offset: 3px; }
+  .article { padding: clamp(2.6rem, 7vw, 4.6rem) 0 2rem; }
+  .eyebrow { margin: 0 0 10px; color: #777; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .02em; text-transform: uppercase; }
+  .article h1, .article h2 { font-family: Lora, Georgia, serif; font-weight: 400; letter-spacing: -.035em; line-height: 1.2; }
+  .article h1 { margin: 0 0 12px; font-size: clamp(2.3rem, 7vw, 4rem); }
+  .lede { max-width: 43ch; margin: 0; color: #333; font-family: Lora, Georgia, serif; font-size: clamp(1.1rem, 2.4vw, 1.35rem); line-height: 1.52; }
+  .article section { margin-top: clamp(2.5rem, 6vw, 4rem); }
+  .article h2 { margin: 0 0 10px; font-size: clamp(1.45rem, 4vw, 1.85rem); }
+  .article p { max-width: 66ch; margin: 0; }
+  .article p + p { margin-top: 1rem; }
+  .sheet { border: 1px solid var(--rule); background: #fff; }
+  .formula-card { margin: 20px 0 0; padding: clamp(18px, 4vw, 28px); }
+  .formula-card h3 { width: fit-content; margin: 0; padding: 1px 4px; background: var(--highlight); font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 500; letter-spacing: .02em; }
+  .math { display: block; width: fit-content; max-width: 100%; overflow-x: auto; margin: 16px 0; padding-left: 12px; border-left: 2px solid var(--highlight); font-family: Lora, Georgia, serif; font-size: clamp(1.12rem, 3vw, 1.35rem); white-space: nowrap; }
+  .formula-card .math + p { color: #666; font-size: 14px; }
+  .detail-list { list-style: none; padding: 0; margin: 18px 0 0; border-top: 1px solid var(--rule); }
+  .detail-list li { padding: 13px 0; border-bottom: 1px solid var(--rule); }
+  .detail-list strong { display: inline-block; min-width: 8.25rem; font-weight: 600; }
+  .source-note { color: #777; font-size: 14px; }
   @media (max-width: 520px) {
-    .topbar { padding-bottom: .8rem; }
-    .article { padding-top: 1.8rem; }
-    .detail-list strong { display: block; margin-bottom: .08rem; }
+    .page { padding: 14px 17px 42px; }
+    .topbar { padding-bottom: 9px; }
+    .back-link { font-size: 17px; }
+    .graph-link { font-size: 13px; }
+    .article { padding-top: 40px; }
+    .detail-list strong { display: block; margin-bottom: 2px; }
   }
 </style>
 </head>
