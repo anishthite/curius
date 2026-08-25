@@ -81,6 +81,7 @@
       <h1 id="feed-heading" aria-live="polite">Popular links</h1>
       <div class="sort-controls" aria-label="Sort links">
         <button type="button" data-sort="popular" aria-pressed="true">Popular</button>
+        <button type="button" data-sort="rising" aria-pressed="false">Rising</button>
         <button type="button" data-sort="newest" aria-pressed="false">Newest</button>
       </div>
     </div>
@@ -98,6 +99,7 @@
   const sortButtons = document.querySelectorAll("[data-sort]");
   const state = {sort: "popular"};
   const views = data.views || buildViews(data);
+  if (!views.rising) views.rising = buildRisingView(views);
   let currentSort = "popular";
 
   function text(tag, className, value) {
@@ -121,12 +123,36 @@
     if (Number.isFinite(item.score)) return item.score;
     return 3 * item.savers + 5 * item.highlighters + item.highlights;
   }
+  function risingScore(item, nowMs) {
+    const ageDays = Math.max(0, (nowMs - item.createdAtMs) / 86400000);
+    return score(item) * Math.pow(2, -ageDays / 14);
+  }
   function buildViews(source) {
-    const rows = (source.links || []).map(item => ({...item, score: score(item), createdAtMs: Date.parse(item.createdAt || "") || 0}));
+    const nowMs = Date.parse(source.generatedAt || "") || Date.now();
+    const rows = (source.links || []).map(item => {
+      const row = {...item, score: score(item), createdAtMs: Date.parse(item.createdAt || "") || 0};
+      row.risingScore = risingScore(row, nowMs);
+      return row;
+    });
     return {
       popular: rows.slice().sort((a, b) => b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50),
+      rising: rows.slice().sort((a, b) => b.risingScore - a.risingScore || b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50),
       newest: rows.slice().sort((a, b) => b.createdAtMs - a.createdAtMs || b.score - a.score).slice(0, 50),
     };
+  }
+  function buildRisingView(source) {
+    const candidates = new Map();
+    for (const items of Object.values(source)) {
+      for (const item of Array.isArray(items) ? items : []) {
+        const key = item.id ?? item.url;
+        if (!candidates.has(key)) candidates.set(key, item);
+      }
+    }
+    return [...candidates.values()].map(item => {
+      const row = {...item, score: score(item), createdAtMs: Date.parse(item.createdAt || "") || 0};
+      row.risingScore = risingScore(row, generatedAt);
+      return row;
+    }).sort((a, b) => b.risingScore - a.risingScore || b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50);
   }
   function renderLink(item, body) {
     const title = text("div", "story-title");
@@ -156,7 +182,7 @@
     if (state.sort === currentSort) return;
     currentSort = state.sort;
     const items = views[state.sort] || [];
-    feedHeading.textContent = `${state.sort === "popular" ? "Popular" : "Newest"} links`;
+    feedHeading.textContent = `${state.sort === "popular" ? "Popular" : state.sort === "rising" ? "Rising" : "Newest"} links`;
     renderFeed(items);
   }
 
