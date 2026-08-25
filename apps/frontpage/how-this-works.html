@@ -77,6 +77,7 @@
       <p>Each row is one saved link from the public Curius crawl. Its title opens the original source. The line beneath it shows the activity Curius has seen around that link and when it was last active.</p>
       <ul class="detail-list">
         <li><strong>Popular</strong>orders links by the activity score below.</li>
+        <li><strong>Rising</strong>gives recent activity more weight, so newly active links can surface.</li>
         <li><strong>Newest</strong>orders them by their most recent save or highlight activity.</li>
         <li><strong>Points</strong>give a compact signal of attention, not a judgment of quality.</li>
       </ul>
@@ -89,6 +90,11 @@
         <h3>Link score</h3>
         <div class="math">S<sub>link</sub> = 3u<sub>save</sub> + 5u<sub>mark</sub> + h</div>
         <p><code>u<sub>save</sub></code> is the number of distinct savers, <code>u<sub>mark</sub></code> is the number of distinct readers who highlighted the link, and <code>h</code> is the total number of highlights.</p>
+      </div>
+      <div class="sheet formula-card">
+        <h3>Rising score</h3>
+        <div class="math">S<sub>rising</sub> = S<sub>link</sub> × 2<sup>−d / 14</sup></div>
+        <p><code>d</code> is days since the link’s latest visible save or highlight activity. The attention score halves every 14 days, so this is a time-weighted activity view rather than a measurement of change between crawls.</p>
       </div>
     </section>
 

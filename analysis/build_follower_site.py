@@ -1820,6 +1820,7 @@ __PAPER_CSS__
       <h1 id="feed-heading" aria-live="polite">Popular links</h1>
       <div class="sort-controls" aria-label="Sort links">
         <button type="button" data-sort="popular" aria-pressed="true">Popular</button>
+        <button type="button" data-sort="rising" aria-pressed="false">Rising</button>
         <button type="button" data-sort="newest" aria-pressed="false">Newest</button>
       </div>
     </div>
@@ -1860,10 +1861,20 @@ __PAPER_CSS__
     if (Number.isFinite(item.score)) return item.score;
     return 3 * item.savers + 5 * item.highlighters + item.highlights;
   }
+  function risingScore(item, nowMs) {
+    const ageDays = Math.max(0, (nowMs - item.createdAtMs) / 86400000);
+    return score(item) * Math.pow(2, -ageDays / 14);
+  }
   function buildViews(source) {
-    const rows = (source.links || []).map(item => ({...item, score: score(item), createdAtMs: Date.parse(item.createdAt || "") || 0}));
+    const nowMs = Date.parse(source.generatedAt || "") || Date.now();
+    const rows = (source.links || []).map(item => {
+      const row = {...item, score: score(item), createdAtMs: Date.parse(item.createdAt || "") || 0};
+      row.risingScore = risingScore(row, nowMs);
+      return row;
+    });
     return {
       popular: rows.slice().sort((a, b) => b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50),
+      rising: rows.slice().sort((a, b) => b.risingScore - a.risingScore || b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50),
       newest: rows.slice().sort((a, b) => b.createdAtMs - a.createdAtMs || b.score - a.score).slice(0, 50),
     };
   }
@@ -1895,7 +1906,7 @@ __PAPER_CSS__
     if (state.sort === currentSort) return;
     currentSort = state.sort;
     const items = views[state.sort] || [];
-    feedHeading.textContent = `${state.sort === "popular" ? "Popular" : "Newest"} links`;
+    feedHeading.textContent = `${state.sort === "popular" ? "Popular" : state.sort === "rising" ? "Rising" : "Newest"} links`;
     renderFeed(items);
   }
 
@@ -1955,6 +1966,7 @@ __PAPER_CSS__
       <p>Each row is one saved link from the public Curius crawl. Its title opens the original source. The line beneath it shows the activity Curius has seen around that link and when it was last active.</p>
       <ul class="detail-list">
         <li><strong>Popular</strong>orders links by the activity score below.</li>
+        <li><strong>Rising</strong>gives recent activity more weight, so newly active links can surface.</li>
         <li><strong>Newest</strong>orders them by their most recent save or highlight activity.</li>
         <li><strong>Points</strong>give a compact signal of attention, not a judgment of quality.</li>
       </ul>
@@ -1967,6 +1979,11 @@ __PAPER_CSS__
         <h3>Link score</h3>
         <div class="math">S<sub>link</sub> = 3u<sub>save</sub> + 5u<sub>mark</sub> + h</div>
         <p><code>u<sub>save</sub></code> is the number of distinct savers, <code>u<sub>mark</sub></code> is the number of distinct readers who highlighted the link, and <code>h</code> is the total number of highlights.</p>
+      </div>
+      <div class="sheet formula-card">
+        <h3>Rising score</h3>
+        <div class="math">S<sub>rising</sub> = S<sub>link</sub> × 2<sup>−d / 14</sup></div>
+        <p><code>d</code> is days since the link’s latest visible save or highlight activity. The attention score halves every 14 days, so this is a time-weighted activity view rather than a measurement of change between crawls.</p>
       </div>
     </section>
 
@@ -2036,17 +2053,27 @@ def frontpage_score(item: dict[str, Any]) -> int:
     return 3 * int(item.get("savers") or 0) + 5 * int(item.get("highlighters") or 0) + int(item.get("highlights") or 0)
 
 
+def frontpage_rising_score(item: dict[str, Any], generated_at: Any) -> float:
+    """Time-weight the activity score with a 14-day half-life."""
+    generated = parse_datetime(generated_at) or datetime.now(timezone.utc)
+    activity = parse_datetime(item.get("createdAt"))
+    age_days = max(0, (generated - activity).total_seconds() / 86400) if activity else float("inf")
+    return frontpage_score(item) * 2 ** (-age_days / 14)
+
+
 def frontpage_views(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
-    """Return the two small, client-side views used by the links-only front page."""
+    """Return the small, client-side views used by the links-only front page."""
     rows = []
     for item in payload.get("links", []):
         row = dict(item)
         row["score"] = frontpage_score(row)
         created = parse_datetime(row.get("createdAt"))
         row["createdAtMs"] = int(created.timestamp() * 1000) if created else 0
+        row["risingScore"] = frontpage_rising_score(row, payload.get("generatedAt"))
         rows.append(row)
     return {
         "popular": sorted(rows, key=lambda item: (item["score"], item["createdAtMs"]), reverse=True)[:50],
+        "rising": sorted(rows, key=lambda item: (item["risingScore"], item["score"], item["createdAtMs"]), reverse=True)[:50],
         "newest": sorted(rows, key=lambda item: (item["createdAtMs"], item["score"]), reverse=True)[:50],
     }
 
@@ -3192,7 +3219,7 @@ def self_test() -> None:
         assert "About the Curius graph" in about_html and "Most followed people" in about_html and "Most popular saved-link domains" in about_html
         assert about_html.count('class="bar-chart') == 2 and "In one breath" not in about_html and "questions.html" not in analysis_html
         assert "frontpage-data" in frontpage_html and "Curius Links" in frontpage_html and "Popular links" in frontpage_html
-        assert 'data-sort="popular"' in frontpage_html and 'data-sort="newest"' in frontpage_html
+        assert 'data-sort="popular"' in frontpage_html and 'data-sort="rising"' in frontpage_html and 'data-sort="newest"' in frontpage_html
         assert "data-kind" not in frontpage_html and "highlights:popular" not in frontpage_html
         assert "S<sub>link</sub>" in how_html and "About this list" in how_html and "Scope" in how_html
         assert analysis_html.count('<nav class="nav') == 3
@@ -3201,6 +3228,8 @@ def self_test() -> None:
         payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
         assert payload["views"]["newest"][0]["id"] == 10
         assert payload["views"]["popular"][0]["score"] >= payload["views"]["popular"][-1]["score"]
+        assert payload["views"]["rising"][0]["risingScore"] >= payload["views"]["rising"][-1]["risingScore"]
+        assert math.isclose(frontpage_rising_score({"score": 8, "createdAt": "2026-07-15T00:00:00Z"}, "2026-07-29T00:00:00Z"), 4)
         assert "<ol id=\"feed\" class=\"hn-list\"><li class=\"hn-item\">" in frontpage_html
         assert 'href="https://analysis.example/index.html"' in frontpage_html + how_html
         assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + about_html + frontpage_html + how_html
