@@ -179,7 +179,11 @@ GRAPH_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
 <title>The Curius Follower Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Lora:wght@400;500;600&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 __PAPER_CSS__
   body { background: var(--paper); }
@@ -333,14 +337,121 @@ __PAPER_CSS__
     .graph-canvas { height: clamp(430px, 62vh, 560px); }
     .legend-key { display: none; }
   }
+
+  /* Match the original Curius app: bright canvas, editorial type, and a single yellow accent. */
+  :root {
+    --paper: #ffffff;
+    --sheet: #ffffff;
+    --ink: #161616;
+    --muted: #8b8b8b;
+    --rule: #ededed;
+    --soft: #fafafa;
+    --blue: #161616;
+    --green: #161616;
+    --highlight: #ffdf00;
+  }
+  body {
+    background: #fff;
+    color: var(--ink);
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  a { color: inherit; }
+  .graph-page {
+    --reader-width: clamp(310px, 23vw, 380px);
+    width: min(1360px, 100%);
+    padding: 17px clamp(18px, 3vw, 32px) 0;
+  }
+  .graph-page.has-selection { padding-right: calc(var(--reader-width) + clamp(22px, 3vw, 42px)); }
+  .graph-hero { margin: 0; }
+  .graph-topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+  .graph-wordmark { color: var(--ink); font-size: 20px; font-weight: 600; letter-spacing: -.025em; text-decoration: none; }
+  .graph-nav { display: flex; gap: 1rem; align-items: center; font-size: 14px; }
+  .graph-nav a { color: #777; text-decoration: none; }
+  .graph-nav a:hover, .graph-nav a:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: .18em; }
+  .graph-intro { padding: 24px 0 13px; }
+  .graph-eyebrow { margin: 0 0 7px; color: #777; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .02em; text-transform: uppercase; }
+  .graph-hero h1 { margin: 0; color: var(--ink); font-family: Lora, Georgia, serif; font-size: clamp(1.9rem, 3.8vw, 3.25rem); font-weight: 400; letter-spacing: -.04em; line-height: 1.16; }
+  .graph-subhead { max-width: 60ch; margin: 8px 0 0; color: #666; font-size: 15px; line-height: 1.45; }
+  .graph-subhead a { color: var(--ink); text-decoration-color: var(--highlight); text-decoration-thickness: 2px; text-underline-offset: .14em; }
+  .graph-tools { gap: 6px; max-width: none; margin: 0 0 10px; padding: 0; }
+  .graph-tools input, .graph-tools select, .graph-tools button {
+    min-height: 34px;
+    border: 1px solid #e7e7e7;
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+  }
+  .graph-tools input:hover, .graph-tools select:hover, .graph-tools button:hover { background: var(--soft); }
+  .graph-tools input:focus-visible, .graph-tools select:focus-visible, .graph-tools button:focus-visible, .graph-wordmark:focus-visible, .graph-nav a:focus-visible { outline: 2px solid rgba(0, 0, 0, .42); outline-offset: 2px; }
+  #q { flex-basis: 360px; }
+  .min-filter { color: #777; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  #fit { border-color: var(--ink); background: var(--highlight); box-shadow: 3px 3px 0 var(--highlight); }
+  #fit:hover { background: var(--highlight); }
+  .graph-tools .clear-person, .reader .clear-person { color: #777; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .graph-tools .clear-person:hover, .graph-tools .clear-person:focus-visible, .reader .clear-person:hover, .reader .clear-person:focus-visible { color: var(--ink); }
+  .canvas-wrap.sheet { border: 1px solid var(--rule); border-radius: 0; background: #fff; }
+  .graph-canvas { border-radius: 0; background: #fff; }
+  .graph-canvas canvas { border-radius: 0; }
+  .canvas-note { left: 10px; right: 10px; bottom: 10px; padding: 7px 9px; border: 1px solid var(--rule); border-radius: 0; background: rgba(255, 255, 255, .94); box-shadow: none; color: #777; font-family: "Source Sans Pro", sans-serif; font-size: 13px; }
+  .canvas-note b { color: var(--ink); font-weight: 600; }
+  .legend-dot { border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, .14); }
+  .legend-dot.selected { background: #e2bd00; }
+  .legend-dot.follower { background: #555; }
+  .legend-dot.following { background: #777; }
+  .legend-dot.mutual { background: #2d2d2d; }
+  .legend-dot.other { background: #555; }
+  .reader { border-left: 1px solid var(--rule); background: rgba(255, 255, 255, .98); box-shadow: none; font-family: "Source Sans Pro", sans-serif; font-size: 14px; }
+  .reader h2 { font-family: Lora, Georgia, serif; font-size: 26px; font-weight: 400; letter-spacing: -.03em; }
+  .reader h3 { font-family: Lora, Georgia, serif; font-size: 17px; font-weight: 400; }
+  .count { border-radius: 0; background: var(--soft); }
+  .count b { font-weight: 600; }
+  .info-dot { border-color: #bbb; border-radius: 50%; background: #fff; color: #777; }
+  .info-dot:hover, .info-dot:focus-visible { background: var(--soft); outline-color: rgba(0, 0, 0, .28); }
+  .info-tooltip { border-radius: 0; background: #fff; box-shadow: 0 8px 22px rgba(0, 0, 0, .09); }
+  .people { border-radius: 0; }
+  .people::-webkit-scrollbar-thumb { background: #cfcfcf; }
+  .person { border-radius: 0; }
+  .person:hover, .person:focus-visible { background: var(--soft); box-shadow: inset 2px 0 0 var(--highlight); }
+  .reader-footer { border-top-color: var(--rule); color: #777; }
+  .reader-footer a { color: inherit; }
+  @media (max-width: 920px) {
+    .graph-page, .graph-page.has-selection { padding: 14px 17px 42px; }
+    .graph-topbar { min-height: 40px; padding-bottom: 8px; }
+    .graph-wordmark { font-size: 18px; }
+    .graph-nav { gap: .8rem; font-size: 13px; }
+    .graph-intro { padding: 22px 0 12px; }
+    .graph-hero h1 { font-size: clamp(1.85rem, 8vw, 2.7rem); }
+    .graph-subhead { font-size: 14px; }
+    .graph-tools { border-radius: 0; gap: 6px; margin-bottom: 12px; }
+    .graph-tools input, .graph-tools select, .graph-tools button { min-height: 42px; font-size: 15px; }
+    .reader { border: 1px solid var(--rule); border-radius: 0; background: #fff; }
+  }
+  @media (max-width: 520px) {
+    .graph-page, .graph-page.has-selection { padding-left: 14px; padding-right: 14px; }
+    .graph-tools { gap: 6px; }
+    .graph-tools input, .graph-tools select, .graph-tools button, #q { min-height: 42px; }
+    .min-filter { min-height: 42px; }
+    .canvas-note { left: 7px; right: 7px; bottom: 7px; font-size: 12px; }
+  }
 </style>
 __POSTHOG_HTML__
 </head>
 <body>
 <div class="page graph-page">
   <header class="graph-hero">
-    <h1>The Curius Follower Graph</h1>
-    <p class="graph-subhead">__GRAPH_SUBHEADER__ <a href="https://curius.app" target="_blank" rel="noreferrer">curius.app</a>, visualized. <a href="about.html">__GRAPH_SEE_MORE_TEXT__</a>.</p>
+    <div class="graph-topbar">
+      <a class="graph-wordmark" href="https://curius.app" target="_blank" rel="noreferrer">Curius</a>
+      <nav class="graph-nav" aria-label="Curius graph navigation"><a href="__FRONTPAGE_INDEX_URL__">Links</a><a href="about.html">About</a></nav>
+    </div>
+    <div class="graph-intro">
+      <p class="graph-eyebrow">Community</p>
+      <h1>Follower graph</h1>
+      <p class="graph-subhead">__GRAPH_SUBHEADER__ <a href="https://curius.app" target="_blank" rel="noreferrer">curius.app</a>, visualized. <a href="about.html">__GRAPH_SEE_MORE_TEXT__</a>.</p>
+    </div>
   </header>
   <section class="controls graph-tools" aria-label="Graph controls">
     <input id="q" type="search" autocomplete="off" placeholder="Search name or handle" aria-label="Search by name or handle">
@@ -466,15 +577,15 @@ __POSTHOG_HTML__
     refreshGraph();
   }
   function relationColor(id) {
-    if (id === selected) return "#9f3f26";
+    if (id === selected) return "#e2bd00";
     const center = selected && byId.get(selected);
-    if (!center) return "#5b4f41";
+    if (!center) return "#555555";
     const incoming = center.followersSet.has(id);
     const outgoing = center.followingSet.has(id);
-    if (incoming && outgoing) return "#5e398f";
-    if (incoming) return "#254f98";
-    if (outgoing) return "#1c653d";
-    return "#5f5140";
+    if (incoming && outgoing) return "#2d2d2d";
+    if (incoming) return "#555555";
+    if (outgoing) return "#777777";
+    return "#555555";
   }
   function updateStatus() {
     ensureVisible();
@@ -589,7 +700,7 @@ __POSTHOG_HTML__
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
-      const color = touches ? (bId === selected ? "#2f63b7" : "#247a4b") : "#8b7b67";
+      const color = touches ? (bId === selected ? "#555555" : "#777777") : "#b5b5b5";
       const alpha = lowWholeGraph && !touches ? .08 : touches ? .72 : selected && mode.value !== "whole" ? .16 : .11;
       const dx = b.x - a.x;
       const dy = b.y - a.y;
@@ -706,7 +817,7 @@ __POSTHOG_HTML__
   }
   function renderWebGL() {
     gl.viewport(0, 0, webglCanvas.width, webglCanvas.height);
-    gl.clearColor(1, 250 / 255, 240 / 255, 1);
+    gl.clearColor(1, 1, 1, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -739,14 +850,14 @@ __POSTHOG_HTML__
   }
   function renderFallback2d() {
     overlay.clearRect(0, 0, canvasSize.width, canvasSize.height);
-    overlay.fillStyle = "#fffaf0";
+    overlay.fillStyle = "#ffffff";
     overlay.fillRect(0, 0, canvasSize.width, canvasSize.height);
     const lowWholeGraph = currentEdgeAlphaMode() === "thin-whole";
     for (const {aId, bId, a, b} of visibleEdges) {
       const touches = aId === selected || bId === selected;
-      if (lowWholeGraph && !touches) drawEdge2d(a, b, "#8b7b67", .08, .85);
-      else if (touches) drawEdge2d(a, b, bId === selected ? "#2f63b7" : "#247a4b", .72, 1.65);
-      else drawEdge2d(a, b, "#8b7b67", selected && mode.value !== "whole" ? .16 : .11, 1);
+      if (lowWholeGraph && !touches) drawEdge2d(a, b, "#b5b5b5", .08, .85);
+      else if (touches) drawEdge2d(a, b, bId === selected ? "#555555" : "#777777", .72, 1.65);
+      else drawEdge2d(a, b, "#b5b5b5", selected && mode.value !== "whole" ? .16 : .11, 1);
     }
     const focus = selected ? byId.get(selected) : null;
     for (const n of visibleList) {
@@ -766,7 +877,7 @@ __POSTHOG_HTML__
       if (n.id !== selected && n.id !== hover) continue;
       if (n.sx < -30 || n.sy < -30 || n.sx > canvasSize.width + 30 || n.sy > canvasSize.height + 30) continue;
       overlay.globalAlpha = .95;
-      overlay.strokeStyle = "#20170f";
+      overlay.strokeStyle = "#161616";
       overlay.lineWidth = 2;
       overlay.beginPath();
       overlay.arc(n.sx, n.sy, Math.max(1.7, nodeRadius(n) * Math.sqrt(view.scale)), 0, Math.PI * 2);
@@ -775,15 +886,15 @@ __POSTHOG_HTML__
     overlay.globalAlpha = 1;
     const mobileLabels = window.matchMedia("(max-width: 520px)").matches;
     const labelNodes = visibleList.filter(n => n.id === selected || n.id === hover || (!mobileLabels && ((view.scale > .85 && n.in >= 80) || (view.scale > 1.6 && degree(n) >= 18))) || (mobileLabels && view.scale > 2.4 && n.in >= 180)).slice(0, mobileLabels ? 12 : 70);
-    overlay.font = `${mobileLabels ? Math.max(12, 13 * Math.min(1.18, view.scale)) : Math.max(13, 15 * Math.min(1.4, view.scale))}px Palatino, Georgia, serif`;
+    overlay.font = `${mobileLabels ? Math.max(12, 13 * Math.min(1.18, view.scale)) : Math.max(13, 15 * Math.min(1.4, view.scale))}px Source Sans Pro, sans-serif`;
     overlay.textBaseline = "middle";
     for (const n of labelNodes) {
       if (n.sx < -80 || n.sy < -50 || n.sx > canvasSize.width + 80 || n.sy > canvasSize.height + 50) continue;
       const text = n.name || n.slug;
       overlay.lineWidth = 4;
-      overlay.strokeStyle = "rgba(255,250,240,.9)";
+      overlay.strokeStyle = "rgba(255,255,255,.92)";
       overlay.strokeText(text, n.sx + nodeRadius(n) * Math.sqrt(view.scale) + 4, n.sy);
-      overlay.fillStyle = "#20170f";
+      overlay.fillStyle = "#161616";
       overlay.fillText(text, n.sx + nodeRadius(n) * Math.sqrt(view.scale) + 4, n.sy);
     }
   }
@@ -3051,14 +3162,14 @@ def self_test() -> None:
         how_html = how_out.read_text(encoding="utf-8")
         assert graph["metrics"]["counts"] == {"nodes": 4, "edges": 4}
         assert graph["metrics"]["reciprocalEdges"] == 2
-        assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Palatino" in graph_html
-        assert 'getContext("webgl", {alpha: false' in graph_html and "gl.clearColor(1, 250 / 255, 240 / 255, 1)" in graph_html
+        assert "graph-data" in graph_html and "webglCanvas" in graph_html and "graph-canvas" in graph_html and "Source Sans Pro" in graph_html
+        assert 'getContext("webgl", {alpha: false' in graph_html and "gl.clearColor(1, 1, 1, 1)" in graph_html
         assert "const EDGE_LINE_WIDTH = 1.4" in graph_html and "gl.drawArrays(gl.TRIANGLES, 0, edgeVertexCount)" in graph_html
-        assert ".canvas-wrap.sheet { border: 0;" in graph_html and ".graph-canvas { position: relative; display: block; width: 100%; height: 100%; min-height: 0; border-radius: 10px; cursor: grab; overflow: hidden; background: #fffaf0;" in graph_html
-        assert 'overlay.fillStyle = "#fffaf0"' in graph_html and "body { background: var(--paper); }" in graph_html
+        assert ".canvas-wrap.sheet { border: 1px solid var(--rule); border-radius: 0; background: #fff; }" in graph_html and ".graph-canvas canvas { border-radius: 0; }" in graph_html
+        assert 'overlay.fillStyle = "#ffffff"' in graph_html and "background: #fff;" in graph_html
         assert "The Curius Follower Graph" in graph_html and "The social network from" in graph_html and "https://curius.app" in graph_html and "about.html" in graph_html
         assert "posthog.init" in graph_html and "phc_lwrp8rJxreMnGicmxPIe8YksCzEnpjdZJKTG5Tn3Nps" in graph_html
-        assert ".graph-hero { text-align: left" in graph_html and "curius-links.thite.site" not in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
+        assert ".graph-topbar { display: flex;" in graph_html and 'href="https://front.example/index.html"' in graph_html and "min-filter" in graph_html and "Min followers" in graph_html
         assert "Each dot is a Curius user" not in graph_html and "school" not in graph_html
         assert "safeExternalUrl" in graph_html and "profile-links" in graph_html
         assert "const activePointers = new Map()" in graph_html and "function startPinch()" in graph_html and "function updatePinch()" in graph_html
@@ -3085,8 +3196,8 @@ def self_test() -> None:
         assert "data-kind" not in frontpage_html and "highlights:popular" not in frontpage_html
         assert "S<sub>link</sub>" in how_html and "About this list" in how_html and "Scope" in how_html
         assert analysis_html.count('<nav class="nav') == 3
-        assert analysis_html.count('href="about.html"') == 3 and analysis_html.count("About") >= 4
-        assert 'href="https://front.example/index.html"' not in analysis_html
+        assert analysis_html.count('href="about.html"') == 4 and analysis_html.count("About") >= 4
+        assert 'href="https://front.example/index.html"' in graph_html
         payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
         assert payload["views"]["newest"][0]["id"] == 10
         assert payload["views"]["popular"][0]["score"] >= payload["views"]["popular"][-1]["score"]
