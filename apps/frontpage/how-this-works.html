@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How this works — Curius Front Page</title>
+<meta name="description" content="How Curius Links orders public saves and highlights.">
+<meta name="theme-color" content="#f7f0e4">
+<title>About Curius Links</title>
 <style>
 
   :root {
@@ -106,58 +108,73 @@
     table { font-size: .9rem; }
   }
 
-  .article { max-width: 860px; }
-  .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: .8rem 0; }
-  .note-card { padding: 1rem; }
-  .note-card h3 { margin-top: 0; }
-  .terms, .references { list-style: none; padding: 0; margin: .5rem 0 0; }
-  .terms li, .references li { margin: .42rem 0; }
+  .page { width: min(760px, 100%); }
+  .topbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
+  .back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .94rem; text-decoration: none; }
+  .back-link:hover, .back-link:focus-visible { text-decoration: underline; text-underline-offset: .16em; }
+  .graph-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: .86rem; }
+  .article { padding: clamp(1.6rem, 5vw, 3.4rem) 0 2rem; }
+  .eyebrow { margin: 0 0 .5rem; color: var(--muted); font-size: .84rem; letter-spacing: .09em; text-transform: uppercase; }
+  .article h1 { margin-bottom: .55rem; font-size: clamp(2.35rem, 7vw, 4.2rem); }
+  .lede { max-width: 39ch; margin: 0; font-size: clamp(1.12rem, 2.4vw, 1.42rem); line-height: 1.42; }
+  .article section { margin-top: clamp(2rem, 5vw, 3.3rem); }
+  .article h2 { margin: 0 0 .55rem; font-size: clamp(1.45rem, 4vw, 2rem); }
+  .article p + p { margin-top: .9rem; }
+  .formula-card { margin: 1.1rem 0 0; padding: clamp(1rem, 3vw, 1.35rem); }
+  .formula-card h3 { margin: 0; font-size: 1rem; }
+  .formula-card .math { margin: .65rem 0; }
+  .detail-list { list-style: none; padding: 0; margin: 1rem 0 0; border-top: 1px solid var(--rule); }
+  .detail-list li { padding: .72rem 0; border-bottom: 1px solid var(--rule); }
+  .detail-list strong { display: inline-block; min-width: 7.5rem; font-weight: 600; }
+  .source-note { color: var(--muted); font-size: .94rem; }
+  @media (max-width: 520px) {
+    .topbar { padding-bottom: .8rem; }
+    .article { padding-top: 1.8rem; }
+    .detail-list strong { display: block; margin-bottom: .08rem; }
+  }
 </style>
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="https://curius-analysis.pages.dev/index.html">follower graph</a><a href="https://curius-analysis.pages.dev/metrics.html">metrics</a><a href="https://curius-analysis.pages.dev/algorithms.html">algorithms</a><a href="https://curius-analysis.pages.dev/about.html">about</a></nav>
+  <header class="topbar"><a class="back-link" href="index.html">← Curius Links</a><a class="graph-link" href="https://curius-graph.thite.site/index.html">Follower graph</a></header>
   <main class="article">
-    <h1>How this works</h1>
-    <p>Curius Front Page ranks public saves and highlights from the local Curius crawl. The page shows two kinds of rows: saved links and repeated highlighted passages.</p>
+    <p class="eyebrow">Curius Links</p>
+    <h1>About this list</h1>
+    <p class="lede">A quiet, public view of the links Curius readers save, return to, and mark up.</p>
 
-    <h2>What the toggles do</h2>
-    <ol>
-      <li><b>Links</b> show saved URLs with title, domain, save counts, highlight counts, and age.</li>
-      <li><b>Highlights</b> show repeated quoted text, source link, reader/repeat counts, latest user, and age.</li>
-      <li><b>Popular</b> sorts by score; <b>newest</b> sorts links by latest save/highlight time and leaves score as context.</li>
-    </ol>
+    <section>
+      <h2>What appears here</h2>
+      <p>Each row is one saved link from the public Curius crawl. Its title opens the original source. The line beneath it shows the activity Curius has seen around that link and when it was last active.</p>
+      <ul class="detail-list">
+        <li><strong>Popular</strong>orders links by the activity score below.</li>
+        <li><strong>Newest</strong>orders them by their most recent save or highlight activity.</li>
+        <li><strong>Points</strong>give a compact signal of attention, not a judgment of quality.</li>
+      </ul>
+    </section>
 
-    <h2>Popularity score</h2>
-    <div class="formula-grid">
-      <section class="sheet note-card">
-        <h3>Links</h3>
+    <section>
+      <h2>How links are ranked</h2>
+      <p>Popularity favors activity shared across people, while still crediting the total number of highlights.</p>
+      <div class="sheet formula-card">
+        <h3>Link score</h3>
         <div class="math">S<sub>link</sub> = 3u<sub>save</sub> + 5u<sub>mark</sub> + h</div>
-        <p><code>u<sub>save</sub></code> is distinct savers, <code>u<sub>mark</sub></code> is distinct readers who highlighted the link, and <code>h</code> is total highlights.</p>
-      </section>
-      <section class="sheet note-card">
-        <h3>Highlights</h3>
-        <div class="math">S<sub>quote</sub> = 4u<sub>reader</sub> + r</div>
-        <p><code>u<sub>reader</sub></code> is distinct readers behind the same quote on the same link, and <code>r</code> is repeat count.</p>
-      </section>
-    </div>
+        <p><code>u<sub>save</sub></code> is the number of distinct savers, <code>u<sub>mark</sub></code> is the number of distinct readers who highlighted the link, and <code>h</code> is the total number of highlights.</p>
+      </div>
+    </section>
 
-    <h2>How to read a row</h2>
-    <p>The title line opens the source. The small line says how many distinct readers touched it, how many marks were left, and when Curius last saw save/highlight activity for it.</p>
+    <section>
+      <h2>A few terms</h2>
+      <ul class="detail-list">
+        <li><strong>Saver</strong>a distinct Curius reader who saved the link.</li>
+        <li><strong>Reader marked it</strong>a distinct reader who made at least one highlight on the link.</li>
+        <li><strong>Highlight</strong>a saved passage associated with the link.</li>
+      </ul>
+    </section>
 
-    <h2>Glossary</h2>
-    <ul class="terms">
-      <li><code>points</code> — the current popularity score for the active row type.</li>
-      <li><code>saver</code> — a distinct Curius user who saved a link.</li>
-      <li><code>reader</code> — a distinct Curius user who made a matching highlight.</li>
-      <li><code>repeat</code> — another copy of the same highlighted passage on the same link.</li>
-    </ul>
-
-    <h2>References</h2>
-    <ol class="references">
-      <li>Hacker News API. Lists the compact story fields this page echoes.</li>
-      <li>SQLite aggregate functions. Gives <code>count</code> and <code>count(distinct ...)</code>, which produce the local evidence counts <a class="cite" href="https://www.sqlite.org/lang_aggfunc.html" target="_blank" rel="noreferrer" title="Documents SQLite aggregate counts used to build the feed.">SQLite</a>.</li>
-    </ol>
+    <section>
+      <h2>Scope</h2>
+      <p class="source-note">This is a generated snapshot of public Curius activity. Counts can change as the crawl refreshes, and a link’s position is only a reflection of the activity visible in that snapshot.</p>
+    </section>
   </main>
 </div>
 </body>
