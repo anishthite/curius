@@ -1660,56 +1660,58 @@ FRONTPAGE_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Curius Front Page</title>
+<meta name="description" content="A live list of links Curius readers are saving and returning to.">
+<meta name="theme-color" content="#f7f0e4">
+<title>Curius Links</title>
 <style>
 __PAPER_CSS__
-  .intro { max-width: 76ch; }
-  .more-banner { display: flex; width: fit-content; gap: .42rem; flex-wrap: wrap; justify-content: center; align-items: baseline; margin: 0 auto 1rem; padding: .34rem .66rem; border: 1px solid var(--rule); border-radius: 999px; background: rgba(255, 250, 240, .78); color: var(--muted); font-size: .92rem; }
-  .more-banner a { color: var(--ink); }
-  .front-controls { display: flex; gap: .55rem; flex-wrap: wrap; align-items: center; margin: 1rem 0 1.15rem; }
-  .front-controls button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
-  .feed-head { border-bottom: 1px solid var(--rule); padding-bottom: .6rem; margin-bottom: .45rem; }
-  .feed-head h2 { margin: 0 0 .25rem; }
+  .page { width: min(840px, 100%); padding-top: clamp(16px, 3vw, 30px); }
+  .site-header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 0 0 1.1rem; border-bottom: 1px solid var(--rule); }
+  .wordmark { color: var(--ink); font-size: 1.28rem; font-weight: 600; letter-spacing: -.035em; text-decoration: none; }
+  .site-nav { display: flex; gap: .95rem; align-items: center; font-size: .9rem; }
+  .site-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); text-decoration: none; }
+  .site-nav a:hover, .site-nav a:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: .16em; }
+  .feed-toolbar { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; margin: 1.45rem 0 .55rem; }
+  .feed-toolbar h1 { margin: 0; font-size: clamp(1.65rem, 4vw, 2.1rem); }
+  .sort-controls { display: flex; gap: .25rem; padding: .2rem; border: 1px solid var(--rule); border-radius: 999px; background: rgba(255, 250, 240, .7); }
+  .sort-controls button { min-height: 32px; padding: .18rem .62rem; border: 0; background: transparent; color: var(--muted); font-size: .86rem; }
+  .sort-controls button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--sheet); }
+  .sort-controls button:hover:not([aria-pressed="true"]) { color: var(--ink); background: rgba(32, 23, 15, .06); }
   .hn-list { list-style: none; padding: 0; margin: 0; counter-reset: feed; }
-  .hn-item { counter-increment: feed; display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); gap: .55rem; padding: .72rem 0 .78rem; border-bottom: 1px solid var(--rule); }
-  .hn-item::before { content: counter(feed) "."; color: var(--muted); text-align: right; padding-top: .08rem; }
-  .story-title { display: flex; gap: .35rem; flex-wrap: wrap; align-items: baseline; font-size: 1.08rem; line-height: 1.25; }
+  .hn-item { counter-increment: feed; display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); gap: .7rem; padding: 1rem 0 1.05rem; border-bottom: 1px solid var(--rule); }
+  .hn-item::before { content: counter(feed, decimal-leading-zero); color: var(--muted); font-size: .8rem; letter-spacing: .04em; text-align: right; padding-top: .22rem; }
+  .story-title { display: flex; gap: .42rem; flex-wrap: wrap; align-items: baseline; font-size: clamp(1.06rem, 2vw, 1.18rem); line-height: 1.25; }
   .story-title a { color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
-  .story-title a:hover { text-decoration: underline; text-underline-offset: .16em; }
-  .domain, .subtext { color: var(--muted); font-size: .92rem; }
-  .subtext { margin-top: .16rem; }
-  .snippet { color: var(--muted); margin: .38rem 0 0; font-size: .96rem; overflow-wrap: anywhere; }
-  blockquote.quote { margin: .05rem 0 .34rem; padding: 0 0 0 .7rem; border-left: 3px solid var(--rule); font-size: 1.04rem; overflow-wrap: anywhere; }
+  .story-title a:hover, .story-title a:focus-visible { color: var(--blue); text-decoration: underline; text-underline-offset: .16em; }
+  .domain { color: var(--muted); font-size: .82rem; overflow-wrap: anywhere; }
+  .subtext { margin-top: .25rem; color: var(--muted); font-size: .84rem; }
+  .snippet { color: #514538; margin: .42rem 0 0; font-size: .92rem; line-height: 1.38; overflow-wrap: anywhere; }
   .empty { color: var(--muted); padding: 1rem 0; }
-  [hidden] { display: none !important; }
-  @media (max-width: 860px) {
-    .hn-item { grid-template-columns: 1.85rem minmax(0, 1fr); gap: .45rem; }
-  }
   @media (max-width: 520px) {
-    .more-banner { align-items: center; border-radius: 14px; padding: .26rem .58rem; }
-    .more-banner > span:first-child { flex-basis: 100%; text-align: center; }
-    .more-banner a { display: inline-flex; align-items: center; min-height: 44px; }
-    .front-controls { display: grid; grid-template-columns: max-content max-content; align-items: center; gap: .55rem; }
-    .front-controls span[aria-hidden="true"] { display: none; }
+    .page { padding-top: 14px; }
+    .site-header { padding-bottom: .8rem; }
+    .site-nav { gap: .7rem; font-size: .82rem; }
+    .feed-toolbar { margin-top: 1rem; align-items: center; }
+    .hn-item { grid-template-columns: 1.55rem minmax(0, 1fr); gap: .5rem; padding: .88rem 0 .93rem; }
+    .hn-item::before { font-size: .7rem; padding-top: .28rem; }
+    .domain { flex-basis: 100%; }
   }
 </style>
 </head>
 <body>
 <div class="page">
-  <aside class="more-banner" aria-label="More Curius things"><span>__FRONTPAGE_SEE_MORE_LABEL__</span><a href="how-this-works.html">how this works</a><span aria-hidden="true">·</span><a href="__ANALYSIS_ABOUT_URL__">about the graph</a><span aria-hidden="true">·</span><a href="__ANALYSIS_INDEX_URL__">follower graph</a></aside>
-  <h1>Curius Front Page</h1>
-  <p class="intro">__FRONTPAGE_SUBHEADER__</p>
-
-  <section class="front-controls" aria-label="Feed controls">
-    <button type="button" data-kind="links" aria-pressed="true">Links</button>
-    <button type="button" data-kind="highlights" aria-pressed="false">Highlights</button>
-    <span aria-hidden="true">·</span>
-    <button type="button" data-sort="popular" aria-pressed="true">popular</button>
-    <button type="button" data-sort="newest" aria-pressed="false">newest</button>
-  </section>
-
-  <main>
-    <section id="feed-head" class="feed-head" aria-live="polite">__FRONTPAGE_HEAD_HTML__</section>
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Curius Links home">Curius</a>
+    <nav class="site-nav" aria-label="Curius links navigation"><a href="how-this-works.html">About</a><a href="__ANALYSIS_INDEX_URL__">Graph</a></nav>
+  </header>
+  <main aria-label="Curius link feed">
+    <div class="feed-toolbar">
+      <h1 id="feed-heading" aria-live="polite">Popular links</h1>
+      <div class="sort-controls" aria-label="Sort links">
+        <button type="button" data-sort="popular" aria-pressed="true">Popular</button>
+        <button type="button" data-sort="newest" aria-pressed="false">Newest</button>
+      </div>
+    </div>
     <ol id="feed" class="hn-list">__FRONTPAGE_FEED_HTML__</ol>
   </main>
 </div>
@@ -1720,12 +1722,11 @@ __PAPER_CSS__
   const data = JSON.parse(document.getElementById("frontpage-data").textContent);
   const generatedAt = Date.parse(data.generatedAt) || Date.now();
   const feed = document.getElementById("feed");
-  const feedHead = document.getElementById("feed-head");
-  const kindButtons = document.querySelectorAll("[data-kind]");
+  const feedHeading = document.getElementById("feed-heading");
   const sortButtons = document.querySelectorAll("[data-sort]");
-  const state = {kind: "links", sort: "popular"};
+  const state = {sort: "popular"};
   const views = data.views || buildViews(data);
-  let currentKey = `${state.kind}:${state.sort}`;
+  let currentSort = "popular";
 
   function text(tag, className, value) {
     const node = document.createElement(tag);
@@ -1744,45 +1745,24 @@ __PAPER_CSS__
     }
     return "just now";
   }
-  function score(kind, item) {
+  function score(item) {
     if (Number.isFinite(item.score)) return item.score;
-    if (kind === "links") return 3 * item.savers + 5 * item.highlighters + item.highlights;
-    return 4 * item.readers + item.repeats;
+    return 3 * item.savers + 5 * item.highlighters + item.highlights;
   }
   function buildViews(source) {
-    const result = {};
-    for (const kind of ["links", "highlights"]) {
-      const rows = (source[kind] || []).map(item => ({...item, score: score(kind, item), createdAtMs: Date.parse(item.createdAt || "") || 0}));
-      result[`${kind}:popular`] = rows.slice().sort((a, b) => b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50);
-      result[`${kind}:newest`] = rows.slice().sort((a, b) => b.createdAtMs - a.createdAtMs || b.score - a.score).slice(0, 50);
-    }
-    return result;
-  }
-  function renderHead(items) {
-    feedHead.replaceChildren();
-    const h = text("h2", "", `${state.sort === "popular" ? "Popular" : "Newest"} ${state.kind}`);
-    const p = text("p", "quiet", state.sort === "popular"
-      ? `Sorted by score. ${items.length.toLocaleString()} rows are shown from the generated sample.`
-      : `Sorted by latest save or highlight time. Score remains visible, but it does not move the row.`);
-    feedHead.append(h, p);
+    const rows = (source.links || []).map(item => ({...item, score: score(item), createdAtMs: Date.parse(item.createdAt || "") || 0}));
+    return {
+      popular: rows.slice().sort((a, b) => b.score - a.score || b.createdAtMs - a.createdAtMs).slice(0, 50),
+      newest: rows.slice().sort((a, b) => b.createdAtMs - a.createdAtMs || b.score - a.score).slice(0, 50),
+    };
   }
   function renderLink(item, body) {
     const title = text("div", "story-title");
     const a = text("a", "", item.title || item.url);
     a.href = item.url; a.target = "_blank"; a.rel = "noreferrer";
     title.append(a, text("span", "domain", `(${item.domain})`));
-    body.append(title, text("div", "subtext", `${Math.round(score("links", item)).toLocaleString()} points · ${plural(item.savers, "saver")} · ${plural(item.highlighters, "reader")} marked it · ${plural(item.highlights, "highlight")} · ${age(item.createdAt)}`));
+    body.append(title, text("div", "subtext", `${Math.round(score(item)).toLocaleString()} points · ${plural(item.savers, "saver")} · ${plural(item.highlighters, "reader")} marked it · ${plural(item.highlights, "highlight")} · ${age(item.createdAt)}`));
     if (item.snippet) body.append(text("p", "snippet", item.snippet));
-  }
-  function renderHighlight(item, body) {
-    body.append(text("blockquote", "quote", item.quote));
-    const title = text("div", "story-title");
-    const a = text("a", "", item.title || item.url);
-    a.href = item.url; a.target = "_blank"; a.rel = "noreferrer";
-    title.append(a, text("span", "domain", `(${item.domain})`));
-    const user = item.user ? ` · latest by ${item.user}` : "";
-    body.append(title, text("div", "subtext", `${Math.round(score("highlights", item)).toLocaleString()} points · ${plural(item.readers, "reader")} · ${plural(item.repeats, "repeat")} · ${age(item.createdAt)}${user}`));
-    if (item.context) body.append(text("p", "snippet", item.context));
   }
   function renderFeed(items) {
     if (!items.length) {
@@ -1793,24 +1773,21 @@ __PAPER_CSS__
     for (const item of items) {
       const li = text("li", "hn-item");
       const body = text("div", "");
-      if (state.kind === "links") renderLink(item, body); else renderHighlight(item, body);
+      renderLink(item, body);
       li.append(body);
       fragment.append(li);
     }
     feed.replaceChildren(fragment);
   }
   function render() {
-    kindButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.kind === state.kind)));
     sortButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.sort === state.sort)));
-    const key = `${state.kind}:${state.sort}`;
-    if (key === currentKey) return;
-    currentKey = key;
-    const items = views[key] || [];
-    renderHead(items);
+    if (state.sort === currentSort) return;
+    currentSort = state.sort;
+    const items = views[state.sort] || [];
+    feedHeading.textContent = `${state.sort === "popular" ? "Popular" : "Newest"} links`;
     renderFeed(items);
   }
 
-  kindButtons.forEach(button => button.addEventListener("click", () => { state.kind = button.dataset.kind; render(); }));
   sortButtons.forEach(button => button.addEventListener("click", () => { state.sort = button.dataset.sort; render(); }));
 })();
 </script>
@@ -1823,61 +1800,78 @@ HOW_THIS_WORKS_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How this works — Curius Front Page</title>
+<meta name="description" content="How Curius Links orders public saves and highlights.">
+<meta name="theme-color" content="#f7f0e4">
+<title>About Curius Links</title>
 <style>
 __PAPER_CSS__
-  .article { max-width: 860px; }
-  .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: .8rem 0; }
-  .note-card { padding: 1rem; }
-  .note-card h3 { margin-top: 0; }
-  .terms, .references { list-style: none; padding: 0; margin: .5rem 0 0; }
-  .terms li, .references li { margin: .42rem 0; }
+  .page { width: min(760px, 100%); }
+  .topbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule); }
+  .back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .94rem; text-decoration: none; }
+  .back-link:hover, .back-link:focus-visible { text-decoration: underline; text-underline-offset: .16em; }
+  .graph-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: .86rem; }
+  .article { padding: clamp(1.6rem, 5vw, 3.4rem) 0 2rem; }
+  .eyebrow { margin: 0 0 .5rem; color: var(--muted); font-size: .84rem; letter-spacing: .09em; text-transform: uppercase; }
+  .article h1 { margin-bottom: .55rem; font-size: clamp(2.35rem, 7vw, 4.2rem); }
+  .lede { max-width: 39ch; margin: 0; font-size: clamp(1.12rem, 2.4vw, 1.42rem); line-height: 1.42; }
+  .article section { margin-top: clamp(2rem, 5vw, 3.3rem); }
+  .article h2 { margin: 0 0 .55rem; font-size: clamp(1.45rem, 4vw, 2rem); }
+  .article p + p { margin-top: .9rem; }
+  .formula-card { margin: 1.1rem 0 0; padding: clamp(1rem, 3vw, 1.35rem); }
+  .formula-card h3 { margin: 0; font-size: 1rem; }
+  .formula-card .math { margin: .65rem 0; }
+  .detail-list { list-style: none; padding: 0; margin: 1rem 0 0; border-top: 1px solid var(--rule); }
+  .detail-list li { padding: .72rem 0; border-bottom: 1px solid var(--rule); }
+  .detail-list strong { display: inline-block; min-width: 7.5rem; font-weight: 600; }
+  .source-note { color: var(--muted); font-size: .94rem; }
+  @media (max-width: 520px) {
+    .topbar { padding-bottom: .8rem; }
+    .article { padding-top: 1.8rem; }
+    .detail-list strong { display: block; margin-bottom: .08rem; }
+  }
 </style>
 </head>
 <body>
 <div class="page">
-  <nav class="nav"><a href="index.html">Curius Front Page</a><a href="__ANALYSIS_INDEX_URL__">follower graph</a><a href="__ANALYSIS_METRICS_URL__">metrics</a><a href="__ANALYSIS_ALGORITHMS_URL__">algorithms</a><a href="__ANALYSIS_ABOUT_URL__">about</a></nav>
+  <header class="topbar"><a class="back-link" href="index.html">← Curius Links</a><a class="graph-link" href="__ANALYSIS_INDEX_URL__">Follower graph</a></header>
   <main class="article">
-    <h1>How this works</h1>
-    <p>Curius Front Page ranks public saves and highlights from the local Curius crawl. The page shows two kinds of rows: saved links and repeated highlighted passages.</p>
+    <p class="eyebrow">Curius Links</p>
+    <h1>About this list</h1>
+    <p class="lede">A quiet, public view of the links Curius readers save, return to, and mark up.</p>
 
-    <h2>What the toggles do</h2>
-    <ol>
-      <li><b>Links</b> show saved URLs with title, domain, save counts, highlight counts, and age.</li>
-      <li><b>Highlights</b> show repeated quoted text, source link, reader/repeat counts, latest user, and age.</li>
-      <li><b>Popular</b> sorts by score; <b>newest</b> sorts links by latest save/highlight time and leaves score as context.</li>
-    </ol>
+    <section>
+      <h2>What appears here</h2>
+      <p>Each row is one saved link from the public Curius crawl. Its title opens the original source. The line beneath it shows the activity Curius has seen around that link and when it was last active.</p>
+      <ul class="detail-list">
+        <li><strong>Popular</strong>orders links by the activity score below.</li>
+        <li><strong>Newest</strong>orders them by their most recent save or highlight activity.</li>
+        <li><strong>Points</strong>give a compact signal of attention, not a judgment of quality.</li>
+      </ul>
+    </section>
 
-    <h2>Popularity score</h2>
-    <div class="formula-grid">
-      <section class="sheet note-card">
-        <h3>Links</h3>
+    <section>
+      <h2>How links are ranked</h2>
+      <p>Popularity favors activity shared across people, while still crediting the total number of highlights.</p>
+      <div class="sheet formula-card">
+        <h3>Link score</h3>
         <div class="math">S<sub>link</sub> = 3u<sub>save</sub> + 5u<sub>mark</sub> + h</div>
-        <p><code>u<sub>save</sub></code> is distinct savers, <code>u<sub>mark</sub></code> is distinct readers who highlighted the link, and <code>h</code> is total highlights.</p>
-      </section>
-      <section class="sheet note-card">
-        <h3>Highlights</h3>
-        <div class="math">S<sub>quote</sub> = 4u<sub>reader</sub> + r</div>
-        <p><code>u<sub>reader</sub></code> is distinct readers behind the same quote on the same link, and <code>r</code> is repeat count.</p>
-      </section>
-    </div>
+        <p><code>u<sub>save</sub></code> is the number of distinct savers, <code>u<sub>mark</sub></code> is the number of distinct readers who highlighted the link, and <code>h</code> is the total number of highlights.</p>
+      </div>
+    </section>
 
-    <h2>How to read a row</h2>
-    <p>The title line opens the source. The small line says how many distinct readers touched it, how many marks were left, and when Curius last saw save/highlight activity for it.</p>
+    <section>
+      <h2>A few terms</h2>
+      <ul class="detail-list">
+        <li><strong>Saver</strong>a distinct Curius reader who saved the link.</li>
+        <li><strong>Reader marked it</strong>a distinct reader who made at least one highlight on the link.</li>
+        <li><strong>Highlight</strong>a saved passage associated with the link.</li>
+      </ul>
+    </section>
 
-    <h2>Glossary</h2>
-    <ul class="terms">
-      <li><code>points</code> — the current popularity score for the active row type.</li>
-      <li><code>saver</code> — a distinct Curius user who saved a link.</li>
-      <li><code>reader</code> — a distinct Curius user who made a matching highlight.</li>
-      <li><code>repeat</code> — another copy of the same highlighted passage on the same link.</li>
-    </ul>
-
-    <h2>References</h2>
-    <ol class="references">
-      <li>Hacker News API. Lists the compact story fields this page echoes.</li>
-      <li>SQLite aggregate functions. Gives <code>count</code> and <code>count(distinct ...)</code>, which produce the local evidence counts <a class="cite" href="https://www.sqlite.org/lang_aggfunc.html" target="_blank" rel="noreferrer" title="Documents SQLite aggregate counts used to build the feed.">SQLite</a>.</li>
-    </ol>
+    <section>
+      <h2>Scope</h2>
+      <p class="source-note">This is a generated snapshot of public Curius activity. Counts can change as the crawl refreshes, and a link’s position is only a reflection of the activity visible in that snapshot.</p>
+    </section>
   </main>
 </div>
 </body>
@@ -1915,18 +1909,6 @@ def domain_for(url: str) -> str:
     return domain.lower().removeprefix("www.") or "link"
 
 
-def context_text(left: Any, right: Any) -> str:
-    left_text = compact_text(left, 120)
-    right_text = compact_text(right, 120)
-    if left_text and right_text:
-        return f"…{left_text} […] {right_text}…"
-    if left_text:
-        return f"…{left_text}"
-    if right_text:
-        return f"{right_text}…"
-    return ""
-
-
 def parse_datetime(value: Any) -> datetime | None:
     text = str(value or "").strip()
     if not text:
@@ -1937,27 +1919,25 @@ def parse_datetime(value: Any) -> datetime | None:
         return None
 
 
-def frontpage_score(kind: str, item: dict[str, Any]) -> int:
+def frontpage_score(item: dict[str, Any]) -> int:
     if isinstance(item.get("score"), int):
         return item["score"]
-    if kind == "links":
-        return 3 * int(item.get("savers") or 0) + 5 * int(item.get("highlighters") or 0) + int(item.get("highlights") or 0)
-    return 4 * int(item.get("readers") or 0) + int(item.get("repeats") or 0)
+    return 3 * int(item.get("savers") or 0) + 5 * int(item.get("highlighters") or 0) + int(item.get("highlights") or 0)
 
 
 def frontpage_views(payload: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
-    views: dict[str, list[dict[str, Any]]] = {}
-    for kind in ("links", "highlights"):
-        rows = []
-        for item in payload.get(kind, []):
-            row = dict(item)
-            row["score"] = frontpage_score(kind, row)
-            created = parse_datetime(row.get("createdAt"))
-            row["createdAtMs"] = int(created.timestamp() * 1000) if created else 0
-            rows.append(row)
-        views[f"{kind}:popular"] = sorted(rows, key=lambda item: (item["score"], item["createdAtMs"]), reverse=True)[:50]
-        views[f"{kind}:newest"] = sorted(rows, key=lambda item: (item["createdAtMs"], item["score"]), reverse=True)[:50]
-    return views
+    """Return the two small, client-side views used by the links-only front page."""
+    rows = []
+    for item in payload.get("links", []):
+        row = dict(item)
+        row["score"] = frontpage_score(row)
+        created = parse_datetime(row.get("createdAt"))
+        row["createdAtMs"] = int(created.timestamp() * 1000) if created else 0
+        rows.append(row)
+    return {
+        "popular": sorted(rows, key=lambda item: (item["score"], item["createdAtMs"]), reverse=True)[:50],
+        "newest": sorted(rows, key=lambda item: (item["createdAtMs"], item["score"]), reverse=True)[:50],
+    }
 
 
 def plural(value: int, word: str) -> str:
@@ -1977,51 +1957,30 @@ def frontpage_age(iso: Any, generated_at: Any) -> str:
     return "just now"
 
 
-def render_frontpage_head(kind: str, sort: str, count: int) -> str:
-    title = f"{'Popular' if sort == 'popular' else 'Newest'} {kind}"
-    if sort == "popular":
-        note = f"Sorted by score. {count:,} rows are shown from the generated sample."
-    else:
-        note = "Sorted by latest save or highlight time. Score remains visible, but it does not move the row."
-    return f"<h2>{html.escape(title)}</h2><p class=\"quiet\">{html.escape(note)}</p>"
-
-
-def render_frontpage_row(kind: str, item: dict[str, Any], generated_at: Any) -> str:
+def render_frontpage_row(item: dict[str, Any], generated_at: Any) -> str:
     domain = html.escape(str(item.get("domain") or "link"))
     url = html.escape(str(item.get("url") or "#"), quote=True)
     title = html.escape(str(item.get("title") or item.get("url") or "Untitled"))
     age = html.escape(frontpage_age(item.get("createdAt"), generated_at))
-    score = f"{frontpage_score(kind, item):,}"
-    if kind == "links":
-        subtext = (
-            f"{score} points · {plural(int(item.get('savers') or 0), 'saver')} · "
-            f"{plural(int(item.get('highlighters') or 0), 'reader')} marked it · "
-            f"{plural(int(item.get('highlights') or 0), 'highlight')} · {age}"
-        )
-        snippet = html.escape(str(item.get("snippet") or ""))
-        snippet_html = f"<p class=\"snippet\">{snippet}</p>" if snippet else ""
-        body = (
-            f"<div class=\"story-title\"><a href=\"{url}\" target=\"_blank\" rel=\"noreferrer\">{title}</a>"
-            f"<span class=\"domain\">({domain})</span></div><div class=\"subtext\">{html.escape(subtext)}</div>{snippet_html}"
-        )
-    else:
-        quote = html.escape(str(item.get("quote") or ""))
-        user = f" · latest by {item['user']}" if item.get("user") else ""
-        subtext = f"{score} points · {plural(int(item.get('readers') or 0), 'reader')} · {plural(int(item.get('repeats') or 0), 'repeat')} · {age}{user}"
-        context = html.escape(str(item.get("context") or ""))
-        context_html = f"<p class=\"snippet\">{context}</p>" if context else ""
-        body = (
-            f"<blockquote class=\"quote\">{quote}</blockquote><div class=\"story-title\">"
-            f"<a href=\"{url}\" target=\"_blank\" rel=\"noreferrer\">{title}</a><span class=\"domain\">({domain})</span></div>"
-            f"<div class=\"subtext\">{html.escape(subtext)}</div>{context_html}"
-        )
+    score = f"{frontpage_score(item):,}"
+    subtext = (
+        f"{score} points · {plural(int(item.get('savers') or 0), 'saver')} · "
+        f"{plural(int(item.get('highlighters') or 0), 'reader')} marked it · "
+        f"{plural(int(item.get('highlights') or 0), 'highlight')} · {age}"
+    )
+    snippet = html.escape(str(item.get("snippet") or ""))
+    snippet_html = f"<p class=\"snippet\">{snippet}</p>" if snippet else ""
+    body = (
+        f"<div class=\"story-title\"><a href=\"{url}\" target=\"_blank\" rel=\"noreferrer\">{title}</a>"
+        f"<span class=\"domain\">({domain})</span></div><div class=\"subtext\">{html.escape(subtext)}</div>{snippet_html}"
+    )
     return f"<li class=\"hn-item\"><div>{body}</div></li>"
 
 
-def render_frontpage_feed(kind: str, rows: list[dict[str, Any]], generated_at: Any) -> str:
+def render_frontpage_feed(rows: list[dict[str, Any]], generated_at: Any) -> str:
     if not rows:
         return "<li class=\"empty\">No rows in this generated sample.</li>"
-    return "".join(render_frontpage_row(kind, item, generated_at) for item in rows)
+    return "".join(render_frontpage_row(item, generated_at) for item in rows)
 
 
 def load_frontpage(db_path: Path, limit: int = 160) -> dict[str, Any]:
@@ -2029,13 +1988,11 @@ def load_frontpage(db_path: Path, limit: int = 160) -> dict[str, Any]:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA query_only = ON")
     links = load_frontpage_links(conn, limit)
-    highlights = load_frontpage_highlights(conn, limit)
     conn.close()
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "source": str(db_path),
         "links": links,
-        "highlights": highlights,
     }
 
 
@@ -2111,83 +2068,6 @@ def load_frontpage_links(conn: sqlite3.Connection, limit: int) -> list[dict[str,
                 "highlighters": int(row["highlighters"]),
                 "score": int(row["score"]),
             })
-    return list(rows.values())
-
-
-def load_frontpage_highlights(conn: sqlite3.Connection, limit: int) -> list[dict[str, Any]]:
-    clean = """
-        WITH clean AS (
-            SELECT h.highlight_id, h.user_id, h.link_id,
-                   trim(replace(replace(coalesce(nullif(h.highlight_text, ''), nullif(h.raw_highlight, ''), ''), char(10), ' '), char(13), ' ')) AS quote,
-                   h.left_context, h.right_context, h.created_at
-            FROM highlights h
-        )
-    """
-    popular = f"""
-        {clean}, grouped AS (
-            SELECT link_id, quote, count(*) AS repeats, count(DISTINCT user_id) AS readers,
-                   min(created_at) AS first_at, max(created_at) AS created_at,
-                   count(*) + 4 * count(DISTINCT user_id) AS score
-            FROM clean
-            WHERE length(quote) BETWEEN 8 AND 700
-            GROUP BY link_id, quote
-        )
-        SELECT p.highlight_id, g.link_id, g.quote, g.repeats, g.readers, g.score, g.first_at, g.created_at,
-               p.left_context, p.right_context, l.title, l.url, u.user_link
-        FROM grouped g
-        JOIN clean p ON p.highlight_id = (
-            SELECT c2.highlight_id FROM clean c2
-            WHERE c2.link_id = g.link_id AND c2.quote = g.quote
-            ORDER BY c2.created_at DESC, c2.highlight_id DESC LIMIT 1
-        )
-        JOIN links l ON l.link_id = g.link_id
-        LEFT JOIN users u ON u.user_id = p.user_id
-        WHERE l.url IS NOT NULL AND trim(l.url) <> ''
-        ORDER BY g.score DESC, g.created_at DESC
-        LIMIT ?
-    """
-    newest = f"""
-        {clean}
-        SELECT c.highlight_id, c.link_id, c.quote, 1 AS repeats, 1 AS readers, 5 AS score,
-               c.created_at AS first_at, c.created_at, c.left_context, c.right_context,
-               l.title, l.url, u.user_link
-        FROM clean c
-        JOIN links l ON l.link_id = c.link_id
-        LEFT JOIN users u ON u.user_id = c.user_id
-        WHERE length(c.quote) BETWEEN 8 AND 700 AND l.url IS NOT NULL AND trim(l.url) <> ''
-        ORDER BY c.created_at DESC, c.highlight_id DESC
-        LIMIT ?
-    """
-    rows: dict[tuple[int, str], dict[str, Any]] = {}
-    for query in (popular, newest):
-        for row in conn.execute(query, (limit,)):
-            key = (row["link_id"], row["quote"])
-            item = rows.get(key)
-            created = row["created_at"] or ""
-            if item is None:
-                rows[key] = {
-                    "id": row["highlight_id"],
-                    "linkId": row["link_id"],
-                    "quote": compact_text(row["quote"], 460),
-                    "title": compact_text(row["title"] or row["url"], 180),
-                    "url": row["url"],
-                    "domain": domain_for(row["url"]),
-                    "createdAt": created,
-                    "firstAt": row["first_at"] or "",
-                    "readers": int(row["readers"]),
-                    "repeats": int(row["repeats"]),
-                    "score": int(row["score"]),
-                    "user": row["user_link"] or "",
-                    "context": context_text(row["left_context"], row["right_context"]),
-                }
-                continue
-            item["readers"] = max(item["readers"], int(row["readers"]))
-            item["repeats"] = max(item["repeats"], int(row["repeats"]))
-            item["score"] = max(item["score"], int(row["score"]))
-            if created > item["createdAt"]:
-                item["createdAt"] = created
-                item["user"] = row["user_link"] or ""
-                item["context"] = context_text(row["left_context"], row["right_context"])
     return list(rows.values())
 
 
@@ -2970,23 +2850,12 @@ def render_frontpage_html(
     about_copy: dict[str, Any] | None = None,
 ) -> str:
     views = frontpage_views(payload)
-    default_rows = views["links:popular"]
-    copy = about_copy or DEFAULT_ABOUT_COPY
-    script_payload = {
-        "generatedAt": payload["generatedAt"],
-        "source": payload["source"],
-        "views": views,
-    }
+    default_rows = views["popular"]
+    script_payload = {"generatedAt": payload["generatedAt"], "views": views}
     replacements = {
         "__PAPER_CSS__": PAPER_CSS,
         "__ANALYSIS_INDEX_URL__": app_url(analysis_url),
-        "__ANALYSIS_METRICS_URL__": app_url(analysis_url, "metrics.html"),
-        "__ANALYSIS_ALGORITHMS_URL__": app_url(analysis_url, "algorithms.html"),
-        "__ANALYSIS_ABOUT_URL__": app_url(analysis_url, "about.html"),
-        "__FRONTPAGE_SUBHEADER__": copy_text(copy, "frontpage", "subheader"),
-        "__FRONTPAGE_SEE_MORE_LABEL__": copy_text(copy, "frontpage", "seeMoreLabel"),
-        "__FRONTPAGE_HEAD_HTML__": render_frontpage_head("links", "popular", len(default_rows)),
-        "__FRONTPAGE_FEED_HTML__": render_frontpage_feed("links", default_rows, payload["generatedAt"]),
+        "__FRONTPAGE_FEED_HTML__": render_frontpage_feed(default_rows, payload["generatedAt"]),
         "__FRONTPAGE_JSON__": json_script(script_payload),
     }
     out = FRONTPAGE_HTML
@@ -3211,18 +3080,18 @@ def self_test() -> None:
         analysis_html = graph_html + metrics_html + algorithms_html + about_html
         assert "About the Curius graph" in about_html and "Most followed people" in about_html and "Most popular saved-link domains" in about_html
         assert about_html.count('class="bar-chart') == 2 and "In one breath" not in about_html and "questions.html" not in analysis_html
-        assert "frontpage-data" in frontpage_html and "Curius Front Page" in frontpage_html and "See more" in frontpage_html and "about.html" in frontpage_html
-        assert ".more-banner a { display: inline-flex; align-items: center; min-height: 44px; }" in frontpage_html
-        assert ".front-controls { display: grid; grid-template-columns: max-content max-content;" in frontpage_html
-        assert "Small ranking model" not in frontpage_html and "S<sub>link</sub>" in how_html and "How this works" in how_html
+        assert "frontpage-data" in frontpage_html and "Curius Links" in frontpage_html and "Popular links" in frontpage_html
+        assert 'data-sort="popular"' in frontpage_html and 'data-sort="newest"' in frontpage_html
+        assert "data-kind" not in frontpage_html and "highlights:popular" not in frontpage_html
+        assert "S<sub>link</sub>" in how_html and "About this list" in how_html and "Scope" in how_html
         assert analysis_html.count('<nav class="nav') == 3
         assert analysis_html.count('href="about.html"') == 3 and analysis_html.count("About") >= 4
         assert 'href="https://front.example/index.html"' not in analysis_html
         payload = json.loads(re.search(r'<script id="frontpage-data" type="application/json">(.*?)</script>', frontpage_html, re.S).group(1))
-        assert payload["views"]["links:newest"][0]["id"] == 10
-        assert payload["views"]["links:popular"][0]["score"] >= payload["views"]["links:popular"][-1]["score"]
+        assert payload["views"]["newest"][0]["id"] == 10
+        assert payload["views"]["popular"][0]["score"] >= payload["views"]["popular"][-1]["score"]
         assert "<ol id=\"feed\" class=\"hn-list\"><li class=\"hn-item\">" in frontpage_html
-        assert 'href="https://analysis.example/metrics.html"' in frontpage_html + how_html
+        assert 'href="https://analysis.example/index.html"' in frontpage_html + how_html
         assert "ui-sans-serif" not in graph_html + metrics_html + algorithms_html + about_html + frontpage_html + how_html
     print("self-test passed")
 
